@@ -6,6 +6,11 @@ class Ruler {
 
   injectStyles() {
     const styles = `
+      body {
+        background-image: linear-gradient(to right, #e5e5e5 1px, transparent 1px),
+          linear-gradient(to bottom, #e5e5e5 1px, transparent 1px);
+        background-size: 100px 100px;
+      }
       .ruler {
         position: fixed;
         background: rgba(200, 200, 200, 0.2);

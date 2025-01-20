@@ -6,7 +6,7 @@ import { launch } from "../lib/browser";
 
   const page = await context.newPage();
 
-  page.setViewport({ width: 1440, height: 900 });
+  page.setViewport({ width: 800, height: 600 });
 
   const url = new URL("./html/typography.html", import.meta.url);
 
@@ -15,7 +15,15 @@ import { launch } from "../lib/browser";
   try {
     await fs.mkdir("./out");
   } catch (e) {}
-  await page.screenshot({ path: "./out/typography.png", fullPage: true });
+
+  const el = await page.waitForSelector(".container");
+
+  if (!el) {
+    console.error("Element not found");
+    return;
+  }
+
+  await el.screenshot({ path: "./out/element.png" });
 
   await closeAll();
 })();

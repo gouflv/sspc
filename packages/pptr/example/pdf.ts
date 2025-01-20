@@ -6,7 +6,8 @@ import { launch } from "../lib/browser";
 
   const page = await context.newPage();
 
-  page.setViewport({ width: 1440, height: 900 });
+  // NOTE: pdf has it's own viewport
+  // page.setViewport({ width: 440, height: 900 });
 
   const url = new URL("./html/typography.html", import.meta.url);
 
@@ -15,7 +16,13 @@ import { launch } from "../lib/browser";
   try {
     await fs.mkdir("./out");
   } catch (e) {}
-  await page.screenshot({ path: "./out/typography.png", fullPage: true });
+
+  await page.pdf({
+    path: "./out/typography.pdf",
+    width: 600,
+    height: 800,
+    printBackground: true,
+  });
 
   await closeAll();
 })();
