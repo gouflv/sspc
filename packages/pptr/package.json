@@ -3,17 +3,26 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "dev": "bun run --hot server/index.ts",
+    "serve": "bun run server/index.ts",
+    "test": "vitest",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "async-exit-hook": "^2.0.1",
+    "@hono/arktype-validator": "^2.0.0",
+    "arktype": "^2.0.0",
+    "hono": "^4.6.17",
+    "lodash-es": "^4.17.21",
     "puppeteer-core": "^24.1.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@tsconfig/bun": "^1.0.7",
     "@tsconfig/node20": "^20.1.2",
-    "@types/node": "^20.17.14"
+    "@types/bun": "latest",
+    "@types/lodash-es": "^4.17.12",
+    "vitest": "^3.0.3"
   }
 }
