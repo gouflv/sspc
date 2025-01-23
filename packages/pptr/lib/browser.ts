@@ -1,21 +1,39 @@
-import pptr, { type LaunchOptions } from "puppeteer-core";
+import pptr, {
+  Browser,
+  BrowserContext,
+  type LaunchOptions,
+} from "puppeteer-core";
 
 export async function launch(options?: LaunchOptions) {
-  const browser = await pptr.launch({
-    executablePath: process.env["PUPPETEER_EXECUTABLE_PATH"],
-    args: ["--disable-gpu"],
-    ...options,
-  });
-  const context = await browser.createBrowserContext();
+  let browser: Browser | null = null,
+    context: BrowserContext | null = null;
+
+  const close = async () => {
+    const pages = await context?.pages();
+    if (pages) {
+      await Promise.all(pages.map((page) => page.close()));
+    }
+    await context?.close();
+    await browser?.close();
+  };
+
+  try {
+    browser = await pptr.launch({
+      executablePath: process.env["PUPPETEER_EXECUTABLE_PATH"],
+      args: ["--disable-gpu"],
+      ...options,
+    });
+
+    context = await browser.createBrowserContext();
+  } catch (error) {
+    console.error(error);
+    await close();
+    throw error;
+  }
 
   return {
     browser,
     context,
-    async closeAll() {
-      const pages = await context.pages();
-      await Promise.all(pages.map((page) => page.close()));
-      await context.close();
-      await browser.close();
-    },
+    close,
   };
 }

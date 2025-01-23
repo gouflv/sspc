@@ -4,9 +4,9 @@ export const captureParams = type({
   viewportWidth: "number?",
   viewportHeight: "number?",
 
-  url: "string",
-  captureFormat: "'png'|'jpeg'|'pdf'?",
+  url: "string.url",
   timeout: "number?",
+  captureFormat: "'png'|'jpeg'|'pdf'?",
 
   quality: "number?",
   captureElementSelector: "string?",

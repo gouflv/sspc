@@ -1,6 +1,6 @@
 import { type } from "arktype";
 import { expect, it } from "vitest";
-import { captureParams } from "./types";
+import { captureParams } from "../lib/types";
 
 it("should validate complete valid params", () => {
   const input = {
@@ -41,6 +41,10 @@ it("should provide error details for invalid data", () => {
   const cases = [
     {
       input: { url: 123 },
+      expectedError: "url",
+    },
+    {
+      input: { url: "not-a-valid-url" },
       expectedError: "url",
     },
     {

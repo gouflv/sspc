@@ -2,7 +2,7 @@ import { promises as fs } from "fs";
 import { launch } from "../lib/browser";
 
 (async () => {
-  const { context, closeAll } = await launch();
+  const { context, close: closeAll } = await launch();
 
   const page = await context.newPage();
 
