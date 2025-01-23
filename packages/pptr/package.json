@@ -9,8 +9,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@hono/arktype-validator": "^2.0.0",
-    "arktype": "^2.0.0",
+    "@hono/zod-validator": "^0.4.2",
     "await-to-js": "^3.0.0",
     "hono": "^4.6.17",
     "hono-pino-logger": "^1.0.0",

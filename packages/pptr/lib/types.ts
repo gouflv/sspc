@@ -1,25 +1,27 @@
-import { type } from "arktype";
+import { z } from "zod";
 
-export const captureParams = type({
-  viewportWidth: "number?",
-  viewportHeight: "number?",
+export const captureParams = z.object({
+  viewportWidth: z.number().positive().optional(),
+  viewportHeight: z.number().positive().optional(),
 
-  url: "string.url",
-  timeout: "number?",
-  captureFormat: "'png'|'jpeg'|'pdf'?",
+  url: z.string().url(),
+  timeout: z.number().positive().optional(),
+  captureFormat: z.enum(["png", "jpeg", "pdf"]).default("png"),
 
-  quality: "number?",
-  captureElementSelector: "string?",
+  quality: z.number().min(0).max(100).optional(),
+  captureElementSelector: z.string().optional(),
 
-  pdfFormat: "string?",
-  "pdfMargin?": {
-    top: "number|string?",
-    right: "number|string?",
-    bottom: "number|string?",
-    left: "number|string?",
-  },
-  pdfWidth: "number?",
-  pdfHeight: "number?",
+  pdfFormat: z.string().optional(),
+  pdfMargin: z
+    .object({
+      top: z.union([z.number().min(0), z.string()]).optional(),
+      right: z.union([z.number().min(0), z.string()]).optional(),
+      bottom: z.union([z.number().min(0), z.string()]).optional(),
+      left: z.union([z.number().min(0), z.string()]).optional(),
+    })
+    .optional(),
+  pdfWidth: z.number().positive().optional(),
+  pdfHeight: z.number().positive().optional(),
 });
 
-export type CaptureParamsType = typeof captureParams.infer;
+export type CaptureParamsType = z.infer<typeof captureParams>;

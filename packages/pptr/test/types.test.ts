@@ -1,72 +1,77 @@
-import { type } from "arktype";
 import { expect, it } from "vitest";
 import { captureParams } from "../lib/types";
 
-it("should validate complete valid params", () => {
-  const input = {
+it("should validate correct parameters", () => {
+  const valid = {
     url: "https://example.com",
-    viewportWidth: 1024,
-    viewportHeight: 768,
-    captureFormat: "pdf",
-    quality: 90,
-    pdfFormat: "A4",
+    viewportWidth: 1920,
+    viewportHeight: 1080,
+    quality: 80,
+  };
+
+  const result = captureParams.parse(valid);
+  expect(result).toEqual({
+    ...valid,
+    captureFormat: "png", // default value
+  });
+});
+
+it("should reject invalid url", () => {
+  expect(() => captureParams.parse({ url: "not-a-url" })).toThrow();
+});
+
+it("should reject negative numbers", () => {
+  expect(() =>
+    captureParams.parse({
+      url: "https://example.com",
+      viewportWidth: -100,
+    })
+  ).toThrow();
+
+  expect(() =>
+    captureParams.parse({
+      url: "https://example.com",
+      quality: -1,
+    })
+  ).toThrow();
+});
+
+it("should validate quality range", () => {
+  expect(() =>
+    captureParams.parse({
+      url: "https://example.com",
+      quality: 101,
+    })
+  ).toThrow();
+});
+
+it("should accept valid pdf margins", () => {
+  const valid = {
+    url: "https://example.com",
     pdfMargin: {
       top: 10,
-      right: "20px",
-      bottom: 10,
-      left: "20px",
+      right: "2cm",
+      bottom: 20,
+      left: "1.5in",
     },
   };
 
-  const result = captureParams(input);
-  expect(result instanceof type.errors).toBe(false);
-  if (!(result instanceof type.errors)) {
-    expect(result).toEqual(input);
-  }
+  expect(() => captureParams.parse(valid)).not.toThrow();
 });
 
-it("should validate minimal required params", () => {
-  const input = {
+it("should reject negative pdf margins", () => {
+  expect(() =>
+    captureParams.parse({
+      url: "https://example.com",
+      pdfMargin: { top: -10 },
+    })
+  ).toThrow();
+});
+
+it("should apply default captureFormat", () => {
+  const result = captureParams.parse({
     url: "https://example.com",
-  };
-
-  const result = captureParams(input);
-  expect(result instanceof type.errors).toBe(false);
-  if (!(result instanceof type.errors)) {
-    expect(result).toEqual(input);
-  }
-});
-
-it("should provide error details for invalid data", () => {
-  const cases = [
-    {
-      input: { url: 123 },
-      expectedError: "url",
-    },
-    {
-      input: { url: "not-a-valid-url" },
-      expectedError: "url",
-    },
-    {
-      input: { url: "https://example.com", captureFormat: "gif" },
-      expectedError: "captureFormat",
-    },
-    {
-      input: { url: "https://example.com", quality: "high" },
-      expectedError: "quality",
-    },
-    {
-      input: { viewportWidth: "1024" },
-      expectedError: "url",
-    },
-  ];
-
-  cases.forEach(({ input, expectedError }) => {
-    const result = captureParams(input);
-    expect(result instanceof type.errors).toBe(true);
-    if (result instanceof type.errors) {
-      console.log(result.summary);
-      expect(result.summary).toContain(expectedError);
-    }
   });
+
+  expect(result.captureFormat).toBe("png");
 });
