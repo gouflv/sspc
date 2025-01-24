@@ -1,8 +1,4 @@
-import pptr, {
-  Browser,
-  BrowserContext,
-  type LaunchOptions,
-} from "puppeteer-core";
+import pptr, { Browser, BrowserContext, type LaunchOptions } from "puppeteer";
 
 export async function launch(options?: LaunchOptions) {
   let browser: Browser | null = null,
@@ -19,7 +15,7 @@ export async function launch(options?: LaunchOptions) {
 
   try {
     browser = await pptr.launch({
-      executablePath: process.env["PUPPETEER_EXECUTABLE_PATH"],
+      // executablePath: process.env["PUPPETEER_EXECUTABLE_PATH"],
       args: ["--disable-gpu"],
       ...options,
     });

@@ -1,5 +1,5 @@
 import { isNumber } from "lodash-es";
-import type { Page, PDFOptions, ScreenshotOptions } from "puppeteer-core";
+import type { Page, PDFOptions, ScreenshotOptions } from "puppeteer";
 import type { CaptureParamsType } from "./types";
 
 export function initPage(page: Page, params: CaptureParamsType) {

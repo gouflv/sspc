@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  pptr:
+    image: pptr
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    cap_add:
+      - SYS_ADMIN
+    init: true
+    restart: unless-stopped
