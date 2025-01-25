@@ -1,20 +1,20 @@
-import { promises as fs } from "fs";
-import { launch } from "../lib/browser";
+import { promises as fs } from "fs"
+import { launch } from "../lib/browser"
 
-(async () => {
-  const { context, close: closeAll } = await launch();
+;(async () => {
+  const { context, close: closeAll } = await launch()
 
-  const page = await context.newPage();
+  const page = await context.newPage()
 
   // NOTE: pdf has it's own viewport
   // page.setViewport({ width: 440, height: 900 });
 
-  const url = new URL("./html/typography.html", import.meta.url);
+  const url = new URL("./html/typography.html", import.meta.url)
 
-  await page.goto(url.href);
+  await page.goto(url.href)
 
   try {
-    await fs.mkdir("./out");
+    await fs.mkdir("./out")
   } catch (e) {}
 
   await page.pdf({
@@ -22,7 +22,7 @@ import { launch } from "../lib/browser";
     width: 600,
     height: 800,
     printBackground: true,
-  });
+  })
 
-  await closeAll();
-})();
+  await closeAll()
+})()

@@ -1,22 +1,22 @@
-import { launch } from "./browser";
-import { capturePage, initPage } from "./page";
-import type { CaptureParamsType } from "./types";
+import { launch } from "./browser"
+import { capturePage, initPage } from "./page"
+import type { CaptureParamsType } from "./types"
 
 export default async function capture(params: CaptureParamsType) {
-  const { context, close } = await launch();
+  const { context, close } = await launch()
 
   try {
-    const page = initPage(await context.newPage(), params);
+    const page = initPage(await context.newPage(), params)
 
-    await page.goto(params.url);
+    await page.goto(params.url)
 
-    await page.waitForNavigation({ waitUntil: "networkidle0" });
+    await page.waitForNavigation({ waitUntil: "networkidle0" })
 
-    return capturePage(page, params);
+    return capturePage(page, params)
   } catch (error) {
-    console.error(error);
-    throw error;
+    console.error(error)
+    throw error
   } finally {
-    await close();
+    await close()
   }
 }

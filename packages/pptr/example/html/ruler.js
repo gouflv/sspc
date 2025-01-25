@@ -1,7 +1,7 @@
 class Ruler {
   constructor() {
-    this.injectStyles();
-    this.createRulers();
+    this.injectStyles()
+    this.createRulers()
   }
 
   injectStyles() {
@@ -78,55 +78,55 @@ class Ruler {
         right: 22px;
         transform: translateY(-50%);
       }
-    `;
-    const styleSheet = document.createElement("style");
-    styleSheet.textContent = styles;
-    document.head.appendChild(styleSheet);
+    `
+    const styleSheet = document.createElement("style")
+    styleSheet.textContent = styles
+    document.head.appendChild(styleSheet)
   }
 
   createRulers() {
-    const horizontalRuler = document.createElement("div");
-    horizontalRuler.className = "ruler ruler-h";
+    const horizontalRuler = document.createElement("div")
+    horizontalRuler.className = "ruler ruler-h"
 
-    const verticalRuler = document.createElement("div");
-    verticalRuler.className = "ruler ruler-v";
+    const verticalRuler = document.createElement("div")
+    verticalRuler.className = "ruler ruler-v"
 
-    document.body.appendChild(horizontalRuler);
-    document.body.appendChild(verticalRuler);
+    document.body.appendChild(horizontalRuler)
+    document.body.appendChild(verticalRuler)
 
-    this.createRulerMarks(horizontalRuler, true);
-    this.createRulerMarks(verticalRuler, false);
+    this.createRulerMarks(horizontalRuler, true)
+    this.createRulerMarks(verticalRuler, false)
   }
 
   createRulerMarks(ruler, isHorizontal) {
-    const length = isHorizontal ? window.innerWidth : 9999;
-    const step = 50;
+    const length = isHorizontal ? window.innerWidth : 9999
+    const step = 50
 
     for (let i = 0; i <= length; i += step) {
-      const mark = document.createElement("div");
-      mark.className = `ruler-mark${i % 100 === 0 ? " major" : ""}`;
+      const mark = document.createElement("div")
+      mark.className = `ruler-mark${i % 100 === 0 ? " major" : ""}`
 
       if (isHorizontal) {
-        mark.style.left = `${i}px`;
+        mark.style.left = `${i}px`
       } else {
-        mark.style.top = `${i}px`;
+        mark.style.top = `${i}px`
       }
 
       if (i % 100 === 0) {
-        const label = document.createElement("div");
-        label.className = "ruler-label";
-        label.textContent = i;
+        const label = document.createElement("div")
+        label.className = "ruler-label"
+        label.textContent = i
         if (isHorizontal) {
-          label.style.left = `${i}px`;
+          label.style.left = `${i}px`
         } else {
-          label.style.top = `${i}px`;
+          label.style.top = `${i}px`
         }
-        ruler.appendChild(label);
+        ruler.appendChild(label)
       }
 
-      ruler.appendChild(mark);
+      ruler.appendChild(mark)
     }
   }
 }
 
-window.Ruler = Ruler;
+window.Ruler = Ruler

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod"
 
 export const captureParams = z.object({
   viewportWidth: z.number().positive().optional(),
@@ -22,6 +22,6 @@ export const captureParams = z.object({
     .optional(),
   pdfWidth: z.number().positive().optional(),
   pdfHeight: z.number().positive().optional(),
-});
+})
 
-export type CaptureParamsType = z.infer<typeof captureParams>;
+export type CaptureParamsType = z.infer<typeof captureParams>

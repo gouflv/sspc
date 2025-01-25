@@ -1,29 +1,29 @@
-import { promises as fs } from "fs";
-import { launch } from "../lib/browser";
+import { promises as fs } from "fs"
+import { launch } from "../lib/browser"
 
-(async () => {
-  const { context, close: closeAll } = await launch();
+;(async () => {
+  const { context, close: closeAll } = await launch()
 
-  const page = await context.newPage();
+  const page = await context.newPage()
 
-  page.setViewport({ width: 800, height: 600 });
+  page.setViewport({ width: 800, height: 600 })
 
-  const url = new URL("./html/typography.html", import.meta.url);
+  const url = new URL("./html/typography.html", import.meta.url)
 
-  await page.goto(url.href);
+  await page.goto(url.href)
 
   try {
-    await fs.mkdir("./out");
+    await fs.mkdir("./out")
   } catch (e) {}
 
-  const el = await page.waitForSelector(".container");
+  const el = await page.waitForSelector(".container")
 
   if (!el) {
-    console.error("Element not found");
-    return;
+    console.error("Element not found")
+    return
   }
 
-  await el.screenshot({ path: "./out/element.png" });
+  await el.screenshot({ path: "./out/element.png" })
 
-  await closeAll();
-})();
+  await closeAll()
+})()
