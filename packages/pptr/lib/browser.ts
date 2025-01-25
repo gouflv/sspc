@@ -16,7 +16,7 @@ export async function launch(options?: LaunchOptions) {
   try {
     browser = await pptr.launch({
       // executablePath: process.env["PUPPETEER_EXECUTABLE_PATH"],
-      args: ["--disable-gpu"],
+      args: ["--disable-gpu", "--no-sandbox", "--disable-setuid-sandbox"],
       ...options,
     })
 

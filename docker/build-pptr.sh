@@ -1,1 +1,0 @@
-docker build -t pptr -f docker/Dockerfile.pptr .
