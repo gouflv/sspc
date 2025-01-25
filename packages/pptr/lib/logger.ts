@@ -1,8 +1,10 @@
-import path from "node:path";
-import pino from "pino";
+import path from "node:path"
+import pino from "pino"
 
-const dir = path.resolve(__dirname, "../logs");
-const filePath = path.join(dir, `pptr.log`);
+import { fileURLToPath } from "url"
+
+const dir = fileURLToPath(new URL("../logs", import.meta.url))
+const filePath = path.join(dir, `pptr.log`)
 
 const logger = pino({
   level: process.env["LOG_LEVEL"] || "info",
@@ -23,6 +25,6 @@ const logger = pino({
       },
     ],
   },
-});
+})
 
-export default logger;
+export default logger

@@ -1,14 +1,20 @@
 {
   "name": "sspc",
   "private": true,
-  "type": "module",
   "devDependencies": {
-    "@types/bun": "latest"
+    "@tsconfig/node22": "^22.0.0",
+    "@types/lodash-es": "^4.17.12",
+    "@types/node": "^22.10.10",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.3"
   },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
-  },
-  "workspaces": [
-    "packages/*"
-  ]
+  "dependencies": {
+    "await-to-js": "^3.0.0",
+    "lodash-es": "^4.17.21",
+    "pino": "^9.6.0",
+    "pino-pretty": "^13.0.0",
+    "tsx": "^4.19.2",
+    "zod": "^3.24.1"
+  }
 }

@@ -3,30 +3,15 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "bun run --hot server/index.ts",
-    "serve": "bun run server/index.ts",
+    "start": "tsx server/index.ts",
     "test": "vitest",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@hono/node-server": "^1.13.7",
     "@hono/zod-validator": "^0.4.2",
-    "await-to-js": "^3.0.0",
     "hono": "^4.6.17",
     "hono-pino-logger": "^1.0.0",
-    "lodash-es": "^4.17.21",
-    "pino": "^9.6.0",
-    "pino-pretty": "^13.0.0",
-    "puppeteer": "^24.1.1",
-    "puppeteer-core": "^24.1.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.7.3",
-    "zod": "^3.24.1"
-  },
-  "devDependencies": {
-    "@tsconfig/bun": "^1.0.7",
-    "@tsconfig/node20": "^20.1.2",
-    "@types/bun": "latest",
-    "@types/lodash-es": "^4.17.12",
-    "vitest": "^3.0.3"
+    "puppeteer": "^24.1.1"
   }
 }
