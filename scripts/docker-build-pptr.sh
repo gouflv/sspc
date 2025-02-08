@@ -1,0 +1,1 @@
+docker build -t sspc/pptr --target pptr .
