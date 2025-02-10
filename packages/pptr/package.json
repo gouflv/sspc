@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "dev": "NODE_ENV=development tsx server/index.ts",
     "start": "tsx server/index.ts",
     "test": "vitest",
     "type-check": "tsc --noEmit"
@@ -10,8 +11,9 @@
   "dependencies": {
     "@hono/node-server": "^1.13.7",
     "@hono/zod-validator": "^0.4.2",
+    "@puppeteer/browsers": "^2.7.1",
     "hono": "^4.6.17",
     "hono-pino-logger": "^1.0.0",
-    "puppeteer": "^24.1.1"
+    "puppeteer-core": "^24.2.0"
   }
 }

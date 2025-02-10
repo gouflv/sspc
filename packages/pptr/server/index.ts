@@ -2,7 +2,6 @@ import { serve } from "@hono/node-server"
 import { zValidator as validate } from "@hono/zod-validator"
 import { to } from "await-to-js"
 import { Hono } from "hono"
-
 import { cors } from "hono/cors"
 import { timeout } from "hono/timeout"
 import capture from "../lib/capture"

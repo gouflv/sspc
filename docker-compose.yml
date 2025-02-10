@@ -1,6 +1,6 @@
 services:
   pptr:
-    image: pptr
+    image: sspc/pptr
     ports:
       - "3000:3000"
     environment:
