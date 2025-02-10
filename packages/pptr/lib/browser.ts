@@ -27,7 +27,7 @@ export async function launch(options?: LaunchOptions) {
 
   try {
     const executablePath = await getExecutablePath()
-    logger.debug({ executablePath })
+    logger.debug("launch", { executablePath })
 
     browser = await pptr.launch({
       executablePath,
@@ -37,7 +37,7 @@ export async function launch(options?: LaunchOptions) {
 
     context = await browser.createBrowserContext()
   } catch (error) {
-    logger.error(error)
+    logger.error("launch", error)
     await close()
     throw error
   }
@@ -52,7 +52,7 @@ export async function launch(options?: LaunchOptions) {
 async function getExecutablePath() {
   const envPath = process.env["PUPPETEER_EXECUTABLE_PATH"]
   if (envPath) {
-    logger.debug({ envPath }, "getExecutablePath")
+    logger.debug("getExecutablePath", { envPath })
     return envPath
   }
 
@@ -62,6 +62,6 @@ async function getExecutablePath() {
     cacheDir: join(homedir(), ".cache/puppeteer"),
     buildId,
   })
-  logger.debug({ buildId, path }, "getExecutablePath")
+  logger.debug("getExecutablePath", { buildId, path })
   return path
 }

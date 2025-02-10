@@ -26,39 +26,30 @@ app.post("/capture", validate("json", captureParams), async (c) => {
     c.res.headers.set("Request-ID", requestId)
   }
 
-  logger.info(
-    {
-      requestId,
-      request: { params },
-    },
-    "/capture",
-  )
+  logger.info("/capture", {
+    requestId,
+    request: { params },
+  })
 
   const startTime = Date.now()
   const [error, captureResult] = await to(capture(params))
   const duration = Date.now() - startTime
 
   if (error) {
-    logger.error(
-      {
-        requestId,
-        error: error.message,
-      },
-      "/capture",
-    )
+    logger.error("/capture", {
+      requestId,
+      error: error.message,
+    })
     return c.json({
       success: false,
       error: error.message,
     })
   }
 
-  logger.info(
-    {
-      requestId,
-      duration,
-    },
-    "/capture success",
-  )
+  logger.info("/capture success", {
+    requestId,
+    duration,
+  })
 
   c.res.headers.set(
     "Content-Disposition",

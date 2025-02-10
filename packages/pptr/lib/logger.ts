@@ -1,38 +1,31 @@
-import { existsSync, mkdirSync } from "node:fs"
-import { join } from "node:path"
-import pino from "pino"
-
+import { dirname, join } from "path"
 import { fileURLToPath } from "url"
+import { createLogger, format, transports } from "winston"
 
-const dir = fileURLToPath(new URL("../logs", import.meta.url))
-if (!existsSync(dir)) {
-  mkdirSync(dir)
-}
-const filePath = join(dir, `pptr.log`)
+const dir = dirname(fileURLToPath(import.meta.url))
+const file = join(dir, "../logs/pptr.log")
 
 const level =
   process.env["LOG_LEVEL"] ||
   (process.env["NODE_ENV"] === "development" ? "debug" : "info")
 
-const logger = pino({
+const logger = createLogger({
   level,
-  transport: {
-    targets: [
-      {
-        target: "pino-pretty",
-        options: {
-          colorize: true,
-        },
-      },
-      {
-        target: "pino/file",
-        options: {
-          destination: filePath,
-          makeDir: true,
-        },
-      },
-    ],
-  },
+  format: format.combine(
+    format.timestamp({
+      format: "YYYY-MM-DD HH:mm:ss",
+    }),
+    format.json(),
+  ),
+  transports: [
+    new transports.Console({
+      format: format.combine(format.colorize(), format.simple()),
+    }),
+    new transports.File({
+      filename: file,
+      maxsize: 10 * 1024 * 1024, // 10MB
+    }),
+  ],
 })
 
 export default logger
