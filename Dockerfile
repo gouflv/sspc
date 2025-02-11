@@ -1,13 +1,13 @@
+ARG PUPPETEER_VERSION=24.2.0
+
 # Base
 FROM node:22-slim AS base
 RUN npm install -g corepack@latest
 RUN corepack enable
 
-# browser
-FROM base AS browser
-RUN pnpm dlx puppeteer browsers install chrome@133.0.6943.53 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends fonts-wqy-zenhei fonts-freefont-ttf
+# Browser
+FROM ghcr.io/puppeteer/puppeteer:$PUPPETEER_VERSION AS browser
+USER root
 
 # Build
 FROM base AS build
@@ -17,7 +17,11 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm deploy --filter=pptr --prod /prod/pptr --legacy 
 
 # PPTR
-FROM ghcr.io/puppeteer/puppeteer AS pptr
+FROM browser AS pptr
+ENV PUPPETEER_CACHE_DIR=/home/pptruser/.cache/puppeteer
+ENV NODE_ENV=production
+RUN npm install -g corepack@latest
+RUN corepack enable
 COPY --from=build /prod/pptr /app
 WORKDIR /app
 ENTRYPOINT ["pnpm", "start"]

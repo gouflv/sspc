@@ -31,7 +31,12 @@ export async function launch(options?: LaunchOptions) {
 
     browser = await pptr.launch({
       executablePath,
-      args: ["--disable-gpu", "--no-sandbox", "--disable-setuid-sandbox"],
+      args: [
+        "--disable-gpu",
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+      ],
       ...options,
     })
 
@@ -59,7 +64,8 @@ async function getExecutablePath() {
   const buildId = await resolveBuildId(BrowserType.CHROME, "" as any, "133")
   const path = computeExecutablePath({
     browser: "chrome" as any,
-    cacheDir: join(homedir(), ".cache/puppeteer"),
+    cacheDir:
+      process.env["PUPPETEER_CACHE_DIR"] || join(homedir(), ".cache/puppeteer"),
     buildId,
   })
   logger.debug("getExecutablePath", { buildId, path })

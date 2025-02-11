@@ -3,23 +3,25 @@
 ## Features
 
 - Provides a RESTful API to return the screenshot of given URL
-- Build in `Chrome@133.0.6943.53`, which is the default version of [`puppeteer@24.2.0`](https://github.com/puppeteer/puppeteer/blob/puppeteer-v24.2.0/packages/puppeteer-core/src/revisions.ts)
+- Basic on `puppeteer@24.2.0`
+- Docker image with build in `Chrome@133.0.6943.53`, which is the default version of [`puppeteer@24.2.0`](https://github.com/puppeteer/puppeteer/blob/puppeteer-v24.2.0/packages/puppeteer-core/src/revisions.ts)
 
 ## ENV
 
-| Name                      | Description | Default   |
-| ------------------------- | ----------- | --------- |
-| PUPPETEER_EXECUTABLE_PATH |             |           |
-| PUPPETEER_TIMEOUT         |             | 30_000 ms |
-| HONO_PORT                 |             | 3000      |
-| LOG_LEVEL                 |             | info      |
+| Name                      | Description                        | Default                     |
+| ------------------------- | ---------------------------------- | --------------------------- |
+| PUPPETEER_EXECUTABLE_PATH | Chrome 可执行文件所在目录          | Auto-Detect                 |
+| PUPPETEER_CACHE_DIR       | Puppeteer 的浏览器安装目录         | /$HOME_DIR/.cache/puppeteer |
+| PUPPETEER_TIMEOUT         | 浏览器全局操作超时时间，单位：毫秒 | 30_000 ms                   |
+| HONO_PORT                 | API 服务端口                       | 3000                        |
+| LOG_LEVEL                 | 日志级别                           | info                        |
 
 ## Development Guide
 
 - Install `Chrome for Testing` locally
 
 ```bash
-pnpm dlx puppeteer browser install chrome@133.0.6943.53
+pnpm dlx puppeteer@24.2.0 browser install chrome@133.0.6943.53
 ```
 
 ## Notes
