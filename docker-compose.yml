@@ -1,6 +1,6 @@
 services:
   pptr:
-    image: sspc/pptr
+    image:gouflv/sspc-pptr
     ports:
       - "3000:3000"
     environment:
