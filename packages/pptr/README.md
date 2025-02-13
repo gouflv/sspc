@@ -6,6 +6,26 @@
 - Basic on `puppeteer@24.2.0`
 - Docker image with build in `Chrome@133.0.6943.53`, which is the default version of [`puppeteer@24.2.0`](https://github.com/puppeteer/puppeteer/blob/puppeteer-v24.2.0/packages/puppeteer-core/src/revisions.ts)
 
+## API
+
+### GET /capture
+
+- Query Parameters
+
+| Name                   | Type                                                           | Required | Default  |
+| ---------------------- | -------------------------------------------------------------- | -------- | -------- |
+| url                    | string                                                         | true     |          |
+| viewportWidth          | number                                                         |          |          |
+| viewportHeight         | number                                                         |          |          |
+| timeout                | number                                                         |          | 30_000ms |
+| captureFormat          | 'png' \| 'jpeg' \| 'pdf'                                       |          | 'png'    |
+| quality                | number                                                         |          | 100      |
+| captureElementSelector | string                                                         |          |          |
+| pdfFormat              | 'a4'                                                           |          |          |
+| pdfMargin              | `{ top: number, right: number, bottom: number, left: number }` |          |          |
+| pdfWidth               | number                                                         |          |          |
+| pdfHeight              | number                                                         |          |          |
+
 ## ENV
 
 | Name                      | Description                                                            | Default                     |

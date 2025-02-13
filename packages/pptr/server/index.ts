@@ -1,6 +1,6 @@
 import { serve } from "@hono/node-server"
 import { zValidator as validate } from "@hono/zod-validator"
-import { captureParamsSchema, type CaptureParamsType } from "@pptr/core"
+import { captureParamsSchema } from "@pptr/core"
 import { to } from "await-to-js"
 import { Hono } from "hono"
 import { cors } from "hono/cors"
@@ -19,12 +19,8 @@ app.get("/", (c) => {
 })
 
 app.post("/capture", validate("json", captureParamsSchema), async (c) => {
-  const params = await c.req.json<CaptureParamsType>()
-
+  const params = c.req.valid("json")
   const requestId = c.req.header("request-id")
-  if (requestId) {
-    c.res.headers.set("request-id", requestId)
-  }
 
   logger.info("/capture", {
     requestId,
@@ -53,12 +49,7 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
 
   const headers: any = {
     "request-id": requestId,
-    "content-type":
-      params.captureFormat === "pdf"
-        ? "application/pdf"
-        : params.captureFormat === "jpeg"
-          ? "image/jpeg"
-          : "image/png",
+    "content-type": captureResult.contentType,
     "content-disposition": `attachment; filename=capture.${params.captureFormat}`,
   }
 

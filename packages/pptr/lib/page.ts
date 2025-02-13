@@ -12,8 +12,7 @@ export function initPage(page: Page, params: CaptureParamsType) {
 
   page.setDefaultTimeout(
     params.timeout ??
-      parseInt(process.env["PUPPETEER_TIMEOUT"] || "") ??
-      30_000,
+      (parseInt(process.env["PUPPETEER_TIMEOUT"] || "") || 30_000),
   )
 
   return page
@@ -33,7 +32,7 @@ async function capturePDF(page: Page, params: CaptureParamsType) {
     margin: params.pdfMargin,
     printBackground: true,
   }
-  if (isNumber(params.pdfWidth) || isNumber(params.pdfHeight)) {
+  if (isNumber(params.pdfWidth) && isNumber(params.pdfHeight)) {
     options.width = params.pdfWidth
     options.height = params.pdfHeight
   }
