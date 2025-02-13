@@ -7,7 +7,7 @@ export const captureParamsSchema = z.object({
   viewportHeight: z.number().positive().optional(),
   timeout: z.number().positive().optional(),
 
-  captureFormat: z.enum(["png", "jpeg", "pdf"]).default("png"),
+  captureFormat: z.enum(["png", "jpeg", "pdf"]).optional(),
   quality: z.number().min(0).max(100).optional(),
   captureElementSelector: z.string().optional(),
 
