@@ -1,6 +1,6 @@
+import type { CaptureParamsType } from "@pptr/core"
 import { launch } from "./browser"
 import { capturePage, initPage } from "./page"
-import type { CaptureParamsType } from "./types"
 
 export default async function capture(params: CaptureParamsType) {
   const { context, close } = await launch()

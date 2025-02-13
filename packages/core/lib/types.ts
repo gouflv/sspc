@@ -1,13 +1,13 @@
 import { z } from "zod"
 
-export const captureParams = z.object({
+export const captureParamsSchema = z.object({
+  url: z.string().url(),
+
   viewportWidth: z.number().positive().optional(),
   viewportHeight: z.number().positive().optional(),
-
-  url: z.string().url(),
   timeout: z.number().positive().optional(),
-  captureFormat: z.enum(["png", "jpeg", "pdf"]).default("png"),
 
+  captureFormat: z.enum(["png", "jpeg", "pdf"]).default("png"),
   quality: z.number().min(0).max(100).optional(),
   captureElementSelector: z.string().optional(),
 
@@ -24,4 +24,4 @@ export const captureParams = z.object({
   pdfHeight: z.number().positive().optional(),
 })
 
-export type CaptureParamsType = z.infer<typeof captureParams>
+export type CaptureParamsType = z.infer<typeof captureParamsSchema>

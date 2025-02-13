@@ -1,7 +1,6 @@
 {
-  "name": "pptr",
+  "name": "queue",
   "version": "1.0.0",
-  "type": "module",
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
     "start": "tsx server/index.ts",
@@ -11,9 +10,7 @@
   "dependencies": {
     "@hono/node-server": "^1.13.7",
     "@hono/zod-validator": "^0.4.2",
-    "@pptr/core": "workspace:*",
-    "@puppeteer/browsers": "^2.7.1",
-    "hono": "^4.6.17",
-    "puppeteer-core": "^24.2.0"
+    "bee-queue": "^1.7.1",
+    "hono": "^4.6.17"
   }
 }

@@ -1,6 +1,6 @@
+import type { CaptureParamsType } from "@pptr/core"
 import { isNumber } from "lodash-es"
 import type { Page, PDFOptions, ScreenshotOptions } from "puppeteer-core"
-import type { CaptureParamsType } from "./types"
 
 export function initPage(page: Page, params: CaptureParamsType) {
   if (isNumber(params.viewportWidth) && isNumber(params.viewportHeight)) {

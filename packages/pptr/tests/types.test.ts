@@ -1,5 +1,5 @@
+import { captureParamsSchema } from "@pptr/core"
 import { expect, it } from "vitest"
-import { captureParams } from "../lib/types.js"
 
 it("should validate correct parameters", () => {
   const valid = {
@@ -9,7 +9,7 @@ it("should validate correct parameters", () => {
     quality: 80,
   }
 
-  const result = captureParams.parse(valid)
+  const result = captureParamsSchema.parse(valid)
   expect(result).toEqual({
     ...valid,
     captureFormat: "png", // default value
@@ -17,19 +17,19 @@ it("should validate correct parameters", () => {
 })
 
 it("should reject invalid url", () => {
-  expect(() => captureParams.parse({ url: "not-a-url" })).toThrow()
+  expect(() => captureParamsSchema.parse({ url: "not-a-url" })).toThrow()
 })
 
 it("should reject negative numbers", () => {
   expect(() =>
-    captureParams.parse({
+    captureParamsSchema.parse({
       url: "https://example.com",
       viewportWidth: -100,
     }),
   ).toThrow()
 
   expect(() =>
-    captureParams.parse({
+    captureParamsSchema.parse({
       url: "https://example.com",
       quality: -1,
     }),
@@ -38,7 +38,7 @@ it("should reject negative numbers", () => {
 
 it("should validate quality range", () => {
   expect(() =>
-    captureParams.parse({
+    captureParamsSchema.parse({
       url: "https://example.com",
       quality: 101,
     }),
@@ -56,12 +56,12 @@ it("should accept valid pdf margins", () => {
     },
   }
 
-  expect(() => captureParams.parse(valid)).not.toThrow()
+  expect(() => captureParamsSchema.parse(valid)).not.toThrow()
 })
 
 it("should reject negative pdf margins", () => {
   expect(() =>
-    captureParams.parse({
+    captureParamsSchema.parse({
       url: "https://example.com",
       pdfMargin: { top: -10 },
     }),
@@ -69,7 +69,7 @@ it("should reject negative pdf margins", () => {
 })
 
 it("should apply default captureFormat", () => {
-  const result = captureParams.parse({
+  const result = captureParamsSchema.parse({
     url: "https://example.com",
   })
 
