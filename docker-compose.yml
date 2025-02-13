@@ -1,9 +1,27 @@
 services:
   pptr:
-    image:gouflv/sspc-pptr
+    image: gouflv/sspc-pptr
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
     init: true
+    restart: unless-stopped
+
+  queue:
+    image: gouflv/sspc-queue
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis:6379
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--save", "60", "1"]
+    volumes:
+      - ./data/redis:/data
     restart: unless-stopped
