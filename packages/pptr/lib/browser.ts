@@ -61,7 +61,11 @@ async function getExecutablePath() {
     return envPath
   }
 
-  const buildId = await resolveBuildId(BrowserType.CHROME, "" as any, "133")
+  const buildId = await resolveBuildId(
+    BrowserType.CHROME,
+    "" as any,
+    process.env["PUPPETEER_CHROME_REVISION"] || "133.0.6943.53",
+  )
   const path = computeExecutablePath({
     browser: "chrome" as any,
     cacheDir:

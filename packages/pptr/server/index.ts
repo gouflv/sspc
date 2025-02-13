@@ -21,14 +21,14 @@ app.get("/", (c) => {
 app.post("/capture", validate("json", captureParamsSchema), async (c) => {
   const params = await c.req.json<CaptureParamsType>()
 
-  const requestId = c.req.header("Request-ID")
+  const requestId = c.req.header("request-id")
   if (requestId) {
-    c.res.headers.set("Request-ID", requestId)
+    c.res.headers.set("request-id", requestId)
   }
 
   logger.info("/capture", {
     requestId,
-    request: { params },
+    params,
   })
 
   const startTime = Date.now()
@@ -52,15 +52,15 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
   })
 
   const headers: any = {
-    "Content-Type":
+    "request-id": requestId,
+    "content-type":
       params.captureFormat === "pdf"
         ? "application/pdf"
         : params.captureFormat === "jpeg"
           ? "image/jpeg"
           : "image/png",
-    "Content-Disposition": `attachment; filename=capture.${params.captureFormat}`,
+    "content-disposition": `attachment; filename=capture.${params.captureFormat}`,
   }
-  if (requestId) headers["Request-ID"] = requestId
 
   return new Response(captureResult.data.buffer as ArrayBuffer, {
     headers,

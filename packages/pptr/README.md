@@ -8,13 +8,14 @@
 
 ## ENV
 
-| Name                      | Description                        | Default                     |
-| ------------------------- | ---------------------------------- | --------------------------- |
-| PUPPETEER_EXECUTABLE_PATH | Chrome 可执行文件所在目录          | Auto-Detect                 |
-| PUPPETEER_CACHE_DIR       | Puppeteer 的浏览器安装目录         | /$HOME_DIR/.cache/puppeteer |
-| PUPPETEER_TIMEOUT         | 浏览器全局操作超时时间，单位：毫秒 | 30_000 ms                   |
-| HONO_PORT                 | API 服务端口                       | 3000                        |
-| LOG_LEVEL                 | 日志级别                           | info                        |
+| Name                      | Description                                                            | Default                     |
+| ------------------------- | ---------------------------------------------------------------------- | --------------------------- |
+| PUPPETEER_EXECUTABLE_PATH | Chrome 可执行文件所在目录。指定时，将忽略 CACHE_DIR, CHROMIUM_REVISION |                             |
+| PUPPETEER_CACHE_DIR       | Puppeteer 的浏览器安装目录                                             | /$HOME_DIR/.cache/puppeteer |
+| PUPPETEER_CHROME_REVISION | Chrome 版本                                                            | 133.0.6943.53               |
+| PUPPETEER_TIMEOUT         | 浏览器全局操作超时时间，单位：毫秒                                     | 30_000 ms                   |
+| HONO_PORT                 | API 服务端口                                                           | 3000                        |
+| LOG_LEVEL                 | 日志级别                                                               | info                        |
 
 ## Development Guide
 
