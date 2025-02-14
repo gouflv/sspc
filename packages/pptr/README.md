@@ -10,7 +10,26 @@
 
 ### GET /capture
 
-- Query Parameters
+- Request
+  - Header
+    - Content-Type: `application/json`
+    - Request-Id: `string` (optional)
+  - Body: `JSON`
+- Response
+  - Status: `200`
+    - Success
+    - Content-Type: `image/png` | `image/jpeg` | `application/pdf`
+    - Body: `File`
+  - Status: `400`
+    - Validation Error
+    - Content-Type: `application/json`
+    - Body: `{ success: false, error: string }`
+  - Status: `500`
+    - Internal Server Error
+    - Content-Type: `application/json`
+    - Body: `{ success: false, error: string }`
+
+#### Parameters
 
 | Name                   | Type                                                           | Required | Default  |
 | ---------------------- | -------------------------------------------------------------- | -------- | -------- |
