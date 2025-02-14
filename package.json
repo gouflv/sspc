@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "await-to-js": "^3.0.0",
+    "dotenv": "^16.4.7",
     "lodash-es": "^4.17.21",
     "tsx": "^4.19.2",
     "winston": "^3.17.0",
