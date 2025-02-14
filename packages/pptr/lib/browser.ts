@@ -25,27 +25,21 @@ export async function launch(options?: LaunchOptions) {
     await browser?.close()
   }
 
-  try {
-    const executablePath = await getExecutablePath()
-    logger.debug("launch", { executablePath })
+  const executablePath = await getExecutablePath()
+  logger.debug("launch", { executablePath })
 
-    browser = await pptr.launch({
-      executablePath,
-      args: [
-        "--disable-gpu",
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-      ],
-      ...options,
-    })
+  browser = await pptr.launch({
+    executablePath,
+    args: [
+      "--disable-gpu",
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+    ],
+    ...options,
+  })
 
-    context = await browser.createBrowserContext()
-  } catch (error) {
-    logger.error("launch", error)
-    await close()
-    throw error
-  }
+  context = await browser.createBrowserContext()
 
   return {
     browser,

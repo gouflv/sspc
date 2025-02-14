@@ -1,12 +1,15 @@
 import { serve } from "@hono/node-server"
 import { zValidator as validate } from "@hono/zod-validator"
 import { captureParamsSchema } from "@pptr/core"
-import { to } from "await-to-js"
+import { config as configDotenv } from "dotenv"
 import { Hono } from "hono"
 import { cors } from "hono/cors"
 import { timeout } from "hono/timeout"
-import capture from "../lib/capture"
+import { launch } from "../lib/browser"
 import logger from "../lib/logger"
+import { capturePage, initPage } from "../lib/page"
+
+configDotenv()
 
 const app = new Hono()
 app.use("/*", cors())
@@ -27,35 +30,50 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
     params,
   })
 
-  const startTime = Date.now()
-  const [error, captureResult] = await to(capture(params))
-  const duration = Date.now() - startTime
+  let closeBrowser: () => Promise<void> = async () => {}
 
-  if (error) {
+  try {
+    const startTime = Date.now()
+
+    const { context, close } = await launch()
+    closeBrowser = close
+    const page = initPage(await context.newPage(), params)
+    await page.goto(params.url)
+    await page.waitForNavigation({ waitUntil: "networkidle0" })
+    const data = await capturePage(page, params)
+
+    const duration = Date.now() - startTime
+    logger.info("/capture success", {
+      requestId,
+      duration,
+    })
+
+    const headers: any = {
+      "request-id": requestId,
+      "content-type": data.contentType,
+      "content-disposition": `attachment; filename=capture.${params.captureFormat}`,
+      duration,
+    }
+
+    return new Response(data.raw.buffer as ArrayBuffer, {
+      headers,
+    })
+  } catch (e) {
+    const error = e as Error
     logger.error("/capture", {
       requestId,
       error: error.message,
     })
-    return c.json({
-      success: false,
-      error: error.message,
-    })
+    return c.json(
+      {
+        success: false,
+        error: error.message,
+      },
+      500,
+    )
+  } finally {
+    await closeBrowser()
   }
-
-  logger.info("/capture success", {
-    requestId,
-    duration,
-  })
-
-  const headers: any = {
-    "request-id": requestId,
-    "content-type": captureResult.contentType,
-    "content-disposition": `attachment; filename=capture.${params.captureFormat}`,
-  }
-
-  return new Response(captureResult.data.buffer as ArrayBuffer, {
-    headers,
-  })
 })
 
 serve(

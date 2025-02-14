@@ -36,10 +36,10 @@ async function capturePDF(page: Page, params: CaptureParamsType) {
     options.width = params.pdfWidth
     options.height = params.pdfHeight
   }
-  const data = await page.pdf(options)
+  const raw = await page.pdf(options)
   return {
     contentType: "application/pdf",
-    data,
+    raw,
   }
 }
 
@@ -55,13 +55,13 @@ async function captureImage(page: Page, params: CaptureParamsType) {
 
   if (params.captureElementSelector) {
     const el = await page.waitForSelector(params.captureElementSelector)
-    const data = await el!.screenshot(options)
-    return { contentType, data }
+    const raw = await el!.screenshot(options)
+    return { contentType, raw }
   } else {
-    const data = await page.screenshot({
+    const raw = await page.screenshot({
       ...options,
       fullPage: true,
     })
-    return { contentType, data }
+    return { contentType, raw }
   }
 }
