@@ -1,7 +1,8 @@
 /**
- * Task functions
+ * Task management
  *
  * Example:
+ *
  * ```js
  * // create
  * const task = await Task.create(params)
@@ -10,8 +11,9 @@
  * const task = await Task.fromId(id)
  *
  * // update
- * await Task.update({ status: "running" })
+ * await Task.update({ status, artifact })
  *
+ * // more
  * await Task.delete()
  * await Task.exists()
  * ```
@@ -41,8 +43,8 @@ async function create(params: QueueCaptureInputParamsType): Promise<TaskData> {
   return task
 }
 
-async function findById(id: string): Promise<TaskData | null> {
-  return redis.getJSON(id)
+async function findById(id: string) {
+  return redis.getJSON<TaskData>(id)
 }
 
 async function update(

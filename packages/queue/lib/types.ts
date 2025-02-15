@@ -1,4 +1,4 @@
-import { captureParamsSchema, CaptureParamsType } from "@pptr/core"
+import { captureParamsSchema } from "@pptr/core"
 import { z } from "zod"
 
 export const queueCaptureParamsSchema = captureParamsSchema
@@ -33,7 +33,6 @@ export type TaskData = {
 export type JobData = {
   id: string
   taskId: string
-  params: CaptureParamsType
   index: number
   status: Status
   error: string | null
