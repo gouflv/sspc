@@ -10,10 +10,7 @@ it("should validate correct parameters", () => {
   }
 
   const result = captureParamsSchema.parse(valid)
-  expect(result).toEqual({
-    ...valid,
-    captureFormat: "png", // default value
-  })
+  expect(result).toEqual(valid)
 })
 
 it("should reject invalid url", () => {
@@ -66,12 +63,4 @@ it("should reject negative pdf margins", () => {
       pdfMargin: { top: -10 },
     }),
   ).toThrow()
-})
-
-it("should apply default captureFormat", () => {
-  const result = captureParamsSchema.parse({
-    url: "https://example.com",
-  })
-
-  expect(result.captureFormat).toBe("png")
 })
