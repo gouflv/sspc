@@ -1,10 +1,31 @@
 import Redis from "ioredis"
 
-let redisClient: Redis | null = null
+const client = new Redis(process.env.REDIS_URL || "redis://localhost:6379")
 
-export function getRedisClient() {
-  if (!redisClient) {
-    redisClient = new Redis(process.env.REDIS_URL || "redis://localhost:6379")
+async function getJSON<T>(key: string) {
+  const data = await client.get(key)
+  if (!data) {
+    return null
   }
-  return redisClient
+  return JSON.parse(data) as T
+}
+
+async function setJSON(key: string, data: unknown) {
+  await client.set(key, JSON.stringify(data))
+}
+
+async function remove(key: string) {
+  await client.del(key)
+}
+
+async function exists(key: string) {
+  return (await client.exists(key)) === 1
+}
+
+export default {
+  client,
+  getJSON,
+  setJSON,
+  remove,
+  exists,
 }

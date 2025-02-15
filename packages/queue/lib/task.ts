@@ -1,107 +1,74 @@
-import dayjs from "dayjs"
-import { isEmpty } from "lodash-es"
-import { v4 as uuid } from "uuid"
-import { getRedisClient } from "./redis"
-import { QueueCaptureParamsType } from "./types"
-
 /**
- * Task
- *  id
- *  params: QueueCaptureParamsType
- *  status: pending | running | completed | failed
+ * Task functions
  *
- *  jobs
- *   taskId
- *   id
- *   params: CaptureParamsType
- *   status: pending | running | completed | failed
- *   artifact
+ * Example:
+ * ```js
+ * // create
+ * const task = await Task.create(params)
+ *
+ * // retrieve
+ * const task = await Task.fromId(id)
+ *
+ * // update
+ * await Task.update({ status: "running" })
+ *
+ * await Task.delete()
+ * await Task.exists()
+ * ```
  */
 
-type Status = "pending" | "running" | "completed" | "failed"
+import dayjs from "dayjs"
+import { v4 as uuid } from "uuid"
+import redis from "./redis"
+import { QueueCaptureInputParamsType, TaskData } from "./types"
 
-type TaskData = {
-  id: string
-  params: QueueCaptureParamsType
-  status: Status
+const TaskPrefix = "task"
+
+function generateKey() {
+  const timestamp = dayjs().format("YY-MM-DD-HH-mm-ss".replace(/-/g, ""))
+  const uniqueId = uuid().replace(/-/g, "")
+  return [TaskPrefix, timestamp, uniqueId].join(":")
 }
 
-export class Task {
-  static client = getRedisClient()
+async function create(params: QueueCaptureInputParamsType): Promise<TaskData> {
+  const task: TaskData = {
+    id: generateKey(),
+    params,
+    status: "pending",
+    artifact: null,
+  }
+  await redis.setJSON(task.id, task)
+  return task
+}
 
-  static async fromId(id: string) {
-    const data = (await Task.client.hgetall(id)) as unknown as TaskData
-    if (isEmpty(data)) {
-      return null
-    }
-    return Task.fromData(data)
+async function findById(id: string): Promise<TaskData | null> {
+  return redis.getJSON(id)
+}
+
+async function update(
+  id: string,
+  { status, artifact }: Partial<Pick<TaskData, "status" | "artifact">>,
+) {
+  const task = await findById(id)
+  if (!task) {
+    throw new Error(`Task not found for id: ${id}`)
   }
 
-  static fromData(data: TaskData) {
-    const task = new Task()
-    task.id = data.id
-    task.params = data.params
-    task.status = data.status
-    return task
+  if (status) {
+    task.status = status
+  }
+  if (artifact) {
+    task.artifact = artifact
   }
 
-  static async create(params: QueueCaptureParamsType) {
-    const task = new Task()
-    task.params = params
-    await task.save()
-    return task
-  }
+  await redis.setJSON(id, task)
+  return task
+}
 
-  static EXPIRE = process.env["TASK_EXPIRE"] || 60 * 60 * 24 * 31 // 31 days
-
-  id: string | null = null
-  status: Status = "pending"
-  params: QueueCaptureParamsType | null = null
-
-  async save() {
-    this.id = this.getId()
-    const data = this.toData()
-    await Task.client.hset(this.id, data)
-    await Task.client.expire(this.id, Task.EXPIRE)
-    return data
-  }
-
-  async updateStatus(status: Status) {
-    if (!(await this.exists())) {
-      throw new Error("Task does not exist")
-    }
-    this.status = status
-    await this.save()
-  }
-
-  async exists() {
-    if (!this.id) return false
-    return (await Task.client.exists(this.id)) === 1
-  }
-
-  async delete() {
-    if (!this.id) return
-    await Task.client.del(this.id)
-  }
-
-  getId() {
-    if (this.id) {
-      return this.id
-    }
-    return ["task", dayjs().format("YYYYMMDDHHmmss"), uuid()].join(":")
-  }
-
-  toData(): TaskData {
-    if (!this.id) {
-      throw new Error("Task is missing id")
-    }
-    if (!this.params) {
-      throw new Error("Task is missing params")
-    }
-    return {
-      id: this.id,
-      params: this.params,
-      status: this.status,
-    }
-  }
+export default {
+  create,
+  findById,
+  update,
+  remove: redis.remove,
+  exists: redis.exists,
 }

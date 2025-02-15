@@ -1,4 +1,4 @@
-import { captureParamsSchema } from "@pptr/core"
+import { captureParamsSchema, CaptureParamsType } from "@pptr/core"
 import { z } from "zod"
 
 export const queueCaptureParamsSchema = captureParamsSchema
@@ -20,3 +20,22 @@ export type QueueCaptureInputParamsType = z.input<
 >
 
 export type QueueCaptureParamsType = z.infer<typeof queueCaptureParamsSchema>
+
+export type Status = "pending" | "running" | "completed" | "failed"
+
+export type TaskData = {
+  id: string
+  params: QueueCaptureParamsType
+  status: Status
+  artifact: string | null
+}
+
+export type JobData = {
+  id: string
+  taskId: string
+  params: CaptureParamsType
+  index: number
+  status: Status
+  error: string | null
+  artifact: string | null
+}

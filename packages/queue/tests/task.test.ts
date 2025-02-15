@@ -1,73 +1,96 @@
-import { expect, test } from "vitest"
-import { Task } from "../lib/task"
-import { QueueCaptureParamsType } from "../lib/types"
+import { afterEach, expect, test } from "vitest"
+import redis from "../lib/redis"
+import Task from "../lib/task"
+import { QueueCaptureInputParamsType } from "../lib/types"
 
-const mockParams: QueueCaptureParamsType = {
+let taskId: string
+
+const mockParams: QueueCaptureInputParamsType = {
   pages: [
     {
       url: "https://example.com",
-      name: "title",
+      name: "example",
     },
   ],
+  timeout: 5000,
 }
 
-test("should create task", async () => {
-  const task = await Task.create(mockParams)
-
-  // Verify task instance
-  expect(task).toBeInstanceOf(Task)
-  expect(task.id).toBeDefined()
-  expect(task.status).toBe("pending")
-  expect(task.params).toEqual(mockParams)
-
-  // console.log("task", JSON.stringify(task, null, 2))
-
-  // Verify persistence
-  const exists = await task.exists()
-  expect(exists).toBe(true)
-
-  // Verify retrieval
-  const retrieved = await Task.fromId(task.id!)
-  expect(retrieved).not.toBeNull()
-
-  // Clean up
-  await task.delete()
+afterEach(async () => {
+  // Cleanup any created tasks
+  if (taskId) {
+    await redis.remove(taskId)
+  }
 })
 
-test("should update task status", async () => {
+test("should create a new task", async () => {
   const task = await Task.create(mockParams)
+  taskId = task.id
 
-  // Test status update
-  await task.updateStatus("running")
-  expect(task.status).toBe("running")
-
-  // Verify persistence
-  const retrieved = await Task.fromId(task.id!)
-  expect(retrieved?.status).toBe("running")
-
-  // Test error on non-existent task
-  await task.delete()
-  await expect(task.updateStatus("completed")).rejects.toThrow(
-    "Task does not exist",
-  )
-})
-
-test("should handle toData correctly", () => {
-  const task = new Task()
-
-  // Should throw error when id is missing
-  expect(() => task.toData()).toThrow("Task is missing id")
-
-  // Should throw error when params is missing
-  task.id = "test:id"
-  expect(() => task.toData()).toThrow("Task is missing params")
-
-  // Should return correct data structure when all required fields are present
-  task.params = mockParams
-  const data = task.toData()
-  expect(data).toEqual({
-    id: "test:id",
+  expect(task).toMatchObject({
+    id: expect.stringMatching(/^task:/),
     params: mockParams,
     status: "pending",
+    artifact: null,
   })
+
+  // Verify task was saved to Redis
+  const exists = await Task.exists(task.id)
+  expect(exists).toBe(true)
+})
+
+test("should find task by id", async () => {
+  const task = await Task.create(mockParams)
+  taskId = task.id
+
+  const found = await Task.findById(task.id)
+  expect(found).toEqual(task)
+})
+
+test("should return null when finding non-existent task", async () => {
+  const found = await Task.findById("task:nonexistent")
+  expect(found).toBeNull()
+})
+
+test("should update task status and artifact", async () => {
+  const task = await Task.create(mockParams)
+  taskId = task.id
+
+  const artifact = "/tmp/screenshot.png" // Changed from object to string
+  const updated = await Task.update(task.id, {
+    status: "completed",
+    artifact,
+  })
+
+  expect(updated).toMatchObject({
+    id: task.id,
+    status: "completed",
+    artifact,
+  })
+
+  // Verify changes were persisted
+  const found = await Task.findById(task.id)
+  expect(found).toEqual(updated)
+})
+
+test("should throw error when updating non-existent task", async () => {
+  await expect(
+    Task.update("task:nonexistent", { status: "completed" }),
+  ).rejects.toThrow("Task not found")
+})
+
+test("should remove task", async () => {
+  const task = await Task.create(mockParams)
+
+  await Task.remove(task.id)
+
+  const exists = await Task.exists(task.id)
+  expect(exists).toBe(false)
+})
+
+test("should check if task exists", async () => {
+  const task = await Task.create(mockParams)
+  taskId = task.id
+
+  expect(await Task.exists(task.id)).toBe(true)
+  expect(await Task.exists("task:nonexistent")).toBe(false)
 })
