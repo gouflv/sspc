@@ -1,9 +1,6 @@
-import { dirname, join } from "path"
-import { fileURLToPath } from "url"
 import { createLogger, format, transports } from "winston"
 
-const dir = dirname(fileURLToPath(import.meta.url))
-const file = join(dir, "../logs/queue.log")
+const file = new URL("../logs/queue.log", import.meta.url).pathname
 
 const level =
   process.env["LOG_LEVEL"] ||
