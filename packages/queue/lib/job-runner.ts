@@ -97,7 +97,11 @@ async function updateTask(taskId: string) {
 
   // package all jobs's artifact to task artifact if task is completed
   if (status === "completed") {
-    // TODO: packageArtifacts
+    const { filename } = await Artifact.packageArtifacts(
+      jobs.map((job) => job.artifact!),
+      `${taskId}.zip`,
+    )
+    Task.update(taskId, { status, artifact: filename })
   } else {
     Task.update(taskId, { status })
   }

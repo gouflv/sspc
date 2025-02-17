@@ -20,10 +20,12 @@
  */
 
 import dayjs from "dayjs"
-import { v4 as uuid } from "uuid"
+import { customAlphabet } from "nanoid"
 import logger from "./logger"
 import redis from "./redis"
 import { QueueCaptureInputParamsType, TaskData } from "./types"
+
+const nanoid = customAlphabet("1234567890abcdef", 10)
 
 export const TaskExpire =
   parseInt(process.env.TASK_EXPIRE || "") ||
@@ -35,7 +37,7 @@ const TaskPrefix = "task"
 
 function generateKey() {
   const timestamp = dayjs().format("YY-MM-DD-HH-mm-ss".replace(/-/g, ""))
-  const uniqueId = uuid().replace(/-/g, "")
+  const uniqueId = nanoid()
   return [TaskPrefix, timestamp, uniqueId].join(":")
 }
 

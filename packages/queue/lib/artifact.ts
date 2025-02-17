@@ -15,12 +15,15 @@ async function save(stream: Stream, filename: string) {
 
   await mkdir(dirname(path), { recursive: true })
 
-  return new Promise<string>((resolve, reject) => {
+  return new Promise<{
+    path: string
+    filename: string
+  }>((resolve, reject) => {
     const writer = createWriteStream(path)
     stream.pipe(writer)
     writer.on("finish", () => {
       logger.debug("Artifact saved", { path })
-      resolve(path)
+      resolve({ path, filename })
     })
     writer.on("error", reject)
   })
@@ -35,10 +38,13 @@ async function packageArtifacts(artifacts: string[], filename: string) {
     zlib: { level: 9 },
   })
 
-  return new Promise<string>((resolve, reject) => {
+  return new Promise<{
+    path: string
+    filename: string
+  }>((resolve, reject) => {
     output.on("close", () => {
       logger.debug("Artifacts packaged", { path })
-      resolve(path)
+      resolve({ path, filename })
     })
 
     archive.on("error", reject)
