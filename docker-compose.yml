@@ -15,6 +15,7 @@ services:
     environment:
       - NODE_ENV=production
       - REDIS_URL=redis://redis:6379
+      - PPTR_HOST=http://pptr:3000
     restart: unless-stopped
 
   redis:
