@@ -5,8 +5,7 @@ import { basename, dirname, join } from "node:path"
 import { Stream } from "node:stream"
 
 function resolveFilePath(filename: string) {
-  const base =
-    process.env["ARTIFACT_BASE"] || new URL("../data", import.meta.url).pathname
+  const base = new URL("../data", import.meta.url).pathname
   return join(base, filename)
 }
 

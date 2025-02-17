@@ -1,5 +1,6 @@
 import { CaptureParamsType } from "@pptr/core"
 import axios, { AxiosError } from "axios"
+import { Stream } from "node:stream"
 
 type CaptureResponseError = {
   success: boolean
@@ -9,12 +10,16 @@ type CaptureResponseError = {
 async function capture(
   params: CaptureParamsType,
   {
-    url = process.env.PPTR_HOST || "http://localhost:3000/capture",
+    captureEndpoint = process.env.CAPTURE_ENDPOINT ||
+      "http://localhost:3000/capture",
     timeout = 1000 * 60 * 5, // 5 minutes
-  }: { url?: string; timeout?: number } = {},
-) {
+  }: { captureEndpoint?: string; timeout?: number } = {},
+): Promise<{
+  contentType: string
+  stream: Stream
+}> {
   try {
-    const response = await axios.post(url, params, {
+    const response = await axios.post(captureEndpoint, params, {
       timeout,
       responseType: "stream",
       headers: {

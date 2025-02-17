@@ -1,6 +1,5 @@
 import { afterEach, expect, test } from "vitest"
 import Job from "../lib/job"
-import redis from "../lib/redis"
 import { TaskData } from "../lib/types"
 
 let jobIds: string[] = []
@@ -20,7 +19,7 @@ const mockTask: TaskData = {
 afterEach(async () => {
   // Cleanup jobs
   if (jobIds.length) {
-    await Promise.all(jobIds.map((id) => redis.remove(id)))
+    await Promise.all(jobIds.map((id) => Job.remove(id)))
     jobIds = []
   }
 })

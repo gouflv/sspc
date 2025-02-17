@@ -21,8 +21,15 @@
 
 import dayjs from "dayjs"
 import { v4 as uuid } from "uuid"
+import logger from "./logger"
 import redis from "./redis"
 import { QueueCaptureInputParamsType, TaskData } from "./types"
+
+export const TaskExpire =
+  parseInt(process.env.TASK_EXPIRE || "") ||
+  (process.env.NODE_ENV === "development"
+    ? 1000 * 60 * 10 // 10 minutes
+    : 1000 * 60 * 60 * 24 * 14) // 14 days
 
 const TaskPrefix = "task"
 
@@ -39,7 +46,10 @@ async function create(params: QueueCaptureInputParamsType): Promise<TaskData> {
     status: "pending",
     artifact: null,
   }
-  await redis.setJSON(task.id, task)
+  await redis.setJSON(task.id, task, { expire: TaskExpire })
+
+  logger.info(`Task created: ${task.id}`, { task })
+
   return task
 }
 

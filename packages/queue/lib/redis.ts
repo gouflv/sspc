@@ -1,6 +1,7 @@
 import Redis from "ioredis"
 
-const client = new Redis(process.env.REDIS_URL || "redis://localhost:6379")
+export const RedisURL = process.env.REDIS_URL || "redis://localhost:6379"
+const client = new Redis(RedisURL)
 
 async function getJSON<T>(key: string) {
   const data = await client.get(key)
@@ -10,8 +11,15 @@ async function getJSON<T>(key: string) {
   return JSON.parse(data) as T
 }
 
-async function setJSON(key: string, data: unknown) {
+async function setJSON(
+  key: string,
+  data: unknown,
+  options?: { expire?: number },
+) {
   await client.set(key, JSON.stringify(data))
+  if (typeof options?.expire === "number") {
+    await client.expire(key, options.expire)
+  }
 }
 
 async function exists(key: string) {
@@ -25,4 +33,5 @@ export default {
   exists,
   remove: client.del.bind(client),
   keys: client.keys.bind(client),
+  expire: client.expire.bind(client),
 }

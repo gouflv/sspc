@@ -16,14 +16,16 @@
  * // update
  * await Job.update(job.id, { status, error, artifact })
  *
- * // more
+ * // remove
  * await Job.remove(job.id)
  * await Job.removeAllByTask(task.id)
  * ```
  */
 
+import logger from "./logger"
 import redis from "./redis"
-import { JobData, TaskData } from "./types"
+import { TaskExpire } from "./task"
+import { JobData, Status, TaskData } from "./types"
 
 function generateKey(taskId: string, index: number) {
   return [taskId, `job-${index}`].join(":")
@@ -44,7 +46,12 @@ async function createByTask(task: TaskData): Promise<JobData[]> {
       artifact: null,
     } satisfies JobData
   })
-  await Promise.all(jobs.map((job) => redis.setJSON(job.id, job)))
+  await Promise.all(
+    jobs.map((job) => redis.setJSON(job.id, job, { expire: TaskExpire })),
+  )
+
+  logger.info(`Created jobs for task: ${task.id}`, { jobs, count: jobs.length })
+
   return jobs
 }
 
@@ -91,6 +98,19 @@ async function removeAllByTask(taskId: string) {
   await Promise.all(keys.map((key) => redis.remove(key)))
 }
 
+function countByStatus(jobs: JobData[]) {
+  const count: Record<Status, number> = {
+    pending: 0,
+    running: 0,
+    completed: 0,
+    failed: 0,
+  }
+  for (const job of jobs) {
+    count[job.status]++
+  }
+  return count
+}
+
 export default {
   createByTask,
   findById,
@@ -98,4 +118,5 @@ export default {
   update,
   remove: redis.remove,
   removeAllByTask,
+  countByStatus,
 }

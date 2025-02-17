@@ -1,5 +1,4 @@
 import { afterEach, expect, test } from "vitest"
-import redis from "../lib/redis"
 import Task from "../lib/task"
 import { QueueCaptureInputParamsType } from "../lib/types"
 
@@ -18,7 +17,7 @@ const mockParams: QueueCaptureInputParamsType = {
 afterEach(async () => {
   // Cleanup any created tasks
   if (taskId) {
-    await redis.remove(taskId)
+    await Task.remove(taskId)
   }
 })
 
