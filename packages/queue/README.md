@@ -7,6 +7,7 @@
 | TASK_EXPIRE   |             | 31d                    |
 | TASK_ATTEMPTS |             | 1                      |
 | FILE_EXPIRE   |             | 7d                     |
+| ARTIFACT_BASE |             | ./data                 |
 
 ## Note
 

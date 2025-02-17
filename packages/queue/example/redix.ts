@@ -1,5 +1,5 @@
 import Redis from "ioredis"
-;(async function run() {
+;(async () => {
   const client = new Redis()
 
   await client.set("foo", "bar")
