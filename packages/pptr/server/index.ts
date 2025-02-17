@@ -37,9 +37,9 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
 
     const { context, close } = await launch()
     closeBrowser = close
+
     const page = initPage(await context.newPage(), params)
-    await page.goto(params.url)
-    await page.waitForNavigation({ waitUntil: "networkidle0" })
+    await page.goto(params.url, { waitUntil: "networkidle0" })
     const data = await capturePage(page, params)
 
     const duration = Date.now() - startTime
