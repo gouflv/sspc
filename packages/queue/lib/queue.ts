@@ -1,5 +1,6 @@
 import Queue from "bull"
 import JobRunner from "./job-runner"
+import logger from "./logger"
 import { RedisURL } from "./redis"
 import { JobData } from "./types"
 
@@ -20,14 +21,15 @@ queue.process(async (job) => {
   }
 })
 
-function add(job: JobData) {
-  return queue.add(job, {
+async function add(job: JobData) {
+  await queue.add(job, {
     jobId: job.id,
     delay: 1_000,
     attempts: parseInt(process.env["JOB_ATTEMPTS"] || "") || 2,
     removeOnComplete: true,
     removeOnFail: true,
   })
+  logger.debug("Job added to queue", { id: job.id })
 }
 
 export default {

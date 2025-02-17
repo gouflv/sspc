@@ -50,7 +50,10 @@ async function createByTask(task: TaskData): Promise<JobData[]> {
     jobs.map((job) => redis.setJSON(job.id, job, { expire: TaskExpire })),
   )
 
-  logger.info(`Created jobs for task: ${task.id}`, { jobs, count: jobs.length })
+  logger.info("Jobs created", {
+    ids: jobs.map((job) => job.id),
+    count: jobs.length,
+  })
 
   return jobs
 }
@@ -80,17 +83,29 @@ async function update(
     throw new Error(`Job not found for id: ${id}`)
   }
 
-  if (status) {
+  let dirty = false
+
+  if (typeof status !== "undefined" && job.status !== status) {
+    dirty = true
     job.status = status
   }
-  if (error) {
+  if (typeof error !== "undefined" && job.error !== error) {
+    dirty = true
     job.error = error
   }
-  if (artifact) {
+  if (typeof artifact !== "undefined" && job.artifact !== artifact) {
+    dirty = true
     job.artifact = artifact
   }
 
+  // no need to update
+  if (!dirty) return job
+
   await redis.setJSON(job.id, job)
+
+  logger.info("Job updated", { id: job.id, status, error, artifact })
+
+  return job
 }
 
 async function removeAllByTask(taskId: string) {

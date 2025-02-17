@@ -38,3 +38,12 @@ export type JobData = {
   error: string | null
   artifact: string | null
 }
+
+export type TaskInfo = TaskData & {
+  status: Status
+  job: {
+    total: number
+    completed: number
+    list: JobData[]
+  }
+}

@@ -3,6 +3,7 @@ import { createWriteStream, unlink } from "node:fs"
 import { mkdir } from "node:fs/promises"
 import { basename, dirname, join } from "node:path"
 import { Stream } from "node:stream"
+import logger from "./logger"
 
 function resolveFilePath(filename: string) {
   const base = new URL("../data", import.meta.url).pathname
@@ -11,11 +12,16 @@ function resolveFilePath(filename: string) {
 
 async function save(stream: Stream, filename: string) {
   const path = resolveFilePath(filename)
+
   await mkdir(dirname(path), { recursive: true })
+
   return new Promise<string>((resolve, reject) => {
     const writer = createWriteStream(path)
     stream.pipe(writer)
-    writer.on("finish", () => resolve(path))
+    writer.on("finish", () => {
+      logger.debug("Artifact saved", { path })
+      resolve(path)
+    })
     writer.on("error", reject)
   })
 }
@@ -30,7 +36,11 @@ async function packageArtifacts(artifacts: string[], filename: string) {
   })
 
   return new Promise<string>((resolve, reject) => {
-    output.on("close", () => resolve(path))
+    output.on("close", () => {
+      logger.debug("Artifacts packaged", { path })
+      resolve(path)
+    })
+
     archive.on("error", reject)
 
     archive.pipe(output)

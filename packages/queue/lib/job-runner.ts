@@ -39,10 +39,13 @@
 import Artifact from "./artifact"
 import capture from "./capture"
 import Job from "./job"
+import logger from "./logger"
 import Task from "./task"
 import { JobData, Status } from "./types"
 
 async function exec(job: JobData) {
+  logger.info("Queue job started", { id: job.id })
+
   try {
     await Job.update(job.id, { status: "running", error: null })
 
@@ -56,7 +59,7 @@ async function exec(job: JobData) {
 
     // capture
     const page = task.params.pages[job.index]
-    const captureResult = await capture({
+    const captureResult = await capture(job.id, {
       ...task.params,
       url: page.url,
     })
@@ -94,6 +97,7 @@ async function updateTask(taskId: string) {
 
   // package all jobs's artifact to task artifact if task is completed
   if (status === "completed") {
+    // TODO: packageArtifacts
   } else {
     Task.update(taskId, { status })
   }

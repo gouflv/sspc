@@ -48,7 +48,7 @@ async function create(params: QueueCaptureInputParamsType): Promise<TaskData> {
   }
   await redis.setJSON(task.id, task, { expire: TaskExpire })
 
-  logger.info(`Task created: ${task.id}`, { task })
+  logger.info("Task created", { task })
 
   return task
 }
@@ -66,14 +66,24 @@ async function update(
     throw new Error(`Task not found for id: ${id}`)
   }
 
-  if (status) {
+  let dirty = false
+
+  if (typeof status !== "undefined" && task.status !== status) {
+    dirty = true
     task.status = status
   }
-  if (artifact) {
+  if (typeof artifact !== "undefined" && task.artifact !== artifact) {
+    dirty = true
     task.artifact = artifact
   }
 
+  // no need to update
+  if (!dirty) return task
+
   await redis.setJSON(id, task)
+
+  logger.info("Task updated", { id: task.id, status, artifact })
+
   return task
 }
 
