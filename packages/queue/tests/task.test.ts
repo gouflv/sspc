@@ -1,5 +1,5 @@
 import { afterEach, expect, test } from "vitest"
-import Task from "../lib/task"
+import Task from "../lib/entities/task"
 import { QueueCaptureInputParamsType } from "../lib/types"
 
 let taskId: string
@@ -28,7 +28,6 @@ test("should create a new task", async () => {
   expect(task).toMatchObject({
     id: expect.stringMatching(/^task:/),
     params: mockParams,
-    status: "pending",
     artifact: null,
   })
 
@@ -50,19 +49,17 @@ test("should return null when finding non-existent task", async () => {
   expect(found).toBeNull()
 })
 
-test("should update task status and artifact", async () => {
+test("should update task artifact", async () => {
   const task = await Task.create(mockParams)
   taskId = task.id
 
   const artifact = "/tmp/screenshot.png" // Changed from object to string
   const updated = await Task.update(task.id, {
-    status: "completed",
     artifact,
   })
 
   expect(updated).toMatchObject({
     id: task.id,
-    status: "completed",
     artifact,
   })
 
@@ -73,7 +70,7 @@ test("should update task status and artifact", async () => {
 
 test("should throw error when updating non-existent task", async () => {
   await expect(
-    Task.update("task:nonexistent", { status: "completed" }),
+    Task.update("task:nonexistent", { artifact: "example" }),
   ).rejects.toThrow("Task not found")
 })
 

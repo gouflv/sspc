@@ -1,16 +1,19 @@
 import { serve } from "@hono/node-server"
 import { zValidator as validate } from "@hono/zod-validator"
+import { d } from "@pptr/core"
 import { Hono } from "hono"
 import { cors } from "hono/cors"
 import { timeout } from "hono/timeout"
-import Job from "../lib/job"
-import Queue from "../lib/queue"
-import Task from "../lib/task"
+import Task from "../lib/entities/task"
+import queue from "../lib/queue"
 import { queueCaptureParamsSchema } from "../lib/types"
+
+// Bull works
+import "../lib/workers"
 
 const app = new Hono()
 app.use("/*", cors())
-app.use("/*", timeout(1000 * 60 * 1)) // 1 minutes
+app.use("/*", timeout(d("5 mins")))
 
 app.get("/", (c) => {
   return c.json({
@@ -28,13 +31,16 @@ app.post("/task", validate("json", queueCaptureParamsSchema), async (c) => {
     // create task
     const task = await Task.create(params)
 
-    // create jobs
-    const jobs = await Job.createByTask(task)
+    const res = await queue.add(task)
+    console.log(JSON.stringify(res, null, 2))
 
-    // add jobs to queue
-    await Promise.all(
-      jobs.map((job) => Queue.add(job, jobs.length > 50 ? 2 : 1)),
-    )
+    // // create jobs
+    // const jobs = await Job.createByTask(task)
+
+    // // add jobs to queue
+    // await Promise.all(
+    //   jobs.map((job) => Queue.add(job, jobs.length > 50 ? 2 : 1)),
+    // )
 
     return c.json({
       success: true,

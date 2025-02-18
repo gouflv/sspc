@@ -1,6 +1,6 @@
 import { createLogger, format, transports } from "winston"
 
-const file = new URL("../logs/queue.log", import.meta.url).pathname
+const file = new URL("../../logs/queue.log", import.meta.url).pathname
 
 const level =
   process.env["LOG_LEVEL"] ||

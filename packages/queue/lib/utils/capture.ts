@@ -11,20 +11,18 @@ type CaptureResponseError = {
 const CaptureEndpoint =
   process.env.CAPTURE_ENDPOINT || "http://localhost:3000/capture"
 
-const Timeout = 1000 * 60 * 5 // 5 minutes
-
 async function capture(
   id: string,
   params: CaptureParamsType,
 ): Promise<{
   contentType: string
   stream: Stream
+  duration: number
 }> {
   logger.debug(`Capture started: ${id}`)
 
   try {
     const response = await axios.post(CaptureEndpoint, params, {
-      timeout: Timeout,
       responseType: "stream",
       headers: {
         "Content-Type": "application/json",
@@ -32,13 +30,14 @@ async function capture(
       },
     })
 
-    const duration = response.headers["duration"]
+    const duration = parseInt(response.headers["duration"] || "0")
 
     logger.debug("Capture completed", { duration })
 
     return {
       contentType: response.headers["content-type"],
       stream: response.data,
+      duration,
     }
   } catch (e) {
     if (axios.isAxiosError(e)) {

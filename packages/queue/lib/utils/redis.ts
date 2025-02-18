@@ -1,7 +1,7 @@
 import Redis from "ioredis"
 
 export const RedisURL = process.env.REDIS_URL || "redis://localhost:6379"
-const client = new Redis(RedisURL)
+export const client = new Redis(RedisURL)
 
 async function getJSON<T>(key: string) {
   const data = await client.get(key)

@@ -19,19 +19,18 @@
  * ```
  */
 
+import { d } from "@pptr/core"
 import dayjs from "dayjs"
 import { customAlphabet } from "nanoid"
-import logger from "./logger"
-import redis from "./redis"
-import { QueueCaptureInputParamsType, TaskData } from "./types"
+import { CaptureTask, QueueCaptureInputParamsType } from "../types"
+import logger from "../utils/logger"
+import redis from "../utils/redis"
 
 const nanoid = customAlphabet("1234567890abcdef", 10)
 
 export const TaskExpire =
   parseInt(process.env.TASK_EXPIRE || "") ||
-  (process.env.NODE_ENV === "development"
-    ? 1000 * 60 * 10 // 10 minutes
-    : 1000 * 60 * 60 * 24 * 14) // 14 days
+  (process.env.NODE_ENV === "development" ? d("10 mins") : d("1 week"))
 
 const TaskPrefix = "task"
 
@@ -41,12 +40,10 @@ function generateKey() {
   return [TaskPrefix, timestamp, uniqueId].join(":")
 }
 
-async function create(params: QueueCaptureInputParamsType): Promise<TaskData> {
-  const task: TaskData = {
+async function create(params: QueueCaptureInputParamsType) {
+  const task: CaptureTask = {
     id: generateKey(),
     params,
-    status: "pending",
-    artifact: null,
   }
   await redis.setJSON(task.id, task, { expire: TaskExpire })
 
@@ -56,12 +53,12 @@ async function create(params: QueueCaptureInputParamsType): Promise<TaskData> {
 }
 
 async function findById(id: string) {
-  return redis.getJSON<TaskData>(id)
+  return redis.getJSON<CaptureTask>(id)
 }
 
 async function update(
   id: string,
-  { status, artifact }: Partial<Pick<TaskData, "status" | "artifact">>,
+  { artifact }: Partial<Pick<CaptureTask, "artifact">>,
 ) {
   const task = await findById(id)
   if (!task) {
@@ -70,10 +67,6 @@ async function update(
 
   let dirty = false
 
-  if (typeof status !== "undefined" && task.status !== status) {
-    dirty = true
-    task.status = status
-  }
   if (typeof artifact !== "undefined" && task.artifact !== artifact) {
     dirty = true
     task.artifact = artifact
@@ -84,15 +77,15 @@ async function update(
 
   await redis.setJSON(id, task)
 
-  logger.info("Task updated", { id: task.id, status, artifact })
+  logger.info("Task updated", { id: task.id, artifact })
 
   return task
 }
 
 export default {
   create,
-  findById,
+  remove: (id: string) => redis.remove(id),
   update,
-  remove: redis.remove,
-  exists: redis.exists,
+  findById,
+  exists: (id: string) => redis.exists(id),
 }

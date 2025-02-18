@@ -1,50 +1,88 @@
-import Queue from "bull"
-import JobRunner from "./job-runner"
-import logger from "./logger"
-import { RedisURL } from "./redis"
-import { JobData } from "./types"
+import { DefaultJobOptions, FlowProducer, JobNode } from "bullmq"
+import { omit } from "lodash-es"
+import {
+  CaptureJob,
+  CaptureJobQueueName,
+  CaptureTask,
+  CaptureTaskQueueName,
+} from "./types"
+import { client as redisClient } from "./utils/redis"
 
-const captureJobQueue = new Queue<JobData>("capture-job", RedisURL, {
-  limiter: {
-    max: 1,
-    duration: 5_000,
-  },
-})
+// const captureJobQueue = new Queue<JobData>("capture-job", {
+//   connection: redisClient,
+//   defaultJobOptions: {
+//     attempts: parseInt(process.env["JOB_ATTEMPTS"] || "") || 2,
+//     delay: 1_000,
+//     removeOnComplete: true,
+//     removeOnFail: true,
+//   },
+// })
 
-captureJobQueue.process(async (job) => {
-  const data = job.data as JobData
-  try {
-    await JobRunner.exec(data)
-    return Promise.resolve()
-  } catch (e) {
-    return Promise.reject(e)
-  }
-})
+// captureJobQueue.process(async (job) => {
+//   const data = job.data as JobData
+//   try {
+//     await JobRunner.exec(data)
+//     return Promise.resolve()
+//   } catch (e) {
+//     return Promise.reject(e)
+//   }
+// })
 
-async function add(job: JobData, priority = 1) {
-  await captureJobQueue.add(job, {
-    jobId: job.id,
-    delay: 1_000,
-    attempts: parseInt(process.env["JOB_ATTEMPTS"] || "") || 2,
-    priority,
-    removeOnComplete: true,
-    removeOnFail: true,
-  })
-  logger.debug("Job added to queue", { id: job.id })
+const flow = new FlowProducer({ connection: redisClient })
+
+const jobOption: DefaultJobOptions = {
+  attempts: parseInt(process.env["JOB_ATTEMPTS"] || "") || 2,
+  delay: 1_000,
+  removeOnComplete: true, //{ age: d("10 mins") },
+  removeOnFail: true,
 }
 
-async function remove(jobIds: string[]) {
-  // stop running jobs matching jobIds
-  const runningJobs = await captureJobQueue.getJobs(["active"])
-  for (const job of runningJobs) {
-    if (jobIds.includes(job.id as string)) {
-      await job.discard()
-    }
+function add(task: CaptureTask): Promise<JobNode> {
+  return flow.add(
+    {
+      name: task.id,
+      queueName: CaptureTaskQueueName,
+
+      // use CaptureTask as parent job payload
+      data: task,
+
+      children: task.params.pages.map((page, index) => ({
+        name: `${task.id}:job-${index}`,
+        queueName: CaptureJobQueueName,
+
+        opts: {
+          // IMPORTANT
+          failParentOnFailure: true,
+        },
+
+        // use CaptureJob as job payload
+        data: createCaptureJob(task, index),
+      })),
+    },
+    {
+      queuesOptions: {
+        [CaptureTaskQueueName]: {
+          defaultJobOptions: jobOption,
+        },
+        [CaptureJobQueueName]: {
+          defaultJobOptions: jobOption,
+        },
+      },
+    },
+  )
+}
+
+function createCaptureJob(task: CaptureTask, index: number): CaptureJob {
+  return {
+    taskId: task.id,
+    index,
+    params: {
+      ...omit(task.params, "pages"),
+      url: task.params.pages[index].url,
+    },
   }
-  await Promise.all(jobIds.map((id) => captureJobQueue.removeJobs(id)))
 }
 
 export default {
   add,
-  remove,
 }
