@@ -1,4 +1,4 @@
-# pptr
+# Page Capture Service with Puppeteer
 
 ## Features
 

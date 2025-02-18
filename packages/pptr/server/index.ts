@@ -1,6 +1,6 @@
 import { serve } from "@hono/node-server"
 import { zValidator as validate } from "@hono/zod-validator"
-import { captureParamsSchema } from "@pptr/core"
+import { captureParamsSchema, d } from "@pptr/core"
 import { config as configDotenv } from "dotenv"
 import { Hono } from "hono"
 import { cors } from "hono/cors"
@@ -13,7 +13,7 @@ configDotenv()
 
 const app = new Hono()
 app.use("/*", cors())
-app.use("/*", timeout(1000 * 60 * 5)) // 5 minutes
+app.use("/*", timeout(d("5 mins")))
 
 app.get("/", (c) => {
   return c.json({

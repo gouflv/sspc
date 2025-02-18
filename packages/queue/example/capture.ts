@@ -1,8 +1,8 @@
-import artifact from "../lib/artifact"
-import capture from "../lib/capture"
+import artifact from "../lib/utils/artifact"
+import capture from "../lib/utils/capture"
 ;(async () => {
   try {
-    const { contentType, stream } = await capture({
+    const { contentType, stream } = await capture("example", {
       url: "https://www.example.com",
     })
     const path = await artifact.save(stream, "example.png")

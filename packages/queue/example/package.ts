@@ -1,5 +1,5 @@
-import Artifact from "../lib/artifact"
+import artifact from "../lib/utils/artifact"
 ;(async () => {
-  const path = await Artifact.packageArtifacts(["example.png"], "pkg.zip")
+  const path = await artifact.packageArtifacts(["example.png"], "pkg.zip")
   console.log(path)
 })()
