@@ -32,16 +32,18 @@ export default async function (queueJob: Job<CaptureJob>): Promise<string> {
 
     return filename
   } catch (e) {
+    const error = (e as Error).message
+
     logger.error("Capture job failed", {
-      job: queueJob.name,
-      error: (e as Error).message,
+      id: queueJob.name,
+      error,
     })
 
     if (progress) {
       // update job-progress
       await JobProgress.update(progress.id, {
         status: "failed",
-        error: (e as Error).message,
+        error,
         artifact: null,
         duration: null,
       })

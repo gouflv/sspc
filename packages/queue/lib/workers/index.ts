@@ -7,13 +7,11 @@ import {
 } from "../types"
 import { RedisURL } from "../utils/redis"
 import captureJobProcessor from "./capture"
+import taskJobProcessor from "./task"
 
 const taskQueueWorker = new Worker<CaptureTask, string>(
   CaptureTaskQueueName,
-  async (job) => {
-    console.log("taskQueue", job.data)
-    return "task-done"
-  },
+  taskJobProcessor,
   {
     connection: {
       url: RedisURL,

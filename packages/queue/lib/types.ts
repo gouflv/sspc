@@ -29,7 +29,8 @@ export type Status = "pending" | "running" | "completed" | "failed"
 export type CaptureTask = {
   id: string
   params: QueueCaptureParamsType
-  artifact?: string | null
+  artifact: string | null
+  error: string | null
 }
 
 /**

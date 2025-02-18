@@ -1,3 +1,4 @@
+import { d } from "@pptr/core"
 import { DefaultJobOptions, FlowProducer, JobNode } from "bullmq"
 import { omit } from "lodash-es"
 import {
@@ -30,11 +31,14 @@ import { client as redisClient } from "./utils/redis"
 
 const flow = new FlowProducer({ connection: redisClient })
 
+const age =
+  process.env["NODE_ENV"] === "development" ? d("10 mins") : d("1 week")
+
 const jobOption: DefaultJobOptions = {
   attempts: parseInt(process.env["JOB_ATTEMPTS"] || "") || 2,
   delay: 1_000,
-  removeOnComplete: true, //{ age: d("10 mins") },
-  removeOnFail: true,
+  removeOnComplete: { age },
+  removeOnFail: { age },
 }
 
 function add(task: CaptureTask): Promise<JobNode> {

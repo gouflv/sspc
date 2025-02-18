@@ -44,6 +44,8 @@ async function create(params: QueueCaptureInputParamsType) {
   const task: CaptureTask = {
     id: generateKey(),
     params,
+    artifact: null,
+    error: null,
   }
   await redis.setJSON(task.id, task, { expire: TaskExpire })
 
@@ -58,7 +60,7 @@ async function findById(id: string) {
 
 async function update(
   id: string,
-  { artifact }: Partial<Pick<CaptureTask, "artifact">>,
+  { artifact, error }: Partial<Pick<CaptureTask, "artifact" | "error">>,
 ) {
   const task = await findById(id)
   if (!task) {
@@ -70,6 +72,10 @@ async function update(
   if (typeof artifact !== "undefined" && task.artifact !== artifact) {
     dirty = true
     task.artifact = artifact
+  }
+  if (typeof error !== "undefined" && task.error !== error) {
+    dirty = true
+    task.error = error
   }
 
   // no need to update

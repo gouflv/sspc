@@ -1,5 +1,5 @@
 import archiver from "archiver"
-import { createWriteStream, unlink } from "node:fs"
+import { createReadStream, createWriteStream, unlink } from "node:fs"
 import { mkdir } from "node:fs/promises"
 import { basename, dirname, join } from "node:path"
 import { Stream } from "node:stream"
@@ -15,15 +15,12 @@ async function save(stream: Stream, filename: string) {
 
   await mkdir(dirname(path), { recursive: true })
 
-  return new Promise<{
-    path: string
-    filename: string
-  }>((resolve, reject) => {
+  return new Promise<string>((resolve, reject) => {
     const writer = createWriteStream(path)
     stream.pipe(writer)
     writer.on("finish", () => {
       logger.debug("Artifact saved", { path })
-      resolve({ path, filename })
+      resolve(path)
     })
     writer.on("error", reject)
   })
@@ -38,13 +35,10 @@ async function packageArtifacts(artifacts: string[], filename: string) {
     zlib: { level: 9 },
   })
 
-  return new Promise<{
-    path: string
-    filename: string
-  }>((resolve, reject) => {
+  return new Promise<string>((resolve, reject) => {
     output.on("close", () => {
       logger.debug("Artifacts packaged", { path })
-      resolve({ path, filename })
+      resolve(path)
     })
 
     archive.on("error", reject)
@@ -74,6 +68,11 @@ async function remove(filename: string) {
   })
 }
 
+async function geReadStream(filename: string) {
+  const path = resolveFilePath(filename)
+  return createReadStream(path)
+}
+
 /**
  * image/png => png
  * image/jpeg => jpeg
@@ -88,4 +87,5 @@ export default {
   remove,
   packageArtifacts,
   contentType2Extension,
+  geReadStream,
 }

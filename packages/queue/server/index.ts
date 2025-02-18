@@ -9,6 +9,7 @@ import queue from "../lib/queue"
 import { queueCaptureParamsSchema } from "../lib/types"
 
 // Bull works
+import logger from "../lib/utils/logger"
 import "../lib/workers"
 
 const app = new Hono()
@@ -31,16 +32,8 @@ app.post("/task", validate("json", queueCaptureParamsSchema), async (c) => {
     // create task
     const task = await Task.create(params)
 
-    const res = await queue.add(task)
-    console.log(JSON.stringify(res, null, 2))
-
-    // // create jobs
-    // const jobs = await Job.createByTask(task)
-
-    // // add jobs to queue
-    // await Promise.all(
-    //   jobs.map((job) => Queue.add(job, jobs.length > 50 ? 2 : 1)),
-    // )
+    const job = await queue.add(task)
+    logger.debug("Task added to queue", { job })
 
     return c.json({
       success: true,
