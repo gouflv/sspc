@@ -40,10 +40,9 @@ export type JobData = {
 }
 
 export type TaskInfo = TaskData & {
-  status: Status
-  job: {
+  progress: {
     total: number
     completed: number
-    list: JobData[]
+    jobs: JobData[]
   }
 }

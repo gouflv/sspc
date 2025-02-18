@@ -113,14 +113,14 @@ function combinedStatus(jobs: JobData[]): Status {
   }
   const statusCount = Job.countByStatus(jobs)
 
+  if (statusCount.failed) {
+    return "failed"
+  }
   if (statusCount.running) {
     return "running"
   }
   if (statusCount.completed === jobs.length) {
     return "completed"
-  }
-  if (statusCount.failed) {
-    return "failed"
   }
   return "pending"
 }

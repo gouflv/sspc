@@ -32,7 +32,9 @@ app.post("/task", validate("json", queueCaptureParamsSchema), async (c) => {
     const jobs = await Job.createByTask(task)
 
     // add jobs to queue
-    await Promise.all(jobs.map((job) => Queue.add(job)))
+    await Promise.all(
+      jobs.map((job) => Queue.add(job, jobs.length > 50 ? 2 : 1)),
+    )
 
     return c.json({
       success: true,
