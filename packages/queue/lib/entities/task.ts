@@ -21,6 +21,7 @@
 
 import { d } from "@pptr/core"
 import dayjs from "dayjs"
+import { assign } from "lodash-es"
 import { customAlphabet } from "nanoid"
 import { CaptureTask, QueueCaptureInputParamsType } from "../types"
 import logger from "../utils/logger"
@@ -44,6 +45,7 @@ async function create(params: QueueCaptureInputParamsType) {
   const task: CaptureTask = {
     id: generateKey(),
     params,
+    status: "pending",
     artifact: null,
     error: null,
     queueJobId: null,
@@ -61,38 +63,20 @@ async function findById(id: string) {
 
 async function update(
   id: string,
-  {
-    queueJobId,
-    artifact,
-    error,
-  }: Partial<Pick<CaptureTask, "queueJobId" | "artifact" | "error">>,
+  data: Partial<
+    Pick<CaptureTask, "status" | "queueJobId" | "artifact" | "error">
+  >,
 ) {
   const task = await findById(id)
   if (!task) {
     throw new Error(`Task not found for id: ${id}`)
   }
 
-  let dirty = false
-
-  if (typeof queueJobId !== "undefined" && task.queueJobId !== queueJobId) {
-    dirty = true
-    task.queueJobId = queueJobId
-  }
-  if (typeof artifact !== "undefined" && task.artifact !== artifact) {
-    dirty = true
-    task.artifact = artifact
-  }
-  if (typeof error !== "undefined" && task.error !== error) {
-    dirty = true
-    task.error = error
-  }
-
-  // no need to update
-  if (!dirty) return task
+  assign(task, data)
 
   await redis.setJSON(id, task)
 
-  logger.info("Task updated", { id: task.id, artifact })
+  logger.info("Task updated", { id: task.id, data })
 
   return task
 }

@@ -1,4 +1,5 @@
-import { CaptureJobProgress } from "../types"
+import { assign } from "lodash-es"
+import { CaptureProgress } from "../types"
 import logger from "../utils/logger"
 import redis from "../utils/redis"
 import { TaskExpire } from "./task"
@@ -8,7 +9,7 @@ function generateId(taskId: string, index: number) {
 }
 
 async function create(taskId: string, index: number) {
-  const data: CaptureJobProgress = {
+  const data: CaptureProgress = {
     id: generateId(taskId, index),
     taskId,
     index,
@@ -24,13 +25,13 @@ async function create(taskId: string, index: number) {
 }
 
 async function findById(id: string) {
-  return redis.getJSON<CaptureJobProgress>(id)
+  return redis.getJSON<CaptureProgress>(id)
 }
 
-async function findAll(taskId: string): Promise<CaptureJobProgress[]> {
+async function findAll(taskId: string): Promise<CaptureProgress[]> {
   const keys = await redis.keys(`${taskId}:job-*`)
   const data = await Promise.all(
-    keys.map(async (key) => await redis.getJSON<CaptureJobProgress>(key)),
+    keys.map(async (key) => await redis.getJSON<CaptureProgress>(key)),
   )
   return data.filter((job) => job !== null)
 }
@@ -38,7 +39,7 @@ async function findAll(taskId: string): Promise<CaptureJobProgress[]> {
 async function update(
   id: string,
   data: Partial<
-    Pick<CaptureJobProgress, "status" | "error" | "artifact" | "duration">
+    Pick<CaptureProgress, "status" | "error" | "artifact" | "duration">
   >,
 ) {
   const job = await findById(id)
@@ -46,25 +47,7 @@ async function update(
     throw new Error(`Job not found for id: ${id}`)
   }
 
-  let dirty = false
-  if (typeof data.status !== "undefined" && job.status !== data.status) {
-    dirty = true
-    job.status = data.status
-  }
-  if (typeof data.error !== "undefined" && job.error !== data.error) {
-    dirty = true
-    job.error = data.error
-  }
-  if (typeof data.artifact !== "undefined" && job.artifact !== data.artifact) {
-    dirty = true
-    job.artifact = data.artifact
-  }
-  if (typeof data.duration !== "undefined" && job.duration !== data.duration) {
-    dirty = true
-    job.duration = data.duration
-  }
-
-  if (!dirty) return job
+  assign(job, data)
 
   await redis.setJSON(id, job)
 

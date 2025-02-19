@@ -1,22 +1,22 @@
 import { Job as QueueJob } from "bullmq"
-import JobProgress from "../entities/job-progress"
-import { CaptureJob, CaptureJobProgress } from "../types"
+import Progress from "../entities/progress"
+import { CaptureJobPayload, CaptureProgress } from "../types"
 import Artifact from "../utils/artifact"
 import capture from "../utils/capture"
 import logger from "../utils/logger"
 
 export default async function (
-  queueJob: QueueJob<CaptureJob>,
+  queueJob: QueueJob<CaptureJobPayload>,
 ): Promise<string> {
   logger.info("Capture job started", { job: queueJob.name })
 
-  let progress: CaptureJobProgress | null = null
+  let progress: CaptureProgress | null = null
 
   try {
     const { taskId, index } = queueJob.data
 
     // create job-progress
-    progress = await JobProgress.create(taskId, index)
+    progress = await Progress.create(taskId, index)
 
     // capture
     const captureResult = await capture(queueJob.name, queueJob.data.params)
@@ -26,7 +26,7 @@ export default async function (
     await Artifact.save(captureResult.stream, filename)
 
     // update job-progress
-    await JobProgress.update(progress.id, {
+    await Progress.update(progress.id, {
       status: "completed",
       artifact: filename,
       duration: captureResult.duration,
@@ -43,7 +43,7 @@ export default async function (
 
     if (progress) {
       // update job-progress
-      await JobProgress.update(progress.id, {
+      await Progress.update(progress.id, {
         status: "failed",
         error,
         artifact: null,

@@ -21,7 +21,7 @@ export type QueueCaptureInputParamsType = z.input<
 
 export type QueueCaptureParamsType = z.infer<typeof queueCaptureParamsSchema>
 
-export type Status = "pending" | "running" | "completed" | "failed"
+export type Status = "pending" | "running" | "completed" | "failed" | "canceled"
 
 /**
  * Task entity
@@ -29,15 +29,16 @@ export type Status = "pending" | "running" | "completed" | "failed"
 export type CaptureTask = {
   id: string
   params: QueueCaptureParamsType
+  status: Status
   artifact: string | null
   error: string | null
   queueJobId: string | null
 }
 
 /**
- * Job entity
+ * Queue job payload
  */
-export type CaptureJob = {
+export type CaptureJobPayload = {
   taskId: string
   index: number
   params: CaptureParamsType
@@ -46,7 +47,7 @@ export type CaptureJob = {
 /**
  * Job progress entity
  */
-export type CaptureJobProgress = {
+export type CaptureProgress = {
   id: string
   taskId: string
   index: number
@@ -56,13 +57,14 @@ export type CaptureJobProgress = {
   duration: number | null
 }
 
-// export type TaskInfo = TaskData & {
-//   progress: {
-//     total: number
-//     completed: number
-//     jobs: JobData[]
-//   }
-// }
+export type TaskInfo = CaptureTask & {
+  status: Status
+  progress: {
+    total: number
+    completed: number
+  }
+  children: CaptureProgress[]
+}
 
 export const CaptureTaskQueueName = "captureTaskQueue"
 export const CaptureJobQueueName = "captureJobQueue"

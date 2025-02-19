@@ -1,6 +1,6 @@
 import { Job as QueueJob } from "bullmq"
 import { some } from "lodash-es"
-import JobProgress from "../entities/job-progress"
+import Progress from "../entities/progress"
 import Task from "../entities/task"
 import { CaptureTask } from "../types"
 import artifact from "../utils/artifact"
@@ -14,7 +14,7 @@ export default async function (
   const taskId = queueJob.data.id
 
   try {
-    const progressRecords = await JobProgress.findAll(taskId)
+    const progressRecords = await Progress.findAll(taskId)
 
     const artifacts = progressRecords.map((record) => record.artifact!)
 

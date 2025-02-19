@@ -5,14 +5,9 @@ import {
   JobNode,
   Job as QueueJob,
 } from "bullmq"
-import { omit } from "lodash-es"
 import Task from "./entities/task"
-import {
-  CaptureJob,
-  CaptureJobQueueName,
-  CaptureTask,
-  CaptureTaskQueueName,
-} from "./types"
+import { CaptureJobQueueName, CaptureTask, CaptureTaskQueueName } from "./types"
+import { createCaptureJobPayload } from "./utils/helper"
 import logger from "./utils/logger"
 import { client as redisClient } from "./utils/redis"
 
@@ -48,7 +43,7 @@ function add(task: CaptureTask): Promise<JobNode> {
       },
 
       // use CaptureJob as job payload
-      data: createCaptureJob(task, index),
+      data: createCaptureJobPayload(task, index),
     })),
   })
 }
@@ -100,17 +95,6 @@ async function remove(taskId: string) {
 
     // not throw error
     return false
-  }
-}
-
-function createCaptureJob(task: CaptureTask, index: number): CaptureJob {
-  return {
-    taskId: task.id,
-    index,
-    params: {
-      ...omit(task.params, "pages"),
-      url: task.params.pages[index].url,
-    },
   }
 }
 

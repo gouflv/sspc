@@ -1,7 +1,7 @@
 import { Worker } from "bullmq"
 import Queue from "../queue"
 import {
-  CaptureJob,
+  CaptureJobPayload,
   CaptureJobQueueName,
   CaptureTask,
   CaptureTaskQueueName,
@@ -17,11 +17,11 @@ const taskWorker = new Worker<CaptureTask, string>(
     connection: {
       url: RedisURL,
     },
-    concurrency: 1,
+    concurrency: 2,
   },
 )
 
-const captureJobWorker = new Worker<CaptureJob>(
+const captureJobWorker = new Worker<CaptureJobPayload>(
   CaptureJobQueueName,
   captureJobProcessor,
   {
