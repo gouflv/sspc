@@ -9,30 +9,9 @@ import {
 } from "./types"
 import { client as redisClient } from "./utils/redis"
 
-// const captureJobQueue = new Queue<JobData>("capture-job", {
-//   connection: redisClient,
-//   defaultJobOptions: {
-//     attempts: parseInt(process.env["JOB_ATTEMPTS"] || "") || 2,
-//     delay: 1_000,
-//     removeOnComplete: true,
-//     removeOnFail: true,
-//   },
-// })
-
-// captureJobQueue.process(async (job) => {
-//   const data = job.data as JobData
-//   try {
-//     await JobRunner.exec(data)
-//     return Promise.resolve()
-//   } catch (e) {
-//     return Promise.reject(e)
-//   }
-// })
-
 const flow = new FlowProducer({ connection: redisClient })
 
-const age =
-  process.env["NODE_ENV"] === "development" ? d("10 mins") : d("1 week")
+const age = process.env["NODE_ENV"] === "development" ? d("1 mins") : d("1 day")
 
 const jobOption: DefaultJobOptions = {
   attempts: parseInt(process.env["JOB_ATTEMPTS"] || "") || 2,
@@ -42,38 +21,29 @@ const jobOption: DefaultJobOptions = {
 }
 
 function add(task: CaptureTask): Promise<JobNode> {
-  return flow.add(
-    {
-      name: task.id,
-      queueName: CaptureTaskQueueName,
+  return flow.add({
+    name: task.id,
+    queueName: CaptureTaskQueueName,
 
-      // use CaptureTask as parent job payload
-      data: task,
+    opts: jobOption,
 
-      children: task.params.pages.map((page, index) => ({
-        name: `${task.id}:job-${index}`,
-        queueName: CaptureJobQueueName,
+    // use CaptureTask as parent job payload
+    data: task,
 
-        opts: {
-          // IMPORTANT
-          failParentOnFailure: true,
-        },
+    children: task.params.pages.map((page, index) => ({
+      name: `${task.id}:job-${index}`,
+      queueName: CaptureJobQueueName,
 
-        // use CaptureJob as job payload
-        data: createCaptureJob(task, index),
-      })),
-    },
-    {
-      queuesOptions: {
-        [CaptureTaskQueueName]: {
-          defaultJobOptions: jobOption,
-        },
-        [CaptureJobQueueName]: {
-          defaultJobOptions: jobOption,
-        },
+      opts: {
+        // IMPORTANT
+        failParentOnFailure: true,
+        ...jobOption,
       },
-    },
-  )
+
+      // use CaptureJob as job payload
+      data: createCaptureJob(task, index),
+    })),
+  })
 }
 
 function createCaptureJob(task: CaptureTask, index: number): CaptureJob {
@@ -88,5 +58,6 @@ function createCaptureJob(task: CaptureTask, index: number): CaptureJob {
 }
 
 export default {
+  flow,
   add,
 }

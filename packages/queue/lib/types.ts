@@ -31,6 +31,7 @@ export type CaptureTask = {
   params: QueueCaptureParamsType
   artifact: string | null
   error: string | null
+  queueJobId: string | null
 }
 
 /**

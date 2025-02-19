@@ -30,10 +30,14 @@ app.post("/task", validate("json", queueCaptureParamsSchema), async (c) => {
 
   try {
     // create task
-    const task = await Task.create(params)
+    let task = await Task.create(params)
 
-    const job = await queue.add(task)
+    // add task to queue
+    const { job } = await queue.add(task)
     logger.debug("Task added to queue", { job })
+
+    // save queueJobId
+    task = await Task.update(task.id, { queueJobId: job.id })
 
     return c.json({
       success: true,
@@ -60,6 +64,11 @@ app.get("/task/:id", (c) => {
 
 // get artifact
 app.get("/task/:id/artifact", (c) => {
+  return new Response()
+})
+
+// cancel task
+app.delete("/task/:id", (c) => {
   return new Response()
 })
 

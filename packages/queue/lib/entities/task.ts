@@ -30,7 +30,7 @@ const nanoid = customAlphabet("1234567890abcdef", 10)
 
 export const TaskExpire =
   parseInt(process.env.TASK_EXPIRE || "") ||
-  (process.env.NODE_ENV === "development" ? d("10 mins") : d("1 week"))
+  (process.env.NODE_ENV === "development" ? d("5 mins") : d("7 days"))
 
 const TaskPrefix = "task"
 
@@ -46,6 +46,7 @@ async function create(params: QueueCaptureInputParamsType) {
     params,
     artifact: null,
     error: null,
+    queueJobId: null,
   }
   await redis.setJSON(task.id, task, { expire: TaskExpire })
 
@@ -60,7 +61,11 @@ async function findById(id: string) {
 
 async function update(
   id: string,
-  { artifact, error }: Partial<Pick<CaptureTask, "artifact" | "error">>,
+  {
+    queueJobId,
+    artifact,
+    error,
+  }: Partial<Pick<CaptureTask, "queueJobId" | "artifact" | "error">>,
 ) {
   const task = await findById(id)
   if (!task) {
@@ -69,6 +74,10 @@ async function update(
 
   let dirty = false
 
+  if (typeof queueJobId !== "undefined" && task.queueJobId !== queueJobId) {
+    dirty = true
+    task.queueJobId = queueJobId
+  }
   if (typeof artifact !== "undefined" && task.artifact !== artifact) {
     dirty = true
     task.artifact = artifact

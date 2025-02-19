@@ -1,4 +1,5 @@
 import { Worker } from "bullmq"
+import Queue from "../queue"
 import {
   CaptureJob,
   CaptureJobQueueName,
@@ -9,7 +10,7 @@ import { RedisURL } from "../utils/redis"
 import captureJobProcessor from "./capture"
 import taskJobProcessor from "./task"
 
-const taskQueueWorker = new Worker<CaptureTask, string>(
+const taskWorker = new Worker<CaptureTask, string>(
   CaptureTaskQueueName,
   taskJobProcessor,
   {
@@ -20,7 +21,7 @@ const taskQueueWorker = new Worker<CaptureTask, string>(
   },
 )
 
-const captureJobQueueWorker = new Worker<CaptureJob>(
+const captureJobWorker = new Worker<CaptureJob>(
   CaptureJobQueueName,
   captureJobProcessor,
   {
@@ -31,16 +32,17 @@ const captureJobQueueWorker = new Worker<CaptureJob>(
   },
 )
 
+export default {
+  taskQueue: taskWorker,
+  captureJobQueue: captureJobWorker,
+}
+
 const gracefulShutdown = async (signal: string) => {
-  console.log(`Received ${signal}, closing server...`)
-  await taskQueueWorker.close()
-  await captureJobQueueWorker.close()
+  console.log(`Received ${signal}, closing...`)
+  await Queue.flow.close()
+  await taskWorker.close()
+  await captureJobWorker.close()
   process.exit(0)
 }
 process.on("SIGINT", () => gracefulShutdown("SIGINT"))
 process.on("SIGTERM", () => gracefulShutdown("SIGTERM"))
-
-export default {
-  taskQueue: taskQueueWorker,
-  captureJobQueue: captureJobQueueWorker,
-}
