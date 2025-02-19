@@ -61,7 +61,10 @@ export type TaskInfo = CaptureTask & {
   status: Status
   progress: {
     total: number
+    pending: number
+    running: number
     completed: number
+    failed: number
   }
   children: CaptureProgress[]
 }
