@@ -1,18 +1,17 @@
 import archiver from "archiver"
 import { createReadStream, createWriteStream, unlink } from "node:fs"
 import { mkdir } from "node:fs/promises"
-import { basename, dirname, join } from "node:path"
+import { dirname, extname, join } from "node:path"
 import { Stream } from "node:stream"
 import logger from "./logger"
 
 function resolveFilePath(filename: string) {
-  const base = new URL("../data", import.meta.url).pathname
+  const base = new URL("../../data", import.meta.url).pathname
   return join(base, filename)
 }
 
 async function save(stream: Stream, filename: string) {
   const path = resolveFilePath(filename)
-
   await mkdir(dirname(path), { recursive: true })
 
   return new Promise<string>((resolve, reject) => {
@@ -26,7 +25,13 @@ async function save(stream: Stream, filename: string) {
   })
 }
 
-async function packageArtifacts(artifacts: string[], filename: string) {
+async function packageArtifacts(
+  artifacts: {
+    filename: string
+    distName: string
+  }[],
+  filename: string,
+) {
   const path = resolveFilePath(filename)
   await mkdir(dirname(path), { recursive: true })
 
@@ -46,8 +51,11 @@ async function packageArtifacts(artifacts: string[], filename: string) {
     archive.pipe(output)
 
     for (const artifact of artifacts) {
-      archive.file(resolveFilePath(artifact), {
-        name: basename(artifact),
+      const ext = extname(artifact.filename)
+      const distNameBaseOnly = artifact.distName.replace(/\..+$/, "")
+
+      archive.file(resolveFilePath(artifact.filename), {
+        name: `${distNameBaseOnly}.${ext}`,
       })
     }
 

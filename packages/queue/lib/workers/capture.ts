@@ -1,8 +1,10 @@
 import { Job as QueueJob } from "bullmq"
+import mime from "mime"
 import Progress from "../entities/progress"
 import { CaptureJobPayload, CaptureProgress } from "../types"
 import Artifact from "../utils/artifact"
 import capture from "../utils/capture"
+import { safeFilename } from "../utils/helper"
 import logger from "../utils/logger"
 
 export default async function (
@@ -22,7 +24,9 @@ export default async function (
     const captureResult = await capture(queueJob.name, queueJob.data.params)
 
     // save artifact
-    const filename = `${queueJob.id}.${Artifact.contentType2Extension(captureResult.contentType)}`
+    const filename = safeFilename(
+      `${queueJob.name}.${mime.getExtension(captureResult.contentType)}`,
+    )
     await Artifact.save(captureResult.stream, filename)
 
     // update job-progress

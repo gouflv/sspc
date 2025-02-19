@@ -41,3 +41,7 @@ export function createCaptureJobPayload(
     },
   }
 }
+
+export function safeFilename(id: string) {
+  return id.replace(/[^A-Za-z0-9-_.]/g, "_")
+}

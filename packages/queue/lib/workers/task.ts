@@ -4,6 +4,7 @@ import Progress from "../entities/progress"
 import Task from "../entities/task"
 import { CaptureTask } from "../types"
 import artifact from "../utils/artifact"
+import { safeFilename } from "../utils/helper"
 import logger from "../utils/logger"
 
 export default async function (
@@ -26,9 +27,13 @@ export default async function (
       throw new Error("Some jobs are missing")
     }
 
-    const filename = `${taskId}.zip`
+    const filename = safeFilename(`${taskId}.zip`)
+
     await artifact.packageArtifacts(
-      progressRecords.map((record) => record.artifact!),
+      artifacts.map((artifact, index) => ({
+        filename: artifact,
+        distName: captureParams.pages[index].name,
+      })),
       filename,
     )
 
