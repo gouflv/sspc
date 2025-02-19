@@ -1,6 +1,12 @@
 import { d } from "@pptr/core"
-import { DefaultJobOptions, FlowProducer, Job, JobNode } from "bullmq"
+import {
+  DefaultJobOptions,
+  FlowProducer,
+  JobNode,
+  Job as QueueJob,
+} from "bullmq"
 import { omit } from "lodash-es"
+import Task from "./entities/task"
 import {
   CaptureJob,
   CaptureJobQueueName,
@@ -52,16 +58,31 @@ async function findById(queueJobId: string) {
     queueName: CaptureTaskQueueName,
     id: queueJobId,
   })
-  return job as Job<CaptureTask>
+  return job as QueueJob<CaptureTask>
 }
 
-async function remove(queueJobId: string) {
-  const { job, children } = await flow.getFlow({
-    id: queueJobId,
-    queueName: CaptureTaskQueueName,
-  })
-
+/**
+ * remove parent job and children from queue
+ * Note: running job will throw
+ */
+async function remove(taskId: string) {
   try {
+    const task = await Task.findById(taskId)
+
+    if (!task?.queueJobId) {
+      throw new Error(`Task not found or not in queue: ${taskId}`)
+    }
+
+    const jobTree = await flow.getFlow({
+      id: task.queueJobId,
+      queueName: CaptureTaskQueueName,
+    })
+
+    if (!jobTree) {
+      throw new Error(`Job not found: ${task.queueJobId}`)
+    }
+
+    const { job, children } = jobTree
     // Remove all child jobs first
     if (children?.length) {
       await Promise.all(children.map((child) => child.job.remove()))
@@ -69,14 +90,15 @@ async function remove(queueJobId: string) {
     // Remove parent job
     await job.remove()
 
-    logger.info("Jobs removed from queue", { queueJobId })
+    logger.info("Jobs removed from queue", { id: job.id, taskId })
 
     return true
   } catch (e) {
-    logger.debug("Failed to cleanup jobs", {
-      queueJobId,
+    logger.info("Failed to cleanup jobs", {
       error: (e as Error).message,
     })
+
+    // not throw error
     return false
   }
 }
@@ -96,5 +118,5 @@ export default {
   flow,
   add,
   findById,
-  cleanup: remove,
+  remove,
 }

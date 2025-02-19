@@ -5,11 +5,11 @@ import { Hono } from "hono"
 import { cors } from "hono/cors"
 import { timeout } from "hono/timeout"
 import Task from "../lib/entities/task"
-import queue from "../lib/queue"
+import Queue from "../lib/queue"
 import { queueCaptureParamsSchema } from "../lib/types"
+import logger from "../lib/utils/logger"
 
 // Bull works
-import logger from "../lib/utils/logger"
 import "../lib/workers"
 
 const app = new Hono()
@@ -33,7 +33,7 @@ app.post("/task", validate("json", queueCaptureParamsSchema), async (c) => {
     let task = await Task.create(params)
 
     // add task to queue
-    const { job } = await queue.add(task)
+    const { job } = await Queue.add(task)
     logger.debug("Task added to queue", { job })
 
     // save queueJobId
@@ -67,9 +67,20 @@ app.get("/task/:id/artifact", (c) => {
   return new Response()
 })
 
-// remove task
-app.delete("/task/:id", (c) => {
-  return new Response()
+/**
+ * Stop task
+ *
+ * NOTE: if job in progress, it will not stop immediately
+ */
+app.get("/task/:id/cancel", async (c) => {
+  const taskId = c.req.param("id")
+
+  // remove task from queue
+  const success = await Queue.remove(taskId)
+
+  return c.json({
+    success,
+  })
 })
 
 serve(
