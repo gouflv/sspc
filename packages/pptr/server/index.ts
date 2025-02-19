@@ -3,7 +3,6 @@ import { zValidator as validate } from "@hono/zod-validator"
 import { captureParamsSchema, d } from "@pptr/core"
 import { config as configDotenv } from "dotenv"
 import { Hono } from "hono"
-import { cors } from "hono/cors"
 import { timeout } from "hono/timeout"
 import { launch } from "../lib/browser"
 import logger from "../lib/logger"
@@ -12,13 +11,10 @@ import { capturePage, initPage } from "../lib/page"
 configDotenv()
 
 const app = new Hono()
-app.use("/*", cors())
 app.use("/*", timeout(d("5 mins")))
 
 app.get("/", (c) => {
-  return c.json({
-    message: "Hello, world!",
-  })
+  return c.text("Hello, world!")
 })
 
 app.post("/capture", validate("json", captureParamsSchema), async (c) => {
