@@ -9,9 +9,10 @@ import logger from "../utils/logger"
 export default async function (
   queueJob: QueueJob<CaptureTask>,
 ): Promise<string> {
-  logger.info("Task job started", { job: queueJob.name })
+  logger.debug("[worker:task] started", { job: queueJob.name })
 
-  const taskId = queueJob.data.id
+  const task = queueJob.data
+  const { id: taskId, params: captureParams } = task
 
   try {
     const progressRecords = await Progress.findAll(taskId)
@@ -21,6 +22,9 @@ export default async function (
     if (some(artifacts, (artifact) => !artifact)) {
       throw new Error("Some jobs are not completed")
     }
+    if (artifacts.length !== captureParams.pages.length) {
+      throw new Error("Some jobs are missing")
+    }
 
     const filename = `${taskId}.zip`
     await artifact.packageArtifacts(
@@ -28,18 +32,27 @@ export default async function (
       filename,
     )
 
-    await Task.update(taskId, { artifact: filename })
+    await Task.update(taskId, {
+      status: "completed",
+      artifact: filename,
+    })
+
+    logger.debug("[worker:task] completed", { job: queueJob.name })
 
     return filename
   } catch (e) {
     const error = (e as Error).message
 
-    logger.error("Task job failed", {
+    logger.error("[worker:task] failed", {
       id: queueJob.name,
+      taskId,
       error,
     })
 
-    await Task.update(taskId, { error })
+    await Task.update(taskId, {
+      status: "failed",
+      error,
+    })
 
     throw e
   }

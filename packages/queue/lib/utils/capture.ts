@@ -19,7 +19,7 @@ async function capture(
   stream: Stream
   duration: number
 }> {
-  logger.debug(`Capture started: ${id}`)
+  logger.debug("[capture] started", { id })
 
   try {
     const response = await axios.post(CaptureEndpoint, params, {
@@ -32,7 +32,7 @@ async function capture(
 
     const duration = parseInt(response.headers["duration"] || "0")
 
-    logger.debug("Capture completed", { duration })
+    logger.debug("[capture] completed", { id, duration })
 
     return {
       contentType: response.headers["content-type"],

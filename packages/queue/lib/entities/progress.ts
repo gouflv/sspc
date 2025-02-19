@@ -42,18 +42,18 @@ async function update(
     Pick<CaptureProgress, "status" | "error" | "artifact" | "duration">
   >,
 ) {
-  const job = await findById(id)
-  if (!job) {
-    throw new Error(`Job not found for id: ${id}`)
+  const record = await findById(id)
+  if (!record) {
+    throw new Error(`[progress] not found: ${id}`)
   }
 
-  assign(job, data)
+  assign(record, data)
 
-  await redis.setJSON(id, job)
+  await redis.setJSON(id, record)
 
-  logger.info("Job updated", { id: job.id, ...data })
+  logger.info("[progress] updated", { id: record.id, ...data })
 
-  return job
+  return record
 }
 
 export default {

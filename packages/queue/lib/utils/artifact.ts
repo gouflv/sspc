@@ -19,7 +19,7 @@ async function save(stream: Stream, filename: string) {
     const writer = createWriteStream(path)
     stream.pipe(writer)
     writer.on("finish", () => {
-      logger.debug("Artifact saved", { path })
+      logger.debug("[artifact] saved", { path })
       resolve(path)
     })
     writer.on("error", reject)
@@ -37,7 +37,7 @@ async function packageArtifacts(artifacts: string[], filename: string) {
 
   return new Promise<string>((resolve, reject) => {
     output.on("close", () => {
-      logger.debug("Artifacts packaged", { path })
+      logger.debug("[artifact] packaged", { path })
       resolve(path)
     })
 

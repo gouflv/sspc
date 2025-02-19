@@ -52,7 +52,7 @@ async function create(params: QueueCaptureInputParamsType) {
   }
   await redis.setJSON(task.id, task, { expire: TaskExpire })
 
-  logger.info("Task created", { task })
+  logger.info("[task] created", { task })
 
   return task
 }
@@ -69,14 +69,14 @@ async function update(
 ) {
   const task = await findById(id)
   if (!task) {
-    throw new Error(`Task not found for id: ${id}`)
+    throw new Error(`[task] not found: ${id}`)
   }
 
   assign(task, data)
 
   await redis.setJSON(id, task)
 
-  logger.info("Task updated", { id: task.id, data })
+  logger.info("[task] updated", { id: task.id, data })
 
   return task
 }

@@ -42,7 +42,6 @@ function add(task: CaptureTask): Promise<JobNode> {
         ...jobOption,
       },
 
-      // use CaptureJob as job payload
       data: createCaptureJobPayload(task, index),
     })),
   })
@@ -58,14 +57,13 @@ async function findById(queueJobId: string) {
 
 /**
  * remove parent job and children from queue
- * Note: running job will throw
  */
 async function remove(taskId: string) {
   try {
     const task = await Task.findById(taskId)
 
     if (!task?.queueJobId) {
-      throw new Error(`Task not found or not in queue: ${taskId}`)
+      return false
     }
 
     const jobTree = await flow.getFlow({
@@ -74,22 +72,24 @@ async function remove(taskId: string) {
     })
 
     if (!jobTree) {
-      throw new Error(`Job not found: ${task.queueJobId}`)
+      throw new Error("job not found")
     }
 
+    // Note: move running job will throw
     const { job, children } = jobTree
-    // Remove all child jobs first
+    // remove all child jobs first
     if (children?.length) {
       await Promise.all(children.map((child) => child.job.remove()))
     }
-    // Remove parent job
+    // remove parent job
     await job.remove()
 
-    logger.info("Jobs removed from queue", { id: job.id, taskId })
+    logger.info("[queue] job removed from queue", { id: job.id, taskId })
 
     return true
   } catch (e) {
-    logger.info("Failed to cleanup jobs", {
+    logger.info("[queue] failed to remove job", {
+      id: taskId,
       error: (e as Error).message,
     })
 

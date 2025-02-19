@@ -8,7 +8,7 @@ import logger from "../utils/logger"
 export default async function (
   queueJob: QueueJob<CaptureJobPayload>,
 ): Promise<string> {
-  logger.info("Capture job started", { job: queueJob.name })
+  logger.debug("[worker:capture] started", { job: queueJob.name })
 
   let progress: CaptureProgress | null = null
 
@@ -32,11 +32,13 @@ export default async function (
       duration: captureResult.duration,
     })
 
+    logger.debug("[worker:capture] completed", { job: queueJob.name })
+
     return filename
   } catch (e) {
     const error = (e as Error).message
 
-    logger.error("Capture job failed", {
+    logger.error("[worker:capture] failed", {
       id: queueJob.name,
       error,
     })
