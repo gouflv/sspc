@@ -49,15 +49,15 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
     })
 
     const headers: any = {
-      "request-id": requestId,
       "content-type": data.contentType,
       "content-disposition": `attachment; filename=capture.${params.captureFormat}`,
-      duration,
+      duration: `${duration}`,
+    }
+    if (requestId) {
+      headers["request-id"] = requestId
     }
 
-    return new Response(data.raw.buffer as ArrayBuffer, {
-      headers,
-    })
+    return new Response(data.raw.buffer as ArrayBuffer, { headers })
   } catch (e) {
     const error = e as Error
     logger.error("/capture", {

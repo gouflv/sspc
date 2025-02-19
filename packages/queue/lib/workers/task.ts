@@ -1,4 +1,4 @@
-import { Job } from "bullmq"
+import { Job as QueueJob } from "bullmq"
 import { some } from "lodash-es"
 import JobProgress from "../entities/job-progress"
 import Task from "../entities/task"
@@ -6,7 +6,9 @@ import { CaptureTask } from "../types"
 import artifact from "../utils/artifact"
 import logger from "../utils/logger"
 
-export default async function (queueJob: Job<CaptureTask>): Promise<string> {
+export default async function (
+  queueJob: QueueJob<CaptureTask>,
+): Promise<string> {
   logger.info("Task job started", { job: queueJob.name })
 
   const taskId = queueJob.data.id

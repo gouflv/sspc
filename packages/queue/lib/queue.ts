@@ -1,5 +1,5 @@
 import { d } from "@pptr/core"
-import { DefaultJobOptions, FlowProducer, JobNode } from "bullmq"
+import { DefaultJobOptions, FlowProducer, Job, JobNode } from "bullmq"
 import { omit } from "lodash-es"
 import {
   CaptureJob,
@@ -7,6 +7,7 @@ import {
   CaptureTask,
   CaptureTaskQueueName,
 } from "./types"
+import logger from "./utils/logger"
 import { client as redisClient } from "./utils/redis"
 
 const flow = new FlowProducer({ connection: redisClient })
@@ -46,6 +47,40 @@ function add(task: CaptureTask): Promise<JobNode> {
   })
 }
 
+async function findById(queueJobId: string) {
+  const { job } = await flow.getFlow({
+    queueName: CaptureTaskQueueName,
+    id: queueJobId,
+  })
+  return job as Job<CaptureTask>
+}
+
+async function remove(queueJobId: string) {
+  const { job, children } = await flow.getFlow({
+    id: queueJobId,
+    queueName: CaptureTaskQueueName,
+  })
+
+  try {
+    // Remove all child jobs first
+    if (children?.length) {
+      await Promise.all(children.map((child) => child.job.remove()))
+    }
+    // Remove parent job
+    await job.remove()
+
+    logger.info("Jobs removed from queue", { queueJobId })
+
+    return true
+  } catch (e) {
+    logger.debug("Failed to cleanup jobs", {
+      queueJobId,
+      error: (e as Error).message,
+    })
+    return false
+  }
+}
+
 function createCaptureJob(task: CaptureTask, index: number): CaptureJob {
   return {
     taskId: task.id,
@@ -60,4 +95,6 @@ function createCaptureJob(task: CaptureTask, index: number): CaptureJob {
 export default {
   flow,
   add,
+  findById,
+  cleanup: remove,
 }

@@ -67,7 +67,7 @@ app.get("/task/:id/artifact", (c) => {
   return new Response()
 })
 
-// cancel task
+// remove task
 app.delete("/task/:id", (c) => {
   return new Response()
 })

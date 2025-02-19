@@ -1,11 +1,13 @@
-import { Job } from "bullmq"
+import { Job as QueueJob } from "bullmq"
 import JobProgress from "../entities/job-progress"
 import { CaptureJob, CaptureJobProgress } from "../types"
 import Artifact from "../utils/artifact"
 import capture from "../utils/capture"
 import logger from "../utils/logger"
 
-export default async function (queueJob: Job<CaptureJob>): Promise<string> {
+export default async function (
+  queueJob: QueueJob<CaptureJob>,
+): Promise<string> {
   logger.info("Capture job started", { job: queueJob.name })
 
   let progress: CaptureJobProgress | null = null
