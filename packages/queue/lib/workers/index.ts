@@ -1,5 +1,4 @@
 import { Worker } from "bullmq"
-import Queue from "../queue"
 import {
   CaptureJobPayload,
   CaptureJobQueueName,
@@ -33,16 +32,6 @@ const captureJobWorker = new Worker<CaptureJobPayload>(
 )
 
 export default {
-  taskQueue: taskWorker,
-  captureJobQueue: captureJobWorker,
+  taskWorker,
+  captureJobWorker,
 }
-
-const gracefulShutdown = async (signal: string) => {
-  console.log(`Received ${signal}, closing...`)
-  await Queue.flow.close()
-  await taskWorker.close()
-  await captureJobWorker.close()
-  process.exit(0)
-}
-process.on("SIGINT", () => gracefulShutdown("SIGINT"))
-process.on("SIGTERM", () => gracefulShutdown("SIGTERM"))

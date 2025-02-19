@@ -6,9 +6,11 @@ import Task from "../lib/entities/task"
 import Queue from "../lib/queue"
 import { queueCaptureParamsSchema } from "../lib/types"
 import Artifact from "../lib/utils/artifact"
-
-// Bull works
 import { getTaskInfo } from "../lib/utils/helper"
+
+// events
+import "../lib/events"
+// works
 import "../lib/workers"
 
 const app = new Hono()

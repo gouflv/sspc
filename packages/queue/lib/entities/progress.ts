@@ -60,4 +60,5 @@ export default {
   create,
   update,
   findAll,
+  findById,
 }
