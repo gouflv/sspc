@@ -7,6 +7,7 @@ import { timeout } from "hono/timeout"
 import Task from "../lib/entities/task"
 import Queue from "../lib/queue"
 import { queueCaptureParamsSchema } from "../lib/types"
+import Artifact from "../lib/utils/artifact"
 import logger from "../lib/utils/logger"
 
 // Bull works
@@ -53,8 +54,6 @@ app.post("/task", validate("json", queueCaptureParamsSchema), async (c) => {
 
 /**
  * Get task status
- *
- * @returns TaskInfo
  */
 app.get("/task/:id", (c) => {
   return c.json({
@@ -63,8 +62,25 @@ app.get("/task/:id", (c) => {
 })
 
 // get artifact
-app.get("/task/:id/artifact", (c) => {
-  return new Response()
+app.get("/task/:id/artifact", async (c) => {
+  const taskId = c.req.param("id")
+  const task = await Task.findById(taskId)
+
+  if (!task) {
+    return c.json({ success: false, error: "Task not found" }, 400)
+  }
+  if (!task.artifact) {
+    return c.json({ success: false, error: "Artifact not found" }, 400)
+  }
+
+  const stream = await Artifact.geReadStream(task?.artifact)
+
+  return new Response(stream, {
+    headers: {
+      "content-type": "application/zip",
+      "content-disposition": `attachment; filename="${task.artifact}"`,
+    },
+  })
 })
 
 /**
