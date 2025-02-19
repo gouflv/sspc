@@ -49,7 +49,7 @@ async function update(
 
   assign(record, data)
 
-  await redis.setJSON(id, record)
+  await redis.setJSON(id, record, { expire: TaskExpire })
 
   logger.info("[progress] updated", { id: record.id, ...data })
 

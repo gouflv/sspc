@@ -14,12 +14,10 @@ async function getJSON<T>(key: string) {
 async function setJSON(
   key: string,
   data: unknown,
-  options?: { expire?: number },
+  options: { expire: number },
 ) {
   await client.set(key, JSON.stringify(data))
-  if (typeof options?.expire === "number") {
-    await client.expire(key, options.expire)
-  }
+  await client.expire(key, options.expire)
 }
 
 async function exists(key: string) {

@@ -1,4 +1,4 @@
-import { d } from "@pptr/core"
+import { ds } from "@pptr/core"
 import {
   DefaultJobOptions,
   FlowProducer,
@@ -13,9 +13,10 @@ import { client as redisClient } from "./utils/redis"
 
 const flow = new FlowProducer({ connection: redisClient })
 
-const age = process.env["NODE_ENV"] === "development" ? d("1 mins") : d("1 day")
+const age =
+  process.env["NODE_ENV"] === "development" ? ds("1 mins") : ds("1 day")
 
-const jobOption: DefaultJobOptions = {
+const defaultJobOptions: DefaultJobOptions = {
   attempts: parseInt(process.env["JOB_ATTEMPTS"] || "") || 2,
   delay: 1_000,
   removeOnComplete: { age },
@@ -23,28 +24,37 @@ const jobOption: DefaultJobOptions = {
 }
 
 function add(task: CaptureTask): Promise<JobNode> {
-  return flow.add({
-    name: task.id,
-    queueName: CaptureTaskQueueName,
+  return flow.add(
+    {
+      name: task.id,
+      queueName: CaptureTaskQueueName,
 
-    opts: jobOption,
+      // use CaptureTask as parent job payload
+      data: task,
 
-    // use CaptureTask as parent job payload
-    data: task,
+      children: task.params.pages.map((page, index) => ({
+        name: `${task.id}:job-${index}`,
+        queueName: CaptureJobQueueName,
 
-    children: task.params.pages.map((page, index) => ({
-      name: `${task.id}:job-${index}`,
-      queueName: CaptureJobQueueName,
+        opts: {
+          // IMPORTANT
+          failParentOnFailure: true,
+        },
 
-      opts: {
-        // IMPORTANT
-        failParentOnFailure: true,
-        ...jobOption,
+        data: createCaptureJobPayload(task, index),
+      })),
+    },
+    {
+      queuesOptions: {
+        [CaptureTaskQueueName]: {
+          defaultJobOptions,
+        },
+        [CaptureJobQueueName]: {
+          defaultJobOptions,
+        },
       },
-
-      data: createCaptureJobPayload(task, index),
-    })),
-  })
+    },
+  )
 }
 
 async function findById(queueJobId: string) {

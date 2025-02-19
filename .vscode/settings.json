@@ -1,3 +1,11 @@
 {
-  "cSpell.words": ["bullmq", "hgetall", "hono", "hset", "pptr", "sspc"]
+  "cSpell.words": [
+    "bullmq",
+    "hgetall",
+    "hono",
+    "hset",
+    "pexpire",
+    "pptr",
+    "sspc"
+  ]
 }

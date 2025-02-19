@@ -19,7 +19,7 @@
  * ```
  */
 
-import { d } from "@pptr/core"
+import { ds } from "@pptr/core"
 import dayjs from "dayjs"
 import { assign } from "lodash-es"
 import { customAlphabet } from "nanoid"
@@ -31,7 +31,7 @@ const nanoid = customAlphabet("1234567890abcdef", 10)
 
 export const TaskExpire =
   parseInt(process.env.TASK_EXPIRE || "") ||
-  (process.env.NODE_ENV === "development" ? d("5 mins") : d("7 days"))
+  (process.env.NODE_ENV === "development" ? ds("5 mins") : ds("7 days"))
 
 const TaskPrefix = "task"
 
@@ -74,7 +74,7 @@ async function update(
 
   assign(task, data)
 
-  await redis.setJSON(id, task)
+  await redis.setJSON(id, task, { expire: TaskExpire })
 
   logger.info("[task] updated", { id: task.id, data })
 
