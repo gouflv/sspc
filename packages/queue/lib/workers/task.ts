@@ -27,15 +27,22 @@ export default async function (
       throw new Error("Some jobs are missing")
     }
 
-    const filename = safeFilename(`${taskId}.zip`)
+    let filename
 
-    await artifact.packageArtifacts(
-      artifacts.map((artifact, index) => ({
-        filename: artifact,
-        distName: captureParams.pages[index].name,
-      })),
-      filename,
-    )
+    if (artifacts.length === 1) {
+      // only one page, use the original file
+      filename = artifacts[0]
+    } else {
+      // package
+      filename = safeFilename(`${taskId}.zip`)
+      await artifact.packageArtifacts(
+        artifacts.map((artifact, index) => ({
+          filename: artifact,
+          distName: captureParams.pages[index].name,
+        })),
+        filename,
+      )
+    }
 
     await Task.update(taskId, {
       status: "completed",

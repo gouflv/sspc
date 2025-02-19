@@ -1,6 +1,7 @@
 import { serve } from "@hono/node-server"
 import { zValidator as validate } from "@hono/zod-validator"
 import { Hono } from "hono"
+import mime from "mime"
 import Task from "../lib/entities/task"
 import Queue from "../lib/queue"
 import { queueCaptureParamsSchema } from "../lib/types"
@@ -81,7 +82,7 @@ app.get("/task/:id/artifact", async (c) => {
 
     return new Response(stream, {
       headers: {
-        "content-type": "application/zip",
+        "content-type": mime.getType(task.artifact) || "application/zip",
         "content-disposition": `attachment; filename="${task.artifact}"`,
       },
     })
