@@ -1,6 +1,6 @@
 import Redis from "ioredis"
-import Task from "./classes/job"
-import Progress from "./classes/task"
+import { CaptureJob } from "./classes/job"
+import { CaptureTask } from "./classes/task"
 import Queue from "./queue"
 import Artifact from "./utils/artifact"
 import logger from "./utils/logger"
@@ -11,20 +11,20 @@ const subscriber = new Redis(RedisURL)
 subscriber.config("SET", "notify-keyspace-events", "Ex")
 subscriber.subscribe("__keyevent@0__:expired")
 subscriber.on("message", async (_, expiredKey) => {
-  if (!expiredKey.startsWith("task:")) {
+  if (!expiredKey.startsWith("job:")) {
     return
   }
 
   try {
-    const isProgress = expiredKey.includes(":job-")
+    const isProgress = expiredKey.includes(":task-")
 
     if (isProgress) {
-      const record = await Progress.findById(expiredKey)
+      const record = await CaptureJob.findById(expiredKey)
       if (record?.artifact) {
         Artifact.remove(record.artifact)
       }
     } else {
-      const task = await Task.findById(expiredKey)
+      const task = await CaptureTask.findById(expiredKey)
       if (task?.artifact) {
         Artifact.remove(task.artifact)
       }
@@ -40,8 +40,8 @@ subscriber.on("message", async (_, expiredKey) => {
 const gracefulShutdown = async (signal: string) => {
   console.log(`Received ${signal}, closing...`)
   await Queue.flow.close()
-  await Workers.taskWorker.close()
-  await Workers.captureJobWorker.close()
+  await Workers.captureWorker.close()
+  await Workers.packageWorker.close()
   await subscriber.quit()
   process.exit(0)
 }

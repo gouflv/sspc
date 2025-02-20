@@ -18,4 +18,5 @@ const packageWorker = new Worker(PackageQueueName, packageProcessor, {
   concurrency: 2,
 })
 
-export default { captureWorker, packageWorker }
+const Workers = { captureWorker, packageWorker }
+export default Workers

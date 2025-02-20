@@ -3,14 +3,13 @@ import { zValidator as validate } from "@hono/zod-validator"
 import { Hono } from "hono"
 import mime from "mime"
 import { CaptureJob } from "../lib/classes/job"
+import Queue from "../lib/queue"
 import { queueCaptureParamsSchema } from "../lib/types"
 import Artifact from "../lib/utils/artifact"
 import { getJobInfo } from "../lib/utils/helper"
 
-// events
+//
 import "../lib/events"
-// works
-import Queue from "../lib/queue"
 import "../lib/workers"
 
 const app = new Hono()

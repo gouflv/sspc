@@ -1,4 +1,4 @@
-import { assign } from "lodash-es"
+import { assign, isEmpty } from "lodash-es"
 import { Status } from "../types"
 import redis from "../utils/redis"
 import { CaptureJobExpire } from "./job"
@@ -37,15 +37,20 @@ export class CaptureTask {
     return task
   }
 
+  static async findById(id: string) {
+    const json = (await redis.client.hgetall(
+      id,
+    )) as unknown as CaptureTaskJSONRaw
+    if (isEmpty(json)) {
+      return null
+    }
+    return CaptureTask.fromJSON(json)
+  }
+
   static async findAll(jobId: string) {
     const keys = await redis.keys(`${jobId}:task-*`)
     const data = await Promise.all(
-      keys.map(async (key) => {
-        const json = (await redis.client.hgetall(
-          key,
-        )) as unknown as CaptureTaskJSONRaw
-        return CaptureTask.fromJSON(json)
-      }),
+      keys.map(async (key) => CaptureTask.findById(key)),
     )
     return data.filter((task) => task !== null)
   }
