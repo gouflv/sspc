@@ -1,22 +1,22 @@
 import { countBy, omit } from "lodash-es"
-import Progress from "../entities/progress"
-import Task from "../entities/task"
-import { CaptureJobPayload, CaptureTask, TaskInfo } from "../types"
+import { CaptureJob } from "../classes/job"
+import { CaptureTask } from "../classes/task"
+import { CaptureTaskQueueJobData } from "../types"
 
-export async function getTaskInfo(id: string) {
-  const task = await Task.findById(id)
+export async function getJobInfo(id: string) {
+  const job = await CaptureJob.findById(id)
 
-  if (!task) {
-    throw new Error(`[task] not found: ${id}`)
+  if (!job) {
+    throw new Error(`job not found: ${id}`)
   }
 
-  const progressRecords = await Progress.findAll(id)
+  const progressRecords = await CaptureTask.findAll(id)
   const statusCount = countBy(progressRecords, (it) => it.status)
 
-  const info: TaskInfo = {
-    ...task,
+  const info = {
+    ...job,
     progress: {
-      total: task.params.pages.length,
+      total: job.params.pages.length,
       pending: statusCount["pending"] || 0,
       running: statusCount["running"] || 0,
       completed: statusCount["completed"] || 0,
@@ -24,20 +24,19 @@ export async function getTaskInfo(id: string) {
     },
     children: progressRecords,
   }
-
   return info
 }
 
-export function createCaptureJobPayload(
-  task: CaptureTask,
+export function createCaptureTaskQueueJobData(
+  job: CaptureJob,
   index: number,
-): CaptureJobPayload {
+): CaptureTaskQueueJobData {
   return {
-    taskId: task.id,
+    jobId: job.id,
     index,
     params: {
-      ...omit(task.params, "pages"),
-      url: task.params.pages[index].url,
+      ...omit(job.params, "pages"),
+      url: job.params.pages[index].url,
     },
   }
 }

@@ -2,15 +2,15 @@ import { serve } from "@hono/node-server"
 import { zValidator as validate } from "@hono/zod-validator"
 import { Hono } from "hono"
 import mime from "mime"
-import Task from "../lib/entities/task"
-import Queue from "../lib/queue"
+import { CaptureJob } from "../lib/classes/job"
 import { queueCaptureParamsSchema } from "../lib/types"
 import Artifact from "../lib/utils/artifact"
-import { getTaskInfo } from "../lib/utils/helper"
+import { getJobInfo } from "../lib/utils/helper"
 
 // events
 import "../lib/events"
 // works
+import Queue from "../lib/queue"
 import "../lib/workers"
 
 const app = new Hono()
@@ -20,24 +20,24 @@ app.get("/", (c) => {
 })
 
 /**
- * Create a new task
+ * Create a new job
  */
-app.post("/task", validate("json", queueCaptureParamsSchema), async (c) => {
+app.post("/jobs", validate("json", queueCaptureParamsSchema), async (c) => {
   const params = c.req.valid("json")
 
   try {
-    // create task
-    let task = await Task.create(params)
+    // create job
+    const job = await CaptureJob.create(params)
 
-    // add task to queue
-    const { job } = await Queue.add(task)
+    // add job to queue
+    const queueJob = await Queue.add(job)
 
     // save queueJobId
-    task = await Task.update(task.id, { queueJobId: job.id })
+    await job.update({ queueJobId: queueJob.job.id })
 
     return c.json({
       success: true,
-      data: task,
+      data: job,
     })
   } catch (e) {
     return c.json({
@@ -54,7 +54,7 @@ app.get("/task/:id", async (c) => {
   const taskId = c.req.param("id")
 
   try {
-    const info = await getTaskInfo(taskId)
+    const info = await getJobInfo(taskId)
     return c.json({
       success: true,
       data: info,

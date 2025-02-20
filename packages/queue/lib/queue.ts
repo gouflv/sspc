@@ -5,51 +5,54 @@ import {
   JobNode,
   Job as QueueJob,
 } from "bullmq"
-import Task from "./entities/task"
-import { CaptureJobQueueName, CaptureTask, CaptureTaskQueueName } from "./types"
-import { createCaptureJobPayload } from "./utils/helper"
+import { CaptureJob } from "./classes/job"
+import { generateTaskId } from "./classes/task"
+import { CaptureTaskQueueName, PackageQueueName } from "./types"
+import { createCaptureTaskQueueJobData } from "./utils/helper"
 import logger from "./utils/logger"
 import { client as redisClient } from "./utils/redis"
 
 const flow = new FlowProducer({ connection: redisClient })
 
 const age =
-  process.env["NODE_ENV"] === "development" ? ds("1 mins") : ds("1 day")
+  process.env["NODE_ENV"] === "production" ? ds("1 day") : ds("1 mins")
+
+const attempts =
+  parseInt(process.env["JOB_ATTEMPTS"] || "") ||
+  (process.env["NODE_ENV"] === "production" ? 2 : 1)
 
 const defaultJobOptions: DefaultJobOptions = {
-  attempts: parseInt(process.env["JOB_ATTEMPTS"] || "") || 2,
+  attempts,
   delay: 1_000,
   removeOnComplete: { age },
   removeOnFail: { age },
 }
 
-function add(task: CaptureTask): Promise<JobNode> {
+function add(job: CaptureJob): Promise<JobNode> {
   return flow.add(
+    // use package job as parent job
     {
-      name: task.id,
-      queueName: CaptureTaskQueueName,
+      name: job.id,
+      queueName: PackageQueueName,
 
-      // use CaptureTask as parent job payload
-      data: task,
-
-      children: task.params.pages.map((page, index) => ({
-        name: `${task.id}:job-${index}`,
-        queueName: CaptureJobQueueName,
+      children: job.params.pages.map((page, index) => ({
+        name: generateTaskId(job.id, index),
+        queueName: CaptureTaskQueueName,
 
         opts: {
           // IMPORTANT
           failParentOnFailure: true,
         },
 
-        data: createCaptureJobPayload(task, index),
+        data: createCaptureTaskQueueJobData(job, index),
       })),
     },
     {
       queuesOptions: {
-        [CaptureTaskQueueName]: {
+        [PackageQueueName]: {
           defaultJobOptions,
         },
-        [CaptureJobQueueName]: {
+        [CaptureTaskQueueName]: {
           defaultJobOptions,
         },
       },
@@ -59,25 +62,25 @@ function add(task: CaptureTask): Promise<JobNode> {
 
 async function findById(queueJobId: string) {
   const { job } = await flow.getFlow({
-    queueName: CaptureTaskQueueName,
+    queueName: PackageQueueName,
     id: queueJobId,
   })
-  return job as QueueJob<CaptureTask>
+  return job as QueueJob
 }
 
 /**
  * remove parent job and children from queue
  */
-async function remove(taskId: string) {
+async function remove(captureJobId: string) {
   try {
-    const task = await Task.findById(taskId)
+    const captureJob = await CaptureJob.findById(captureJobId)
 
-    if (!task?.queueJobId) {
+    if (!captureJob?.queueJobId) {
       return false
     }
 
     const jobTree = await flow.getFlow({
-      id: task.queueJobId,
+      id: captureJob.queueJobId,
       queueName: CaptureTaskQueueName,
     })
 
@@ -86,31 +89,31 @@ async function remove(taskId: string) {
     }
 
     // Note: move running job will throw
-    const { job, children } = jobTree
+
     // remove all child jobs first
-    if (children?.length) {
-      await Promise.all(children.map((child) => child.job.remove()))
+    if (jobTree.children?.length) {
+      await Promise.all(jobTree.children.map((child) => child.job.remove()))
     }
     // remove parent job
-    await job.remove()
+    await jobTree.job.remove()
 
-    logger.info("[queue] job removed from queue", { id: job.id, taskId })
+    logger.info("[queue] job removed from queue", { id: captureJobId })
 
     return true
   } catch (e) {
     logger.info("[queue] failed to remove job", {
-      id: taskId,
+      id: captureJobId,
       error: (e as Error).message,
     })
 
-    // not throw error
     return false
   }
 }
 
-export default {
+const Queue = {
   flow,
   add,
   findById,
   remove,
 }
+export default Queue

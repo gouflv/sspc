@@ -1,37 +1,21 @@
 import { Worker } from "bullmq"
-import {
-  CaptureJobPayload,
-  CaptureJobQueueName,
-  CaptureTask,
-  CaptureTaskQueueName,
-} from "../types"
+import { CaptureTaskQueueName, PackageQueueName } from "../types"
 import { RedisURL } from "../utils/redis"
-import captureJobProcessor from "./capture"
-import taskJobProcessor from "./task"
+import captureProcessor from "./capture"
+import packageProcessor from "./package"
 
-const taskWorker = new Worker<CaptureTask, string>(
-  CaptureTaskQueueName,
-  taskJobProcessor,
-  {
-    connection: {
-      url: RedisURL,
-    },
-    concurrency: 2,
+const captureWorker = new Worker(CaptureTaskQueueName, captureProcessor, {
+  connection: {
+    url: RedisURL,
   },
-)
+  concurrency: parseInt(process.env["CAPTURE_CONCURRENCY"] || "") || 2,
+})
 
-const captureJobWorker = new Worker<CaptureJobPayload>(
-  CaptureJobQueueName,
-  captureJobProcessor,
-  {
-    connection: {
-      url: RedisURL,
-    },
-    concurrency: parseInt(process.env["CAPTURE_CONCURRENCY"] || "") || 2,
+const packageWorker = new Worker(PackageQueueName, packageProcessor, {
+  connection: {
+    url: RedisURL,
   },
-)
+  concurrency: 2,
+})
 
-export default {
-  taskWorker,
-  captureJobWorker,
-}
+export default { captureWorker, packageWorker }

@@ -75,7 +75,7 @@ it("should confirm job non-existence after removal", async () => {
 })
 
 it("should correctly serialize and deserialize job", async () => {
-  const json = job.toJSON()
+  const json = job.serialize()
   const deserialized = CaptureJob.fromJSON(json)
 
   expect(deserialized.id).toBe(job.id)

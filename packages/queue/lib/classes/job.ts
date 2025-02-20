@@ -27,15 +27,13 @@ import { QueueCaptureInputParamsType, Status } from "../types"
 import logger from "../utils/logger"
 import redis from "../utils/redis"
 
-const nanoid = customAlphabet("1234567890abcdef", 10)
-
 export const CaptureJobExpire =
   parseInt(process.env.JOB_EXPIRE || "") ||
   (process.env.NODE_ENV === "production" ? ds("7 days") : ds("5 mins"))
 
+const nanoid = customAlphabet("1234567890abcdef", 10)
 const JobPrefix = "job"
-
-function generateKey() {
+function generateId() {
   const timestamp = dayjs().format("YY-MM-DD-HH-mm-ss".replace(/-/g, ""))
   const uniqueId = nanoid()
   return [JobPrefix, timestamp, uniqueId].join(":")
@@ -69,7 +67,7 @@ export class CaptureJob {
 
     queueJobId?: string,
   ) {
-    this.id = id || generateKey()
+    this.id = id || generateId()
 
     if (queueJobId) {
       this.queueJobId = queueJobId
@@ -108,7 +106,7 @@ export class CaptureJob {
   }
 
   async save() {
-    await redis.client.hset(this.id, this.toJSON())
+    await redis.client.hset(this.id, this.serialize())
     await redis.client.expire(this.id, CaptureJobExpire)
   }
 
@@ -133,7 +131,7 @@ export class CaptureJob {
     return (await redis.client.exists(this.id)) === 1
   }
 
-  toJSON(): CaptureJobJSONRaw {
+  serialize(): CaptureJobJSONRaw {
     return {
       id: this.id,
       params: JSON.stringify(this.params),

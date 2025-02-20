@@ -1,60 +1,54 @@
 import { Job as QueueJob } from "bullmq"
 import mime from "mime"
-import Progress from "../entities/progress"
-import { CaptureJobPayload, CaptureProgress } from "../types"
+import { CaptureTask } from "../classes/task"
+import { CaptureTaskQueueJobData } from "../types"
 import Artifact from "../utils/artifact"
 import capture from "../utils/capture"
 import { safeFilename } from "../utils/helper"
 import logger from "../utils/logger"
 
 export default async function (
-  queueJob: QueueJob<CaptureJobPayload>,
+  queueJob: QueueJob<CaptureTaskQueueJobData>,
 ): Promise<string> {
-  logger.debug("[worker:capture] started", { job: queueJob.name })
+  const { jobId, index, params: captureParams } = queueJob.data
 
-  let progress: CaptureProgress | null = null
+  const taskId = queueJob.name
+
+  let taskRecord: CaptureTask | null = null
 
   try {
-    const { taskId, index } = queueJob.data
+    logger.debug("[worker:capture] started", { task: taskId })
 
-    // create job-progress
-    progress = await Progress.create(taskId, index)
+    // create task record
+    taskRecord = await CaptureTask.create(jobId, index)
 
     // capture
-    const captureResult = await capture(queueJob.name, queueJob.data.params)
+    const captureResult = await capture(taskId, captureParams)
 
     // save artifact
     const filename = safeFilename(
-      `${queueJob.name}.${mime.getExtension(captureResult.contentType)}`,
+      `${taskId}.${mime.getExtension(captureResult.contentType)}`,
     )
     await Artifact.save(captureResult.stream, filename)
 
-    // update job-progress
-    await Progress.update(progress.id, {
+    // update taskRecord
+    await taskRecord.update({
       status: "completed",
       artifact: filename,
       duration: captureResult.duration,
     })
 
-    logger.debug("[worker:capture] completed", { job: queueJob.name })
+    logger.debug("[worker:capture] completed", { task: taskId, filename })
 
     return filename
   } catch (e) {
     const error = (e as Error).message
 
-    logger.error("[worker:capture] failed", {
-      id: queueJob.name,
-      error,
-    })
+    logger.error("[worker:capture] failed", { task: taskId, error })
 
-    if (progress) {
-      // update job-progress
-      await Progress.update(progress.id, {
-        status: "failed",
-        error,
-        artifact: null,
-        duration: null,
-      })
+    // update job-progress
+    if (taskRecord) {
+      await taskRecord.update({ status: "failed", error })
     }
 
     throw e
