@@ -7,6 +7,9 @@ import capture from "../utils/capture"
 import { safeFilename } from "../utils/helper"
 import logger from "../utils/logger"
 
+/**
+ * capture worker, related to CaptureTask
+ */
 export default async function (
   queueJob: QueueJob<CaptureTaskQueueJobData>,
 ): Promise<string> {

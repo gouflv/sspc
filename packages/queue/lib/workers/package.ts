@@ -6,6 +6,9 @@ import artifact from "../utils/artifact"
 import { safeFilename } from "../utils/helper"
 import logger from "../utils/logger"
 
+/**
+ * package worker, related to CaptureJob
+ */
 export default async function (queueJob: QueueJob): Promise<string> {
   const jobId = queueJob.name
 

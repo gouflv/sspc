@@ -48,13 +48,13 @@ app.post("/jobs", validate("json", queueCaptureParamsSchema), async (c) => {
 })
 
 /**
- * Get task info
+ * Get job info
  */
-app.get("/task/:id", async (c) => {
-  const taskId = c.req.param("id")
+app.get("/jobs/:id", async (c) => {
+  const id = c.req.param("id")
 
   try {
-    const info = await getJobInfo(taskId)
+    const info = await getJobInfo(id)
     return c.json({
       success: true,
       data: info,
@@ -68,24 +68,24 @@ app.get("/task/:id", async (c) => {
 })
 
 // get artifact
-app.get("/task/:id/artifact", async (c) => {
-  const taskId = c.req.param("id")
+app.get("/jobs/:id/artifact", async (c) => {
+  const id = c.req.param("id")
   try {
-    const task = await Task.findById(taskId)
+    const job = await CaptureJob.findById(id)
 
-    if (!task) {
-      throw new Error("task not found")
+    if (!job) {
+      throw new Error("job not found")
     }
-    if (!task.artifact) {
+    if (!job.artifact) {
       throw new Error("artifact not found")
     }
 
-    const stream = await Artifact.geReadStream(task?.artifact)
+    const stream = await Artifact.geReadStream(job?.artifact)
 
     return new Response(stream, {
       headers: {
-        "content-type": mime.getType(task.artifact) || "application/zip",
-        "content-disposition": `attachment; filename="${task.artifact}"`,
+        "content-type": mime.getType(job.artifact) || "application/zip",
+        "content-disposition": `attachment; filename="${job.artifact}"`,
       },
     })
   } catch (e) {
@@ -95,19 +95,20 @@ app.get("/task/:id/artifact", async (c) => {
 })
 
 /**
- * Stop task
+ * Stop job
  *
  * NOTE: if job in progress, it will not stop immediately
  */
-app.get("/task/:id/cancel", async (c) => {
-  const taskId = c.req.param("id")
+app.get("/jobs/:id/cancel", async (c) => {
+  const id = c.req.param("id")
 
   try {
-    // remove task from queue
-    const success = await Queue.remove(taskId)
+    // remove job from queue
+    const success = await Queue.remove(id)
 
-    // update task
-    await Task.update(taskId, { status: "canceled" })
+    // update job
+    const job = await CaptureJob.findById(id)
+    await job?.update({ status: "canceled" })
 
     return c.json({
       success,
