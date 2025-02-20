@@ -1,6 +1,9 @@
 {
   "name": "sspc",
   "private": true,
+  "scripts": {
+    "syncpack": "pnpm dlx syncpack list"
+  },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.0",
     "@types/lodash-es": "^4.17.12",
