@@ -1,5 +1,6 @@
 import { Job as QueueJob } from "bullmq"
 import mime from "mime"
+import { CaptureJob } from "../classes/job"
 import { CaptureTask } from "../classes/task"
 import { CaptureTaskQueueJobData } from "../types"
 import Artifact from "../utils/artifact"
@@ -49,9 +50,23 @@ export default async function (
 
     logger.error("[worker:capture] failed", { task: taskId, error })
 
-    // update job-progress
+    // update taskRecord
     if (taskRecord) {
       await taskRecord.update({ status: "failed", error })
+    } else {
+      logger.error("[worker:capture] failed to update task, task no found", {
+        task: taskId,
+      })
+    }
+
+    // update jobRecord
+    const jobRecord = await CaptureJob.findById(jobId)
+    if (jobRecord) {
+      await jobRecord.update({ status: "failed", error })
+    } else {
+      logger.error("[worker:capture] failed to update job, job no found", {
+        job: jobId,
+      })
     }
 
     throw e
