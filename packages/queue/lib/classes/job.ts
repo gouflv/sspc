@@ -24,6 +24,7 @@ import dayjs from "dayjs"
 import { assign, isEmpty } from "lodash-es"
 import { customAlphabet } from "nanoid"
 import { QueueCaptureInputParamsType, Status } from "../types"
+import { saveJobLog } from "../utils/helper"
 import logger from "../utils/logger"
 import redis from "../utils/redis"
 
@@ -82,6 +83,7 @@ export class CaptureJob {
     await job.save()
 
     logger.info("[capture-job] created", { job })
+    saveJobLog(job)
 
     return job
   }

@@ -1,7 +1,9 @@
+import dayjs from "dayjs"
 import { countBy, omit } from "lodash-es"
 import { CaptureJob } from "../classes/job"
 import { CaptureTask } from "../classes/task"
 import { CaptureTaskQueueJobData } from "../types"
+import redis from "./redis"
 
 export async function getJobInfo(id: string) {
   const job = await CaptureJob.findById(id)
@@ -43,4 +45,21 @@ export function createCaptureTaskQueueJobData(
 
 export function safeFilename(id: string) {
   return id.replace(/[^A-Za-z0-9-_.]/g, "_")
+}
+
+export async function saveJobLog(job: CaptureJob) {
+  await redis.client.xadd(
+    "job:logs",
+    "*",
+    "date",
+    dayjs().format("YYYY-MM-DD HH:mm:ss"),
+    "job",
+    job.id,
+    "params",
+    JSON.stringify(job.params),
+  )
+}
+
+export async function saveCompletedJobLog(job: CaptureJob) {
+  await redis.client.lpush("job:completed", job.id)
 }
