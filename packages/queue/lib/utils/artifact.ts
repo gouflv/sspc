@@ -86,8 +86,9 @@ async function geReadStream(filename: string) {
   return createReadStream(path)
 }
 
-async function createResponse(job: CaptureJob) {
-  if (!job.artifact) {
+async function createResponse(jobId: string) {
+  const job = await CaptureJob.findById(jobId)
+  if (!job?.artifact) {
     throw new Error("artifact not found")
   }
 

@@ -29,6 +29,7 @@ const defaultJobOptions: DefaultJobOptions = {
   removeOnFail: { age },
 }
 
+// shadow queue related to flowProducer
 const packageQueue = new QueueMQ(PackageQueueName, { connection: redisClient })
 const captureQueue = new QueueMQ(CaptureQueueName, { connection: redisClient })
 

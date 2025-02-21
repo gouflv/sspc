@@ -24,7 +24,7 @@ import dayjs from "dayjs"
 import { assign, isEmpty } from "lodash-es"
 import { customAlphabet } from "nanoid"
 import { QueueCaptureInputParamsType, Status } from "../types"
-import { saveJobLog } from "../utils/helper"
+import { saveJobLog, WaitOptions, waitUntil } from "../utils/helper"
 import logger from "../utils/logger"
 import redis from "../utils/redis"
 
@@ -131,6 +131,23 @@ export class CaptureJob {
 
   async exists() {
     return (await redis.client.exists(this.id)) === 1
+  }
+
+  async waitForComplete(options?: Partial<WaitOptions>) {
+    return waitUntil(async () => {
+      const job = await CaptureJob.findById(this.id)
+      if (!job) {
+        throw new Error("Job not found")
+      }
+      if (job.status === "failed") {
+        throw new Error(job.error || "Job failed")
+      }
+      if (job.status === "completed" && job.artifact) {
+        return true
+      }
+
+      return false
+    }, options)
   }
 
   serialize(): CaptureJobJSONRaw {

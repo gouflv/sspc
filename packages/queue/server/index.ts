@@ -1,17 +1,10 @@
-import { createBullBoard } from "@bull-board/api"
-import { BullMQAdapter } from "@bull-board/api/bullMQAdapter"
-import { HonoAdapter } from "@bull-board/hono"
 import { serve } from "@hono/node-server"
-import { serveStatic } from "@hono/node-server/serve-static"
-import { zValidator as validate } from "@hono/zod-validator"
 import { Hono } from "hono"
-import { CaptureJob } from "../lib/classes/job"
-import Queue from "../lib/queue"
-import { queueCaptureParamsSchema } from "../lib/types"
-import { getJobInfo } from "../lib/utils/helper"
+import { setupBullBoard } from "./bull-board"
+import jobs from "./routes/jobs"
 
+// Setup bullmq
 import "../lib/events"
-import Artifact from "../lib/utils/artifact"
 import "../lib/workers"
 
 const app = new Hono()
@@ -20,109 +13,10 @@ app.get("/", (c) => {
   return c.text("Hello, world!")
 })
 
-/**
- * Create a new job
- */
-app.post("/jobs", validate("json", queueCaptureParamsSchema), async (c) => {
-  const params = c.req.valid("json")
-
-  try {
-    // create job
-    const job = await CaptureJob.create(params)
-
-    // add job to queue
-    const queueJob = await Queue.add(job)
-
-    // save queueJobId
-    await job.update({ queueJobId: queueJob.job.id })
-
-    return c.json({
-      success: true,
-      data: job,
-    })
-  } catch (e) {
-    return c.json({
-      success: false,
-      error: (e as Error).message,
-    })
-  }
-})
-
-/**
- * Get job info
- */
-app.get("/jobs/:id", async (c) => {
-  const id = c.req.param("id")
-
-  try {
-    const info = await getJobInfo(id)
-    return c.json({
-      success: true,
-      data: info,
-    })
-  } catch (e) {
-    return c.json({
-      success: false,
-      error: (e as Error).message,
-    })
-  }
-})
-
-// get artifact
-app.get("/jobs/:id/artifact", async (c) => {
-  const id = c.req.param("id")
-  try {
-    const job = await CaptureJob.findById(id)
-
-    if (!job) {
-      throw new Error("job not found")
-    }
-
-    return Artifact.createResponse(job)
-  } catch (e) {
-    const error = (e as Error).message
-    return c.json({ success: false, error }, 400)
-  }
-})
-
-/**
- * Stop job
- *
- * NOTE: if job in progress, it will not stop immediately
- */
-app.get("/jobs/:id/cancel", async (c) => {
-  const id = c.req.param("id")
-
-  try {
-    // remove job from queue
-    const success = await Queue.remove(id)
-
-    // update job
-    const job = await CaptureJob.findById(id)
-    await job?.update({ status: "canceled" })
-
-    return c.json({
-      success,
-    })
-  } catch (e) {
-    return c.json({
-      success: false,
-      error: (e as Error).message,
-    })
-  }
-})
+app.route("/jobs", jobs)
 
 // Setup bull-board
-const serverAdapter = new HonoAdapter(serveStatic)
-createBullBoard({
-  queues: [
-    new BullMQAdapter(Queue.captureQueue),
-    new BullMQAdapter(Queue.packageQueue),
-  ],
-  serverAdapter,
-})
-serverAdapter.setBasePath("/ui")
-app.route("/ui", serverAdapter.registerPlugin())
+setupBullBoard(app)
 
 serve(
   {
