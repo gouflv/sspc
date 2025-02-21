@@ -5,14 +5,13 @@ import { serve } from "@hono/node-server"
 import { serveStatic } from "@hono/node-server/serve-static"
 import { zValidator as validate } from "@hono/zod-validator"
 import { Hono } from "hono"
-import mime from "mime"
 import { CaptureJob } from "../lib/classes/job"
 import Queue from "../lib/queue"
 import { queueCaptureParamsSchema } from "../lib/types"
-import Artifact from "../lib/utils/artifact"
 import { getJobInfo } from "../lib/utils/helper"
 
 import "../lib/events"
+import Artifact from "../lib/utils/artifact"
 import "../lib/workers"
 
 const app = new Hono()
@@ -78,18 +77,8 @@ app.get("/jobs/:id/artifact", async (c) => {
     if (!job) {
       throw new Error("job not found")
     }
-    if (!job.artifact) {
-      throw new Error("artifact not found")
-    }
 
-    const stream = await Artifact.geReadStream(job?.artifact)
-
-    return new Response(stream, {
-      headers: {
-        "content-type": mime.getType(job.artifact) || "application/zip",
-        "content-disposition": `attachment; filename="${job.artifact}"`,
-      },
-    })
+    return Artifact.createResponse(job)
   } catch (e) {
     const error = (e as Error).message
     return c.json({ success: false, error }, 400)

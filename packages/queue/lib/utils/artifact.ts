@@ -1,8 +1,10 @@
 import archiver from "archiver"
+import mime from "mime"
 import { createReadStream, createWriteStream, unlink } from "node:fs"
 import { mkdir } from "node:fs/promises"
 import { dirname, extname, join } from "node:path"
 import { Stream } from "node:stream"
+import { CaptureJob } from "../classes/job"
 import logger from "./logger"
 
 function resolveFilePath(filename: string) {
@@ -51,16 +53,19 @@ async function packageArtifacts(
     archive.pipe(output)
 
     for (const artifact of artifacts) {
-      const ext = extname(artifact.filename)
-      const distNameBaseOnly = artifact.distName.replace(/\..+$/, "")
-
       archive.file(resolveFilePath(artifact.filename), {
-        name: `${distNameBaseOnly}.${ext}`,
+        name: replaceFilename(artifact.filename, artifact.distName),
       })
     }
 
     archive.finalize()
   })
+}
+
+function replaceFilename(file: string, newName: string) {
+  const ext = extname(file)
+  const distNameBaseOnly = newName.replace(/\..+$/, "")
+  return `${distNameBaseOnly}${ext}`
 }
 
 async function remove(filename: string) {
@@ -81,19 +86,30 @@ async function geReadStream(filename: string) {
   return createReadStream(path)
 }
 
-/**
- * image/png => png
- * image/jpeg => jpeg
- * application/pdf => pdf
- */
-export function contentType2Extension(contentType: string) {
-  return contentType.split("/")[1]
+async function createResponse(job: CaptureJob) {
+  if (!job.artifact) {
+    throw new Error("artifact not found")
+  }
+
+  const isPackage = job.artifact.endsWith(".zip")
+  const stream = await geReadStream(job.artifact)
+  const fileName = isPackage
+    ? job.artifact
+    : replaceFilename(job.artifact, job.params.pages[0].name)
+
+  return new Response(stream, {
+    headers: {
+      "content-type": mime.getType(job.artifact) || "application/zip",
+      "content-disposition": `attachment; filename="${fileName}"`,
+    },
+  })
 }
 
-export default {
+const Artifact = {
   save,
   remove,
   packageArtifacts,
-  contentType2Extension,
-  geReadStream,
+  replaceFilename,
+  createResponse,
 }
+export default Artifact

@@ -1,13 +1,16 @@
 import parseDuration from "parse-duration"
 
 type DurationFormat = `${number} ${
+  | "s"
   | "m"
   | "h"
   | "d"
   | "w"
   | "m"
   | "y"
-  | "min"
+  | "second"
+  | "seconds"
+  | "minute"
   | "mins"
   | "hour"
   | "hours"
