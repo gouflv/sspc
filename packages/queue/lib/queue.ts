@@ -4,6 +4,7 @@ import {
   FlowProducer,
   JobNode,
   Job as QueueJob,
+  Queue as QueueMQ,
 } from "bullmq"
 import { CaptureJob } from "./classes/job"
 import { generateTaskId } from "./classes/task"
@@ -27,6 +28,9 @@ const defaultJobOptions: DefaultJobOptions = {
   removeOnComplete: { age },
   removeOnFail: { age },
 }
+
+const packageQueue = new QueueMQ(PackageQueueName, { connection: redisClient })
+const captureQueue = new QueueMQ(CaptureQueueName, { connection: redisClient })
 
 function add(job: CaptureJob): Promise<JobNode> {
   return flow.add(
@@ -111,6 +115,8 @@ async function remove(captureJobId: string) {
 }
 
 const Queue = {
+  packageQueue,
+  captureQueue,
   flow,
   add,
   findById,

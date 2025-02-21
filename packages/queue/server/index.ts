@@ -1,4 +1,8 @@
+import { createBullBoard } from "@bull-board/api"
+import { BullMQAdapter } from "@bull-board/api/bullMQAdapter"
+import { HonoAdapter } from "@bull-board/hono"
 import { serve } from "@hono/node-server"
+import { serveStatic } from "@hono/node-server/serve-static"
 import { zValidator as validate } from "@hono/zod-validator"
 import { Hono } from "hono"
 import mime from "mime"
@@ -8,7 +12,6 @@ import { queueCaptureParamsSchema } from "../lib/types"
 import Artifact from "../lib/utils/artifact"
 import { getJobInfo } from "../lib/utils/helper"
 
-//
 import "../lib/events"
 import "../lib/workers"
 
@@ -119,6 +122,18 @@ app.get("/jobs/:id/cancel", async (c) => {
     })
   }
 })
+
+// Setup bull-board
+const serverAdapter = new HonoAdapter(serveStatic)
+createBullBoard({
+  queues: [
+    new BullMQAdapter(Queue.captureQueue),
+    new BullMQAdapter(Queue.packageQueue),
+  ],
+  serverAdapter,
+})
+serverAdapter.setBasePath("/ui")
+app.route("/ui", serverAdapter.registerPlugin())
 
 serve(
   {
