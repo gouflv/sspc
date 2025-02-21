@@ -33,17 +33,27 @@ const packageQueue = new QueueMQ(PackageQueueName, { connection: redisClient })
 const captureQueue = new QueueMQ(CaptureQueueName, { connection: redisClient })
 
 function add(job: CaptureJob): Promise<JobNode> {
+  let priority = 3 // default lowest priority for large jobs
+  if (job.params.pages.length === 1) {
+    priority = 1
+  } else if (job.params.pages.length <= 50) {
+    priority = 2
+  }
+
   return flow.add(
     // use package job as parent job
     {
       name: job.id,
       queueName: PackageQueueName,
 
+      opts: { priority },
+
       children: job.params.pages.map((page, index) => ({
         name: generateTaskId(job.id, index),
         queueName: CaptureQueueName,
 
         opts: {
+          priority,
           // IMPORTANT
           failParentOnFailure: true,
         },
