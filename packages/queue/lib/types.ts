@@ -33,4 +33,4 @@ export type CaptureTaskQueueJobData = {
 }
 
 export const PackageQueueName = "packageQueue"
-export const CaptureTaskQueueName = "captureTaskQueue"
+export const CaptureQueueName = "captureQueue"

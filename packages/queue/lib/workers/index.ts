@@ -1,10 +1,10 @@
 import { Worker } from "bullmq"
-import { CaptureTaskQueueName, PackageQueueName } from "../types"
+import { CaptureQueueName, PackageQueueName } from "../types"
 import { RedisURL } from "../utils/redis"
 import captureProcessor from "./capture"
 import packageProcessor from "./package"
 
-const captureWorker = new Worker(CaptureTaskQueueName, captureProcessor, {
+const captureWorker = new Worker(CaptureQueueName, captureProcessor, {
   connection: {
     url: RedisURL,
   },

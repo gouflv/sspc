@@ -7,7 +7,7 @@ import {
 } from "bullmq"
 import { CaptureJob } from "./classes/job"
 import { generateTaskId } from "./classes/task"
-import { CaptureTaskQueueName, PackageQueueName } from "./types"
+import { CaptureQueueName, PackageQueueName } from "./types"
 import { createCaptureTaskQueueJobData } from "./utils/helper"
 import logger from "./utils/logger"
 import { client as redisClient } from "./utils/redis"
@@ -37,7 +37,7 @@ function add(job: CaptureJob): Promise<JobNode> {
 
       children: job.params.pages.map((page, index) => ({
         name: generateTaskId(job.id, index),
-        queueName: CaptureTaskQueueName,
+        queueName: CaptureQueueName,
 
         opts: {
           // IMPORTANT
@@ -52,7 +52,7 @@ function add(job: CaptureJob): Promise<JobNode> {
         [PackageQueueName]: {
           defaultJobOptions,
         },
-        [CaptureTaskQueueName]: {
+        [CaptureQueueName]: {
           defaultJobOptions,
         },
       },
@@ -81,7 +81,7 @@ async function remove(captureJobId: string) {
 
     const jobTree = await flow.getFlow({
       id: captureJob.queueJobId,
-      queueName: CaptureTaskQueueName,
+      queueName: CaptureQueueName,
     })
 
     if (!jobTree) {
