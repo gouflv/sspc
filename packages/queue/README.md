@@ -1,16 +1,121 @@
-## Page capture queue service
+# Page Capture Queue Service
 
-## Environment
+A service that manages capture jobs in a queue.
 
-| Name                | Description | Default                       |
-| ------------------- | ----------- | ----------------------------- |
-| HONO_PORT           |             | 3001                          |
-| REDIS_URL           |             | redis://localhost:6379        |
-| JOB_EXPIRE          | in second   | 7d                            |
-| JOB_ATTEMPTS        |             | 2                             |
-| CAPTURE_ENDPOINT    |             | http://localhost:3000/capture |
-| CAPTURE_CONCURRENCY |             | 2                             |
+## Configuration
 
-## Note
+| Environment Variable | Description                   | Default                       |
+| -------------------- | ----------------------------- | ----------------------------- |
+| HONO_PORT            | API server port               | 3001                          |
+| REDIS_URL            | Redis connection URL          | redis://localhost:6379        |
+| JOB_EXPIRE           | Job expiration time (seconds) | 7d                            |
+| JOB_ATTEMPTS         | Max job retry attempts        | 2                             |
+| CAPTURE_ENDPOINT     | Page capture service URL      | http://localhost:3000/capture |
+| CAPTURE_CONCURRENCY  | Max concurrent capture tasks  | 2                             |
+
+## API Reference
+
+### Create Job (`POST /jobs`)
+
+Create a new capture job for one or multiple pages.
+
+#### Headers
+
+| Name         | Value            | Required |
+| ------------ | ---------------- | -------- |
+| Content-Type | application/json | Yes      |
+
+#### Request Body
+
+```typescript
+{
+  // Required: Array of pages to capture
+  pages: Array<{
+    url: string,   // Target webpage URL
+    name: string   // Output filename
+  }>,
+
+  // Optional capture settings
+  viewportWidth?: number,
+  viewportHeight?: number,
+  timeout?: number,        // Default: 30000ms
+  captureFormat?: string,  // 'png'|'jpeg'|'pdf', Default: 'png'
+  quality?: number,        // 1-100, Default: 100
+  captureElementSelector?: string,
+
+  // PDF specific options
+  pdfFormat?: string,      // e.g. 'a4'
+  pdfMargin?: {
+    top: number,
+    right: number,
+    bottom: number,
+    left: number
+  },
+  pdfWidth?: number,
+  pdfHeight?: number
+}
+```
+
+#### Response
+
+```typescript
+{
+  success: true,
+  data: {
+    id: string  // Job ID for status checks and downloads
+  }
+}
+```
+
+### Check Status (`GET /jobs/:id`)
+
+Get current job status and progress.
+
+#### Response
+
+```typescript
+{
+  success: true,
+  data: {
+    id: string,
+    status: 'pending' | 'running' | 'completed' | 'failed',
+    error: string,
+    progress: {
+      total: number,
+      pending: number,
+      running: number,
+      completed: number,
+      failed: number
+    }
+  }
+}
+```
+
+### Download Result (`GET /jobs/:id/artifact`)
+
+Download captured files. Returns ZIP for multiple pages, direct file otherwise.
+
+#### Response
+
+- Success (200): `application/zip | image/png | image/jpeg | application/pdf`
+- Error (400): Artifact not found
+
+### Cancel Job (`GET /jobs/:id/cancel`)
+
+Cancel a running job.
+
+#### Response
+
+```typescript
+{
+  success: true
+}
+```
+
+### Dashboard (`GET /ui`)
+
+Web interface for queue monitoring and job management.
+
+## References
 
 - [Node.js queue library comparison](https://npm-compare.com/agenda,bee-queue,bull,bullmq,kue)
