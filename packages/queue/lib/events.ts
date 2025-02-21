@@ -7,6 +7,7 @@ import logger from "./utils/logger"
 import { RedisURL } from "./utils/redis"
 import Workers from "./workers"
 
+// register event listener for expired keys, to cleanup artifacts
 const subscriber = new Redis(RedisURL)
 subscriber.config("SET", "notify-keyspace-events", "Ex")
 subscriber.subscribe("__keyevent@0__:expired")
@@ -37,6 +38,7 @@ subscriber.on("message", async (_, expiredKey) => {
   }
 })
 
+// graceful shutdown
 const gracefulShutdown = async (signal: string) => {
   console.log(`Received ${signal}, closing...`)
   await Queue.flow.close()
