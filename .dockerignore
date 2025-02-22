@@ -1,9 +1,10 @@
 **/node_modules
 **/out
+**/data
 **/example
+**/logs
 **/tests
-**/.git
 **/.env*
-**/*.log
 **/.DS_Store
+.git
 .vscode
