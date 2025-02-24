@@ -97,6 +97,17 @@ Download captured files. Returns ZIP for multiple pages, direct file otherwise.
 
 #### Response
 
+Content-Type:
+
+- For multiple pages
+  - `application/zip`
+- Single page capture
+  - `image/png`
+  - `image/jpeg`
+  - `application/pdf`
+
+#### Response
+
 - Success (200): `application/zip | image/png | image/jpeg | application/pdf`
 - Error (400): Artifact not found
 
@@ -111,6 +122,19 @@ Cancel a running job.
   success: true
 }
 ```
+
+### Create Urgent Job (`POST /jobs/urgent`)
+
+Create a job in highest priority. Will wait fot it complete, then return the artifact.
+
+#### Request Body
+
+Same as `POST /jobs`.
+
+#### Response
+
+- Success (200): `image/png | image/jpeg | application/pdf`
+- Error (400/500)
 
 ### Dashboard (`GET /ui`)
 

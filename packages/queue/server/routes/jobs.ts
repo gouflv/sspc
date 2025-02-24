@@ -93,9 +93,9 @@ jobs.get("/:id/cancel", async (c) => {
 })
 
 /**
- * a sync job, for only one page
+ * create job and wait for completion, then return artifact
  */
-jobs.post("/sync", validate("json", queueCaptureParamsSchema), async (c) => {
+jobs.post("/urgent", validate("json", queueCaptureParamsSchema), async (c) => {
   const params = c.req.valid("json")
 
   if (params.pages.length !== 1) {
