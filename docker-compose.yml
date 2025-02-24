@@ -3,24 +3,20 @@ services:
     image: gouflv/sspc-pptr:1.0.1
     container_name: pptr
     init: true
-    environment:
-      - NODE_ENV=production
-    restart: unless-stopped
-    expose:
-      - 3000
-
-  queue:
-    image: gouflv/sspc-queue:1.0.0
-    container_name: queue
     volumes:
-      - ./data/queue:/app/data
+      - ./logs/pptr:/app/logs
     environment:
       - NODE_ENV=production
-      - REDIS_URL=redis://redis:6379
-      - PPTR_HOST=http://pptr:3000
     restart: unless-stopped
     ports:
-      - "3001:3001"
+      - "3000:3000"
+    deploy:
+      resources:
+        limits:
+          cpus: "4.00"
+          memory: 8G
+    networks:
+      - sspc-network
 
   redis:
     image: redis:7-alpine
@@ -29,5 +25,28 @@ services:
       - ./data/redis:/data
     command: ["redis-server", "--save", "60", "1"]
     restart: unless-stopped
-    expose:
-      - 6379
+    ports:
+      - "6379:6379"
+    networks:
+      - sspc-network
+
+  queue:
+    image: gouflv/sspc-queue:1.0.0
+    container_name: queue
+    volumes:
+      - ./data/queue:/app/data
+      - ./logs/queue:/app/logs
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis:6379
+      - PPTR_HOST=http://pptr:3000
+      - CAPTURE_CONCURRENCY=2
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    networks:
+      - sspc-network
+
+networks:
+  sspc-network:
+    driver: bridge
