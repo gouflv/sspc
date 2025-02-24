@@ -1,6 +1,6 @@
 import { Worker } from "bullmq"
+import { RedisURL } from "../redis"
 import { CaptureQueueName, PackageQueueName } from "../types"
-import { RedisURL } from "../utils/redis"
 import captureProcessor from "./capture"
 import packageProcessor from "./package"
 

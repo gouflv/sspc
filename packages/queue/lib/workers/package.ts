@@ -12,7 +12,7 @@ import logger from "../utils/logger"
 export default async function (queueJob: QueueJob): Promise<string> {
   const jobId = queueJob.name
 
-  logger.debug("[worker:package] started", { job: jobId })
+  logger.info("[worker:package] started", { job: jobId })
 
   try {
     const job = await CaptureJob.findById(jobId)
@@ -55,7 +55,7 @@ export default async function (queueJob: QueueJob): Promise<string> {
       artifact: filename,
     })
 
-    logger.debug("[worker:package] completed", { job: jobId })
+    logger.info("[worker:package] completed", { job: jobId })
     saveCompletedJobLog(job)
 
     return filename

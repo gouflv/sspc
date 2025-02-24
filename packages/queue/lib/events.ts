@@ -2,9 +2,9 @@ import Redis from "ioredis"
 import { CaptureJob } from "./classes/job"
 import { CaptureTask } from "./classes/task"
 import Queue from "./queue"
+import { RedisURL } from "./redis"
 import Artifact from "./utils/artifact"
 import logger from "./utils/logger"
-import { RedisURL } from "./utils/redis"
 import Workers from "./workers"
 
 // register event listener for expired keys, to cleanup artifacts

@@ -21,7 +21,7 @@ export default async function (
   let taskRecord: CaptureTask | null = null
 
   try {
-    logger.debug("[worker:capture] started", { task: taskId })
+    logger.info("[worker:capture] started", { task: taskId })
 
     // create task record
     taskRecord = await CaptureTask.create(jobId, index)
@@ -42,7 +42,11 @@ export default async function (
       duration: captureResult.duration,
     })
 
-    logger.debug("[worker:capture] completed", { task: taskId, filename })
+    logger.info("[worker:capture] completed", {
+      task: taskId,
+      filename,
+      duration: captureResult.duration,
+    })
 
     return filename
   } catch (e) {

@@ -1,6 +1,8 @@
 import { createLogger, format, transports } from "winston"
 
-const file = new URL("../../logs/queue.log", import.meta.url).pathname
+const logDir = new URL("../../logs", import.meta.url).pathname
+const combinedLogPath = `${logDir}/combined.log`
+const errorLogPath = `${logDir}/error.log`
 
 const level =
   process.env["LOG_LEVEL"] ||
@@ -19,7 +21,12 @@ const logger = createLogger({
       format: format.combine(format.colorize(), format.simple()),
     }),
     new transports.File({
-      filename: file,
+      filename: combinedLogPath,
+      maxsize: 10 * 1024 * 1024, // 10MB
+    }),
+    new transports.File({
+      filename: errorLogPath,
+      level: "error",
       maxsize: 10 * 1024 * 1024, // 10MB
     }),
   ],

@@ -3,8 +3,8 @@ import dayjs from "dayjs"
 import { countBy, omit } from "lodash-es"
 import { CaptureJob } from "../classes/job"
 import { CaptureTask } from "../classes/task"
+import redis from "../redis"
 import { CaptureTaskQueueJobData } from "../types"
-import redis from "./redis"
 
 export async function getJobInfo(id: string) {
   const job = await CaptureJob.findById(id)

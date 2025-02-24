@@ -23,10 +23,10 @@ import { ds } from "@pptr/core"
 import dayjs from "dayjs"
 import { assign, isEmpty } from "lodash-es"
 import { customAlphabet } from "nanoid"
+import redis from "../redis"
 import { QueueCaptureInputParamsType, Status } from "../types"
 import { saveJobLog, WaitOptions, waitUntil } from "../utils/helper"
 import logger from "../utils/logger"
-import redis from "../utils/redis"
 
 export const CaptureJobExpire =
   parseInt(process.env.JOB_EXPIRE || "") ||

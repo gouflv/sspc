@@ -8,10 +8,10 @@ import {
 } from "bullmq"
 import { CaptureJob } from "./classes/job"
 import { generateTaskId } from "./classes/task"
+import { client as redisClient } from "./redis"
 import { CaptureQueueName, PackageQueueName } from "./types"
 import { createCaptureTaskQueueJobData } from "./utils/helper"
 import logger from "./utils/logger"
-import { client as redisClient } from "./utils/redis"
 
 const flow = new FlowProducer({ connection: redisClient })
 

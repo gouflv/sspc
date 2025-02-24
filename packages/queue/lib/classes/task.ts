@@ -1,6 +1,6 @@
 import { assign, isEmpty } from "lodash-es"
+import redis from "../redis"
 import { Status } from "../types"
-import redis from "../utils/redis"
 import { CaptureJobExpire } from "./job"
 
 export function generateTaskId(jobId: string, index: number) {

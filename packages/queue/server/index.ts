@@ -3,8 +3,23 @@ import { Hono } from "hono"
 import { setupBullBoard } from "./bull-board"
 import jobs from "./routes/jobs"
 
+logger.info(
+  "Environment",
+  pick(process.env, [
+    "NODE_ENV",
+    "HONO_PORT",
+    "REDIS_URL",
+    "JOB_EXPIRE",
+    "JOB_ATTEMPTS",
+    "CAPTURE_ENDPOINT",
+    "CAPTURE_CONCURRENCY",
+  ]),
+)
+
 // Setup bullmq
+import { pick } from "lodash-es"
 import "../lib/events"
+import logger from "../lib/utils/logger"
 import "../lib/workers"
 
 const app = new Hono()
