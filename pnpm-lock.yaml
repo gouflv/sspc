@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      mime:
+        specifier: ^4.0.6
+        version: 4.0.6
     devDependencies:
       '@tsconfig/node22':
         specifier: ^22.0.0
@@ -119,9 +123,6 @@ importers:
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
-      mime:
-        specifier: ^4.0.6
-        version: 4.0.6
       nanoid:
         specifier: ^5.1.0
         version: 5.1.0
