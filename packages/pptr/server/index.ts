@@ -4,6 +4,7 @@ import { captureParamsSchema, d } from "@pptr/core"
 import { config as configDotenv } from "dotenv"
 import { Hono } from "hono"
 import { timeout } from "hono/timeout"
+import mime from "mime"
 import { launch } from "../lib/browser"
 import logger from "../lib/logger"
 import { capturePage, initPage } from "../lib/page"
@@ -46,7 +47,7 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
 
     const headers: any = {
       "content-type": data.contentType,
-      "content-disposition": `attachment; filename=capture.${params.captureFormat}`,
+      "content-disposition": `attachment; filename=capture.${mime.getExtension(data.contentType) || params.captureFormat}`,
       duration: `${duration}`,
     }
     if (requestId) {
