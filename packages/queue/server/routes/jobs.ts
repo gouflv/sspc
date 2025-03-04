@@ -24,10 +24,13 @@ jobs.post("/", validate("json", queueCaptureParamsSchema), async (c) => {
       data: job,
     })
   } catch (e) {
-    return c.json({
-      success: false,
-      error: (e as Error).message,
-    })
+    return c.json(
+      {
+        success: false,
+        error: (e as Error).message,
+      },
+      400,
+    )
   }
 })
 
@@ -44,10 +47,13 @@ jobs.get("/:id", async (c) => {
       data: info,
     })
   } catch (e) {
-    return c.json({
-      success: false,
-      error: (e as Error).message,
-    })
+    return c.json(
+      {
+        success: false,
+        error: (e as Error).message,
+      },
+      400,
+    )
   }
 })
 
@@ -85,10 +91,13 @@ jobs.get("/:id/cancel", async (c) => {
       success,
     })
   } catch (e) {
-    return c.json({
-      success: false,
-      error: (e as Error).message,
-    })
+    return c.json(
+      {
+        success: false,
+        error: (e as Error).message,
+      },
+      400,
+    )
   }
 })
 
@@ -117,10 +126,13 @@ jobs.post("/urgent", validate("json", queueCaptureParamsSchema), async (c) => {
 
     return Artifact.createResponse(job.id)
   } catch (e) {
-    return c.json({
-      success: false,
-      error: (e as Error).message,
-    })
+    return c.json(
+      {
+        success: false,
+        error: (e as Error).message,
+      },
+      400,
+    )
   }
 })
 
