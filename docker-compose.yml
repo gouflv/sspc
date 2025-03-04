@@ -31,7 +31,7 @@ services:
       - sspc-network
 
   queue:
-    image: gouflv/sspc-queue:1.0.0
+    image: gouflv/sspc-queue:1.0.1
     container_name: queue
     volumes:
       - ./data/queue:/app/data
