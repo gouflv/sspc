@@ -108,8 +108,16 @@ Content-Type:
 
 #### Response
 
-- Success (200): `application/zip | image/png | image/jpeg | application/pdf`
-- Error (400): Artifact not found
+**Success (200)**
+
+```http
+Content-type: `application/zip | image/png | image/jpeg | application/pdf`
+Body: <Binary File>
+```
+
+**Error (400)**
+
+- Artifact not found
 
 ### Cancel Job (`GET /jobs/:id/cancel`)
 
@@ -125,7 +133,7 @@ Cancel a running job.
 
 ### Create Urgent Job (`POST /jobs/urgent`)
 
-Create a job in highest priority. Will wait fot it complete, then return the artifact.
+Create a job in highest priority. Will wait fot it complete, then return the artifact. Only one page allowed in pre job.
 
 #### Request Body
 
@@ -133,8 +141,21 @@ Same as `POST /jobs`.
 
 #### Response
 
-- Success (200): `image/png | image/jpeg | application/pdf`
-- Error (400/500)
+**Success (200)**
+
+```
+Content-Type: `image/png | image/jpeg | application/pdf`
+Body: <Binary File>
+```
+
+**Error (400/500)**
+
+```typescript
+{
+  success: false,
+  error: string
+}
+```
 
 ### Dashboard (`GET /ui`)
 
