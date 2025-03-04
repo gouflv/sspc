@@ -22,8 +22,8 @@ autocannon(
       captureFormat: "pdf",
       pdfFormat: "a4",
     }),
-    connections: 4,
-    duration: 60,
+    connections: 8,
+    duration: 60 * 5,
   },
   console.log,
 )
