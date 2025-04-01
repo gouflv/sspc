@@ -101,7 +101,7 @@ async function createResponse(jobId: string) {
   return new Response(stream, {
     headers: {
       "content-type": mime.getType(job.artifact) || "application/zip",
-      // "content-disposition": `attachment; filename="${encodeURIComponent(fileName)}"`,
+      "content-disposition": `attachment; filename="${encodeURIComponent(fileName)}"`,
     },
   })
 }
