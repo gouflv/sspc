@@ -8,7 +8,7 @@ A service that manages capture jobs in a queue.
 | -------------------- | ----------------------------- | ----------------------------- |
 | HONO_PORT            | API server port               | 3001                          |
 | REDIS_URL            | Redis connection URL          | redis://localhost:6379        |
-| JOB_EXPIRE           | Job expiration time (seconds) | 7d                            |
+| JOB_EXPIRE           | Job expiration time (seconds) | 1d                            |
 | JOB_ATTEMPTS         | Max job retry attempts        | 2                             |
 | CAPTURE_ENDPOINT     | Page capture service URL      | http://localhost:3000/capture |
 | CAPTURE_CONCURRENCY  | Max concurrent capture tasks  | 2                             |

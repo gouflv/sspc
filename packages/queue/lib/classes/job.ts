@@ -30,7 +30,7 @@ import logger from "../utils/logger"
 
 export const CaptureJobExpire =
   parseInt(process.env.JOB_EXPIRE || "") ||
-  (process.env.NODE_ENV === "production" ? ds("7 days") : ds("5 mins"))
+  (process.env.NODE_ENV === "production" ? ds("1 day") : ds("5 mins"))
 
 const nanoid = customAlphabet("1234567890abcdef", 10)
 const JobPrefix = "job"
