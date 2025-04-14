@@ -1,6 +1,6 @@
 {
   "name": "queue",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "scripts": {
     "dev": "NODE_ENV=development tsx watch server/index.ts",
     "start": "NODE_ENV=production tsx server/index.ts",

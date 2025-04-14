@@ -1,6 +1,6 @@
 {
   "name": "pptr",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "scripts": {
     "dev": "NODE_ENV=development tsx watch server/index.ts",
