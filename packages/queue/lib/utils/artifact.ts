@@ -92,16 +92,11 @@ async function createResponse(jobId: string) {
     throw new Error("artifact not found")
   }
 
-  const isPackage = job.artifact.endsWith(".zip")
   const stream = await geReadStream(job.artifact)
-  const fileName = isPackage
-    ? job.artifact
-    : replaceFilename(job.artifact, job.params.pages[0].name)
 
   return new Response(stream, {
     headers: {
       "content-type": mime.getType(job.artifact) || "application/zip",
-      "content-disposition": `attachment; filename="${encodeURIComponent(fileName)}"`,
     },
   })
 }
