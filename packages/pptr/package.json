@@ -14,6 +14,7 @@
     "@pptr/core": "workspace:*",
     "@puppeteer/browsers": "^2.7.1",
     "dotenv": "^16.4.7",
+    "generic-pool": "^3.9.0",
     "hono": "^4.6.17",
     "lodash-es": "^4.17.21",
     "puppeteer-core": "^24.2.0",

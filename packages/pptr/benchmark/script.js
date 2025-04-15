@@ -1,5 +1,7 @@
 import autocannon from "autocannon"
 
+const DURATION = 60 * 2
+
 autocannon(
   {
     url: "http://localhost:3000/capture",
@@ -12,9 +14,9 @@ autocannon(
       captureFormat: "pdf",
       pdfFormat: "a4",
     }),
-    connections: 8,
-    duration: 60 * 5,
-    timeout: 60 * 5,
+    connections: 4,
+    duration: DURATION,
+    timeout: DURATION * 10,
   },
   console.log,
 )

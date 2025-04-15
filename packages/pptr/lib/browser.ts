@@ -12,6 +12,12 @@ import pptr, {
 } from "puppeteer-core"
 import logger from "./logger"
 
+export type BrowserInstance = {
+  browser: Browser
+  context: BrowserContext
+  close: () => Promise<void>
+}
+
 export async function launch(options?: LaunchOptions) {
   let browser: Browser | null = null,
     context: BrowserContext | null = null
@@ -45,7 +51,7 @@ export async function launch(options?: LaunchOptions) {
     browser,
     context,
     close,
-  }
+  } as BrowserInstance
 }
 
 async function getExecutablePath() {

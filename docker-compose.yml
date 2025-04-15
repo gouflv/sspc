@@ -7,6 +7,7 @@ services:
       - ./logs/pptr:/app/logs
     environment:
       - NODE_ENV=production
+      - POOL_SIZE=4
     restart: unless-stopped
     ports:
       - "3000:3000"

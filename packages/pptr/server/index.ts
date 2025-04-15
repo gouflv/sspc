@@ -4,9 +4,10 @@ import { captureParamsSchema, d } from "@pptr/core"
 import { config as configDotenv } from "dotenv"
 import { Hono } from "hono"
 import { timeout } from "hono/timeout"
-import { launch } from "../lib/browser"
+import { BrowserInstance } from "../lib/browser"
 import logger from "../lib/logger"
 import { capturePage, initPage } from "../lib/page"
+import { pool } from "../lib/pool"
 
 configDotenv()
 
@@ -26,15 +27,26 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
     params,
   })
 
-  let closeBrowser: () => Promise<void> = async () => {}
+  let shouldDestroyBrowser: BrowserInstance | null = null
+
+  console.log(
+    "size",
+    pool.size,
+    "available",
+    pool.available,
+    "borrowed",
+    pool.borrowed,
+    "pending",
+    pool.pending,
+  )
 
   try {
     const startTime = Date.now()
 
-    const { context, close } = await launch()
-    closeBrowser = close
+    const browser = await pool.acquire()
+    shouldDestroyBrowser = browser
 
-    const page = initPage(await context.newPage(), params)
+    const page = initPage(await browser.context.newPage(), params)
     await page.goto(params.url, { waitUntil: "networkidle0" })
     const data = await capturePage(page, params)
 
@@ -65,7 +77,9 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
       500,
     )
   } finally {
-    await closeBrowser()
+    if (shouldDestroyBrowser) {
+      pool.destroy(shouldDestroyBrowser)
+    }
   }
 })
 
@@ -78,3 +92,12 @@ serve(
     console.log(`Server is running on ${info.port}`)
   },
 )
+
+async function shutdown() {
+  console.log("Shutting down...")
+  await pool.drain()
+  await pool.clear()
+  process.exit(0)
+}
+process.on("SIGINT", shutdown)
+process.on("SIGTERM", shutdown)
