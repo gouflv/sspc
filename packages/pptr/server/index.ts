@@ -29,17 +29,6 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
 
   let shouldDestroyBrowser: BrowserInstance | null = null
 
-  console.log(
-    "size",
-    pool.size,
-    "available",
-    pool.available,
-    "borrowed",
-    pool.borrowed,
-    "pending",
-    pool.pending,
-  )
-
   try {
     const startTime = Date.now()
 
@@ -81,6 +70,16 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
       pool.destroy(shouldDestroyBrowser)
     }
   }
+})
+
+app.get("/pool-status", async (c) => {
+  const status = {
+    size: pool.size,
+    available: pool.available,
+    borrowed: pool.borrowed,
+    pending: pool.pending,
+  }
+  return c.json(status)
 })
 
 serve(
