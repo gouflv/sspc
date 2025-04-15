@@ -93,8 +93,8 @@ serve(
   },
 )
 
-async function shutdown() {
-  console.log("Shutting down...")
+const shutdown = async (signal: string) => {
+  console.log(`Received ${signal}, closing...\n`)
   await pool.drain()
   await pool.clear()
   process.exit(0)

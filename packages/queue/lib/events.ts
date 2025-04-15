@@ -40,7 +40,7 @@ subscriber.on("message", async (_, expiredKey) => {
 
 // graceful shutdown
 const gracefulShutdown = async (signal: string) => {
-  console.log(`Received ${signal}, closing...`)
+  console.log(`Received ${signal}, closing...\n`)
   await Queue.flow.close()
   await Workers.captureWorker.close()
   await Workers.packageWorker.close()
