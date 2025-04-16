@@ -8,8 +8,8 @@ export const pool = Poll.createPool(
     destroy: (browser) => browser.close(),
   },
   {
-    max: parseInt(process.env["POOL_SIZE"] || "4"),
-    min: 0,
+    max: parseInt(process.env["POOL_SIZE_MAX"] || "4"),
+    min: parseInt(process.env["POOL_SIZE_MIN"] || "1"),
   },
 )
 
