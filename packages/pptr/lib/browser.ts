@@ -5,36 +5,25 @@ import {
 } from "@puppeteer/browsers"
 import { homedir } from "node:os"
 import { join } from "node:path"
-import pptr, {
-  Browser,
-  BrowserContext,
-  type LaunchOptions,
-} from "puppeteer-core"
+import pptr, { type LaunchOptions } from "puppeteer-core"
 import logger from "./logger"
 
-export type BrowserInstance = {
-  browser: Browser
-  context: BrowserContext
-  close: () => Promise<void>
-}
-
+/**
+ * Example:
+ * ```ts
+ * const browser = await launch()
+ * const page = await browser.newPage()
+ * await page.goto("https://example.com")
+ *
+ * // After you are done with the page
+ * await browser.close()
+ * ```
+ */
 export async function launch(options?: LaunchOptions) {
-  let browser: Browser | null = null,
-    context: BrowserContext | null = null
-
-  const close = async () => {
-    const pages = await context?.pages()
-    if (pages) {
-      await Promise.all(pages.map((page) => page.close()))
-    }
-    await context?.close()
-    await browser?.close()
-  }
-
   const executablePath = await getExecutablePath()
   logger.debug("launch", { executablePath })
 
-  browser = await pptr.launch({
+  return await pptr.launch({
     executablePath,
     args: [
       "--disable-gpu",
@@ -44,14 +33,6 @@ export async function launch(options?: LaunchOptions) {
     ],
     ...options,
   })
-
-  context = await browser.createBrowserContext()
-
-  return {
-    browser,
-    context,
-    close,
-  } as BrowserInstance
 }
 
 async function getExecutablePath() {

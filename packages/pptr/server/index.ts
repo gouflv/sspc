@@ -4,7 +4,7 @@ import { captureParamsSchema, d } from "@pptr/core"
 import { config as configDotenv } from "dotenv"
 import { Hono } from "hono"
 import { timeout } from "hono/timeout"
-import { BrowserInstance } from "../lib/browser"
+import { Browser } from "puppeteer-core"
 import logger from "../lib/logger"
 import { capturePage, initPage } from "../lib/page"
 import { pool } from "../lib/pool"
@@ -27,16 +27,21 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
     params,
   })
 
-  let shouldDestroyBrowser: BrowserInstance | null = null
+  let browser: Browser | null = null
 
   try {
     const startTime = Date.now()
 
-    const browser = await pool.acquire()
-    shouldDestroyBrowser = browser
+    const _browser = await pool.acquire()
+    browser = _browser
 
-    const page = initPage(await browser.context.newPage(), params)
+    const context = await _browser.createBrowserContext()
+    const page = await context.newPage()
+
+    initPage(page, params)
+
     await page.goto(params.url, { waitUntil: "networkidle0" })
+
     const data = await capturePage(page, params)
 
     const duration = Date.now() - startTime
@@ -66,8 +71,8 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
       500,
     )
   } finally {
-    if (shouldDestroyBrowser) {
-      pool.destroy(shouldDestroyBrowser)
+    if (browser) {
+      pool.destroy(browser)
     }
   }
 })
