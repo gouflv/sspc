@@ -1,13 +1,12 @@
 services:
   pptr:
-    image: gouflv/sspc-pptr:1.0.3
+    image: gouflv/sspc-pptr:1.0.4
     container_name: pptr
     init: true
     volumes:
       - ./logs/pptr:/app/logs
     environment:
       - NODE_ENV=production
-      - POOL_SIZE=4
     restart: unless-stopped
     ports:
       - "3000:3000"
