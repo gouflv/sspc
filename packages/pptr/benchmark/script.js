@@ -1,6 +1,6 @@
 import autocannon from "autocannon"
 
-const DURATION = 60 * 2
+const DURATION = 60
 
 autocannon(
   {
@@ -10,7 +10,7 @@ autocannon(
       "Content-Type": "application/json; charset=utf-8",
     },
     body: JSON.stringify({
-      url: "https://www.baidu.com",
+      url: "https://www.example.com",
       captureFormat: "pdf",
       pdfFormat: "a4",
     }),
