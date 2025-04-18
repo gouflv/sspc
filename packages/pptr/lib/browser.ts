@@ -30,6 +30,7 @@ export async function launch(options?: LaunchOptions) {
       "--no-sandbox",
       "--disable-setuid-sandbox",
       "--disable-dev-shm-usage",
+      "--font-render-hinting=none",
     ],
     ...options,
   })

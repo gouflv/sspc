@@ -9,6 +9,7 @@ FROM ghcr.io/puppeteer/puppeteer:$PUPPETEER_VERSION AS browser
 USER root
 RUN npm install -g pnpm@latest-10
 RUN apt install -y --no-install-recommends fonts-noto-cjk 
+RUN fc-cache -fv
 
 # Build
 FROM base AS build
