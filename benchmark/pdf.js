@@ -18,7 +18,7 @@ const instance = autocannon({
     captureFormat: "pdf",
     pdfFormat: "a4",
   }),
-  connections: 4,
+  connections: 10,
   duration: DURATION,
   timeout: DURATION * 10,
 })
