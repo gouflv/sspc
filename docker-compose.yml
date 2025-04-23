@@ -13,8 +13,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "8.00"
-          memory: 12G
+          cpus: "12.00"
+          memory: 8G
     networks:
       - sspc-network
 
@@ -40,7 +40,7 @@ services:
       - NODE_ENV=production
       - REDIS_URL=redis://redis:6379
       - CAPTURE_ENDPOINT=http://pptr:3000/capture
-      - CAPTURE_CONCURRENCY=4
+      - CAPTURE_CONCURRENCY=12
     restart: unless-stopped
     ports:
       - "3001:3001"
