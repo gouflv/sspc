@@ -63,14 +63,16 @@ Body: <Binary File>
 
 ## Environment Variables
 
-| Variable                  | Description                    | Default                     |
-| ------------------------- | ------------------------------ | --------------------------- |
-| HONO_PORT                 | API server port                | 3000                        |
-| LOG_LEVEL                 | Logging level                  | info                        |
-| PUPPETEER_TIMEOUT         | Global operation timeout (ms)  | 30000                       |
-| PUPPETEER_CACHE_DIR       | Browser installation directory | /$HOME_DIR/.cache/puppeteer |
-| PUPPETEER_CHROME_REVISION | Chrome version                 | 133.0.6943.53               |
-| PUPPETEER_EXECUTABLE_PATH | Custom Chrome binary path      | -                           |
+| Variable                  | Description                       | Default                     |
+| ------------------------- | --------------------------------- | --------------------------- |
+| HONO_PORT                 | API server port                   | 3000                        |
+| LOG_LEVEL                 | Logging level                     | info                        |
+| PUPPETEER_TIMEOUT         | Global operation timeout (ms)     | 30000                       |
+| PUPPETEER_CACHE_DIR       | Browser installation directory    | /$HOME_DIR/.cache/puppeteer |
+| PUPPETEER_CHROME_REVISION | Chrome version                    | 133.0.6943.53               |
+| PUPPETEER_EXECUTABLE_PATH | Custom Chrome binary path         | -                           |
+| POOL_SIZE_MAX             | Chrome instance pool maximum size | 4                           |
+| POOL_SIZE_MIN             | Chrome instance pool minimum size | 1                           |
 
 ## Development
 
