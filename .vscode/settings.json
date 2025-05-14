@@ -5,6 +5,8 @@
     "hgetall",
     "hono",
     "hset",
+    "keyevent",
+    "keyspace",
     "pptr",
     "sspc",
     "zadd"
