@@ -1,4 +1,4 @@
-# 画布 网页截图与 PDF 生成服务
+# 网页截图与 PDF 生成服务
 
 ## 一、服务简介
 
@@ -41,7 +41,8 @@
 ## 四、性能评估
 
 **测试环境：** 单个 Docker 容器（分配 10 个 CPU 核心，8G 内存）
-**测试内容：** 以“百度新闻首页”为目标页面生成 PDF，请求并发数为 20
+
+**测试用例：** 以“百度新闻首页”为目标页面生成 PDF，请求并发数为 20
 
 ### 延迟统计
 
@@ -59,3 +60,23 @@
 ### 结论
 
 单容器环境下（10 核 / 8G 内存），每分钟可完成约 75 次请求
+
+## 五、API
+
+[API 文档](https://si6has7gdt1.feishu.cn/docx/IfrHdk30zoQCsLxYd3YcVzZ2nag?from=from_copylink)
+
+测试(内网)
+
+```sh
+curl --request POST \
+  --url http://10.0.28.121:3001/jobs/urgent \
+  --header 'Content-Type: application/json' \
+  --data '{
+	"pages": [
+		{
+			"url": "https://news.baidu.com/",
+			"name": "example"
+		}
+	],
+}'
+```
