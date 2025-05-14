@@ -1,6 +1,6 @@
 import { zValidator as validate } from "@hono/zod-validator"
 import { Hono } from "hono"
-import { CaptureJob } from "../../lib/classes/job"
+import { CaptureJob } from "../../lib/classes/CaptureJob"
 import Queue from "../../lib/queue"
 import { queueCaptureParamsSchema } from "../../lib/types"
 import Artifact from "../../lib/utils/artifact"

@@ -1,8 +1,8 @@
 import { d } from "@pptr/core"
 import dayjs from "dayjs"
 import { countBy, omit } from "lodash-es"
-import { CaptureJob } from "../classes/job"
-import { CaptureTask } from "../classes/task"
+import { CaptureJob } from "../classes/CaptureJob"
+import { CaptureTask } from "../classes/CaptureTask"
 import redis from "../redis"
 import { CaptureTaskQueueJobData } from "../types"
 

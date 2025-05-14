@@ -1,5 +1,7 @@
 import { serve } from "@hono/node-server"
 import { Hono } from "hono"
+import { pick } from "lodash-es"
+import logger from "../lib/utils/logger"
 import { setupBullBoard } from "./bull-board"
 import jobs from "./routes/jobs"
 
@@ -16,10 +18,8 @@ logger.info(
   ]),
 )
 
-// Setup bullmq
-import { pick } from "lodash-es"
+// Setups
 import "../lib/events"
-import logger from "../lib/utils/logger"
 import "../lib/workers"
 
 const app = new Hono()

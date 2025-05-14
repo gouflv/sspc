@@ -19,7 +19,6 @@
  * ```
  */
 
-import { ds } from "@pptr/core"
 import dayjs from "dayjs"
 import { assign, isEmpty } from "lodash-es"
 import { customAlphabet } from "nanoid"
@@ -27,10 +26,7 @@ import redis from "../redis"
 import { QueueCaptureInputParamsType, Status } from "../types"
 import { saveJobLog, WaitOptions, waitUntil } from "../utils/helper"
 import logger from "../utils/logger"
-
-export const CaptureJobExpire =
-  parseInt(process.env.JOB_EXPIRE || "") ||
-  (process.env.NODE_ENV === "production" ? ds("1 day") : ds("5 mins"))
+import { CaptureJobExpireTrigger } from "./CaptureJobExpireTrigger"
 
 const nanoid = customAlphabet("1234567890abcdef", 10)
 const JobPrefix = "job"
@@ -101,7 +97,7 @@ export class CaptureJob {
 
   static async findById(id: string) {
     const json = (await redis.client.hgetall(id)) as CaptureJobJSONRaw
-    if (isEmpty(json)) {
+    if (!json || isEmpty(json)) {
       return null
     }
     return this.fromJSON(json)
@@ -109,7 +105,7 @@ export class CaptureJob {
 
   async save() {
     await redis.client.hset(this.id, this.serialize())
-    await redis.client.expire(this.id, CaptureJobExpire)
+    await CaptureJobExpireTrigger.upsert(this.id)
   }
 
   async remove() {
@@ -121,8 +117,12 @@ export class CaptureJob {
       Pick<CaptureJob, "queueJobId" | "status" | "artifact" | "error">
     >,
   ) {
+    // assign the new data to the current instance
     assign(this, data)
+
     await this.save()
+
+    await CaptureJobExpireTrigger.upsert(this.id)
 
     logger.info("[capture-job] updated", { data })
 

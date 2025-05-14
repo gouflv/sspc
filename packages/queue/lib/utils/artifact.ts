@@ -1,10 +1,10 @@
 import archiver from "archiver"
 import mime from "mime"
-import { createReadStream, createWriteStream, unlink } from "node:fs"
-import { mkdir } from "node:fs/promises"
+import { createReadStream, createWriteStream } from "node:fs"
+import { access, mkdir, rm } from "node:fs/promises"
 import { dirname, extname, join } from "node:path"
 import { Stream } from "node:stream"
-import { CaptureJob } from "../classes/job"
+import { CaptureJob } from "../classes/CaptureJob"
 import logger from "./logger"
 
 function resolveFilePath(filename: string) {
@@ -69,16 +69,23 @@ function replaceFilename(file: string, newName: string) {
 }
 
 async function remove(filename: string) {
+  logger.debug("[artifact] remove", { filename })
   const path = resolveFilePath(filename)
-  return new Promise<void>((resolve, reject) => {
-    unlink(path, (err) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve()
-      }
+
+  try {
+    await access(path)
+  } catch (err) {
+    return
+  }
+
+  try {
+    await rm(path)
+  } catch (err) {
+    logger.error("[artifact] failed to remove", {
+      filename,
+      error: (err as Error).message,
     })
-  })
+  }
 }
 
 async function geReadStream(filename: string) {

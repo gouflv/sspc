@@ -15,6 +15,7 @@ const logger = createLogger({
       format: "YYYY-MM-DD HH:mm:ss",
     }),
     format.json(),
+    format.errors({ stack: true }),
   ),
   transports: [
     new transports.Console({

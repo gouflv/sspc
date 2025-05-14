@@ -1,13 +1,13 @@
 import Redis from "ioredis"
-import { CaptureJob } from "./classes/job"
-import { CaptureTask } from "./classes/task"
+import { CaptureJob } from "./classes/CaptureJob"
+import { CaptureJobExpireTrigger } from "./classes/CaptureJobExpireTrigger"
+import { CaptureTask } from "./classes/CaptureTask"
 import Queue from "./queue"
 import { RedisURL } from "./redis"
 import Artifact from "./utils/artifact"
-import logger from "./utils/logger"
 import Workers from "./workers"
 
-// register event listener for expired keys, to cleanup artifacts
+// register event listener for expired keys, used to clean up artifacts
 const subscriber = new Redis(RedisURL)
 subscriber.config("SET", "notify-keyspace-events", "Ex")
 subscriber.subscribe("__keyevent@0__:expired")
@@ -16,25 +16,22 @@ subscriber.on("message", async (_, expiredKey) => {
     return
   }
 
-  try {
-    const isProgress = expiredKey.includes(":task-")
+  if (CaptureJobExpireTrigger.isExpireTriggerKey(expiredKey)) {
+    const jobId = CaptureJobExpireTrigger.retrieveJobId(expiredKey)
 
-    if (isProgress) {
-      const record = await CaptureJob.findById(expiredKey)
-      if (record?.artifact) {
-        Artifact.remove(record.artifact)
-      }
-    } else {
-      const task = await CaptureTask.findById(expiredKey)
-      if (task?.artifact) {
-        Artifact.remove(task.artifact)
-      }
+    const job = await CaptureJob.findById(jobId)
+    if (job) {
+      await job.remove()
+      if (job.artifact) await Artifact.remove(job.artifact)
     }
-  } catch (err) {
-    logger.error("[events] failed to cleanup expired artifacts", {
-      key: expiredKey,
-      error: (err as Error).message,
-    })
+
+    const tasks = await CaptureTask.findAll(jobId)
+    await Promise.all(
+      tasks.map(async (task) => {
+        await task.remove()
+        if (task.artifact) await Artifact.remove(task.artifact)
+      }),
+    )
   }
 })
 

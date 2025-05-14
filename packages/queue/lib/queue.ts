@@ -6,8 +6,8 @@ import {
   Job as QueueJob,
   Queue as QueueMQ,
 } from "bullmq"
-import { CaptureJob } from "./classes/job"
-import { generateTaskId } from "./classes/task"
+import { CaptureJob } from "./classes/CaptureJob"
+import { generateTaskId } from "./classes/CaptureTask"
 import { client as redisClient } from "./redis"
 import { CaptureQueueName, PackageQueueName } from "./types"
 import { createCaptureTaskQueueJobData } from "./utils/helper"
@@ -19,8 +19,9 @@ const age =
   process.env["NODE_ENV"] === "production" ? ds("1 day") : ds("1 mins")
 
 const attempts =
-  parseInt(process.env["JOB_ATTEMPTS"] || "") ||
-  (process.env["NODE_ENV"] === "production" ? 2 : 1)
+  process.env["NODE_ENV"] === "production"
+    ? parseInt(process.env["JOB_ATTEMPTS"] || "2")
+    : 0
 
 const defaultJobOptions: DefaultJobOptions = {
   attempts,
@@ -34,7 +35,7 @@ const packageQueue = new QueueMQ(PackageQueueName, { connection: redisClient })
 const captureQueue = new QueueMQ(CaptureQueueName, { connection: redisClient })
 
 function add(job: CaptureJob): Promise<JobNode> {
-  let priority = 3 // default lowest priority for large jobs
+  let priority = 3 // use lowest priority for large jobs
   if (job.params.pages.length === 1) {
     priority = 1
   } else if (job.params.pages.length <= 50) {

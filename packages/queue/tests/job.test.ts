@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, it } from "vitest"
-import { CaptureJob } from "../lib/classes/job"
+import { CaptureJob } from "../lib/classes/CaptureJob"
 import { QueueCaptureInputParamsType } from "../lib/types"
 
 const mockParams: QueueCaptureInputParamsType = {

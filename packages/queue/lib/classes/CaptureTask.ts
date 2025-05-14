@@ -1,7 +1,7 @@
 import { assign, isEmpty } from "lodash-es"
 import redis from "../redis"
 import { Status } from "../types"
-import { CaptureJobExpire } from "./job"
+import { CaptureJobExpireTrigger } from "./CaptureJobExpireTrigger"
 
 export function generateTaskId(jobId: string, index: number) {
   return `${jobId}:task-${index}`
@@ -65,7 +65,6 @@ export class CaptureTask {
 
   async save() {
     await redis.client.hset(this.id, this.serialize())
-    await redis.client.expire(this.id, CaptureJobExpire)
   }
 
   async update(
@@ -73,8 +72,17 @@ export class CaptureTask {
       Pick<CaptureTask, "status" | "error" | "artifact" | "duration">
     >,
   ) {
+    // assign the new data to the current instance
     assign(this, data)
+
     await this.save()
+
+    // update the job expire trigger when the task is updated
+    await CaptureJobExpireTrigger.upsert(this.jobId)
+  }
+
+  async remove() {
+    await redis.client.del(this.id)
   }
 
   serialize(): CaptureTaskJSONRaw {
