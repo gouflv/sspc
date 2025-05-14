@@ -88,18 +88,25 @@ async function remove(filename: string) {
   }
 }
 
-async function geReadStream(filename: string) {
+async function getReadStream(filename: string) {
   const path = resolveFilePath(filename)
   return createReadStream(path)
 }
 
 async function createResponse(jobId: string) {
   const job = await CaptureJob.findById(jobId)
+
   if (!job?.artifact) {
     throw new Error("artifact not found")
   }
 
-  const stream = await geReadStream(job.artifact)
+  try {
+    await access(job.artifact)
+  } catch (err) {
+    throw new Error("artifact not found")
+  }
+
+  const stream = await getReadStream(job.artifact)
 
   return new Response(stream, {
     headers: {

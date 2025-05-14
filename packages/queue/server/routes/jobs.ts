@@ -69,7 +69,8 @@ jobs.get("/:id/artifact", async (c) => {
       throw new Error("job not found")
     }
 
-    return Artifact.createResponse(job.id)
+    const res = await Artifact.createResponse(job.id)
+    return res
   } catch (e) {
     const error = (e as Error).message
     return c.json({ success: false, error }, 400)
