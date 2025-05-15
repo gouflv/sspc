@@ -19,22 +19,13 @@
  * ```
  */
 
-import dayjs from "dayjs"
 import { assign, isEmpty } from "lodash-es"
-import { customAlphabet } from "nanoid"
 import redis from "../redis"
-import { QueueCaptureInputParamsType, Status } from "../types"
+import { CaptureJobId, QueueCaptureInputParamsType, Status } from "../types"
 import { logJob, WaitOptions, waitUntil } from "../utils/helper"
+import { generateJobId } from "../utils/id"
 import logger from "../utils/logger"
 import { CaptureJobExpireTrigger } from "./CaptureJobExpireTrigger"
-
-const nanoid = customAlphabet("1234567890abcdef", 10)
-const JobPrefix = "job"
-function generateId() {
-  const timestamp = dayjs().format("YY-MM-DD-HH-mm-ss".replace(/-/g, ""))
-  const uniqueId = nanoid()
-  return [JobPrefix, timestamp, uniqueId].join(":")
-}
 
 type CaptureJobJSONRaw = {
   id: string
@@ -46,7 +37,7 @@ type CaptureJobJSONRaw = {
 }
 
 export class CaptureJob {
-  public readonly id: string
+  public readonly id: CaptureJobId
 
   // assign a queue job id when the task add into the queue
   public queueJobId: string | null = null
@@ -60,11 +51,11 @@ export class CaptureJob {
 
     public error: string | null,
 
-    id?: string,
+    id?: CaptureJobId,
 
     queueJobId?: string,
   ) {
-    this.id = id || generateId()
+    this.id = id || generateJobId()
 
     if (queueJobId) {
       this.queueJobId = queueJobId
@@ -90,7 +81,7 @@ export class CaptureJob {
       json.status,
       json.artifact,
       json.error,
-      json.id,
+      json.id as CaptureJobId,
       json.queueJobId || undefined,
     )
   }

@@ -24,10 +24,17 @@ export type QueueCaptureParamsType = z.infer<typeof queueCaptureParamsSchema>
 export type Status = "pending" | "running" | "completed" | "failed" | "canceled"
 
 /**
+ * id
+ */
+export type CaptureJobId = `job:${string}:${string}`
+
+export type CaptureTaskId = `${CaptureJobId}:task-${number}`
+
+/**
  * queue job data for capture task
  */
 export type CaptureTaskQueueJobData = {
-  jobId: string
+  jobId: CaptureJobId
   index: number
   params: CaptureParamsType
 }

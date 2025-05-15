@@ -75,8 +75,8 @@ export async function waitUntil(
   options?: Partial<WaitOptions>,
 ): Promise<boolean> {
   const config: WaitOptions = {
-    pollInterval: d("2 second"),
-    maxWaitTime: d("3 mins"),
+    pollInterval: d("1 second"),
+    maxWaitTime: d("1 mins"),
     ...options,
   }
   const startTime = Date.now()

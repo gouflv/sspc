@@ -88,11 +88,6 @@ async function remove(filename: string) {
   }
 }
 
-async function getReadStream(filename: string) {
-  const path = resolveFilePath(filename)
-  return createReadStream(path)
-}
-
 async function createResponse(jobId: string) {
   const job = await CaptureJob.findById(jobId)
 
@@ -100,17 +95,19 @@ async function createResponse(jobId: string) {
     throw new Error("artifact not found")
   }
 
+  const path = resolveFilePath(job.artifact)
+
   try {
-    await access(job.artifact)
+    await access(path)
   } catch (err) {
-    throw new Error("artifact not found")
+    throw new Error(`artifact not found: ${path}`)
   }
 
-  const stream = await getReadStream(job.artifact)
+  const stream = createReadStream(path)
 
   return new Response(stream, {
     headers: {
-      "content-type": mime.getType(job.artifact) || "application/zip",
+      "content-type": mime.getType(path) || "application/zip",
     },
   })
 }

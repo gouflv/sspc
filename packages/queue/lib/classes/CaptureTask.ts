@@ -1,11 +1,8 @@
 import { assign, isEmpty } from "lodash-es"
 import redis from "../redis"
-import { Status } from "../types"
+import { CaptureJobId, CaptureTaskId, Status } from "../types"
+import { generateTaskId } from "../utils/id"
 import { CaptureJobExpireTrigger } from "./CaptureJobExpireTrigger"
-
-export function generateTaskId(jobId: string, index: number) {
-  return `${jobId}:task-${index}`
-}
 
 type CaptureTaskJSONRaw = {
   jobId: string
@@ -21,17 +18,17 @@ export class CaptureTask {
   public artifact: string | null = null
   public duration: number | null = null
 
-  public id: string
+  public id: CaptureTaskId
 
   constructor(
-    public readonly jobId: string,
+    public readonly jobId: CaptureJobId,
     public readonly index: number,
     public status: Status = "running",
   ) {
     this.id = generateTaskId(jobId, index)
   }
 
-  static async create(jobId: string, index: number) {
+  static async create(jobId: CaptureJobId, index: number) {
     const task = new this(jobId, index)
     await task.save()
     return task
@@ -56,7 +53,7 @@ export class CaptureTask {
   }
 
   static fromJSON(json: CaptureTaskJSONRaw) {
-    const task = new this(json.jobId, json.index, json.status)
+    const task = new this(json.jobId as CaptureJobId, json.index, json.status)
     task.error = json.error
     task.artifact = json.artifact
     task.duration = json.duration
