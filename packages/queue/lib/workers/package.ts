@@ -3,7 +3,7 @@ import { some } from "lodash-es"
 import { CaptureJob } from "../classes/CaptureJob"
 import { CaptureTask } from "../classes/CaptureTask"
 import artifact from "../utils/artifact"
-import { safeFilename, saveCompletedJobLog } from "../utils/helper"
+import { logCompletedJob, safeFilename } from "../utils/helper"
 import logger from "../utils/logger"
 
 /**
@@ -56,7 +56,7 @@ export default async function (queueJob: QueueJob): Promise<string> {
     })
 
     logger.info("[worker:package] completed", { job: jobId })
-    saveCompletedJobLog(job)
+    logCompletedJob(job)
 
     return filename
   } catch (e) {

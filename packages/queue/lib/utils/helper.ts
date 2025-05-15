@@ -48,7 +48,7 @@ export function safeFilename(id: string) {
   return id.replace(/[^A-Za-z0-9-_.]/g, "_")
 }
 
-export async function saveJobLog(job: CaptureJob) {
+export async function logJob(job: CaptureJob) {
   await redis.client.xadd(
     "job:logs",
     "*",
@@ -61,7 +61,7 @@ export async function saveJobLog(job: CaptureJob) {
   )
 }
 
-export async function saveCompletedJobLog(job: CaptureJob) {
+export async function logCompletedJob(job: CaptureJob) {
   await redis.client.lpush("job:completed", job.id)
 }
 

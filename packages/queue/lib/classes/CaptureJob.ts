@@ -24,7 +24,7 @@ import { assign, isEmpty } from "lodash-es"
 import { customAlphabet } from "nanoid"
 import redis from "../redis"
 import { QueueCaptureInputParamsType, Status } from "../types"
-import { saveJobLog, WaitOptions, waitUntil } from "../utils/helper"
+import { logJob, WaitOptions, waitUntil } from "../utils/helper"
 import logger from "../utils/logger"
 import { CaptureJobExpireTrigger } from "./CaptureJobExpireTrigger"
 
@@ -79,7 +79,7 @@ export class CaptureJob {
     await job.save()
 
     logger.info("[capture-job] created", { job })
-    saveJobLog(job)
+    logJob(job)
 
     return job
   }
