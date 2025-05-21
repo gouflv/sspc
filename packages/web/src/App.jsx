@@ -91,7 +91,12 @@ const Form = defineComponent({
           <div class="flex items-center text-sm">
             <label class="mr-2">预设</label>
             <div class="flex space-x-2">
-              <div class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md border border-gray-200 cursor-pointer">
+              <div
+                class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md border border-gray-200 cursor-pointer"
+                onClick={() => {
+                  url.value = "http://10.0.28.121:3002/static/pdf-layout.html"
+                }}
+              >
                 打印排版示例
               </div>
               <div

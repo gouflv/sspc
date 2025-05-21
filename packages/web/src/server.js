@@ -1,8 +1,11 @@
 import { serve } from "@hono/node-server"
+import { serveStatic } from "@hono/node-server/serve-static"
 import { Hono } from "hono"
 
 const app = new Hono()
-app.get("/", (c) => c.text("Hello Node.js!"))
+
+app.use("/*", serveStatic({ root: "../dist" }))
+app.use("/static/*", serveStatic({ root: ".." }))
 
 serve({
   port: 3002,
