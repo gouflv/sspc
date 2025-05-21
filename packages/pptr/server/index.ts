@@ -30,7 +30,18 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
   let browser: Browser | null = null
 
   try {
-    const startTime = Date.now()
+    const metrics = {
+      start: Date.now(),
+      browserStart: 0,
+      browserInit: 0,
+      pageLoadStart: 0,
+      pageLoadEnd: 0,
+      captureStart: 0,
+      captureEnd: 0,
+      end: 0,
+    }
+
+    metrics.browserStart = Date.now()
 
     const _browser = await pool.acquire()
     browser = _browser
@@ -40,19 +51,34 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
 
     initPage(page, params)
 
+    metrics.browserInit = Date.now()
+    metrics.pageLoadStart = Date.now()
+
     await page.goto(params.url, { waitUntil: "networkidle0" })
+
+    metrics.pageLoadEnd = Date.now()
+    metrics.captureStart = Date.now()
 
     const data = await capturePage(page, params)
 
-    const duration = Date.now() - startTime
+    metrics.captureEnd = Date.now()
+    metrics.end = Date.now()
+
+    const durations = {
+      browserInit: metrics.browserInit - metrics.browserStart,
+      pageLoad: metrics.pageLoadEnd - metrics.pageLoadStart,
+      capture: metrics.captureEnd - metrics.captureStart,
+      total: metrics.end - metrics.start,
+    }
+
     logger.info("/capture success", {
       requestId,
-      duration,
+      duration: durations,
     })
 
     const headers: any = {
       "content-type": data.contentType,
-      duration: `${duration}`,
+      duration: `${durations.total}`,
       ...(requestId ? { "request-id": requestId } : {}),
     }
 
