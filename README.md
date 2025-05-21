@@ -77,7 +77,9 @@
 
 单容器环境下（10 核 / 8G 内存），每分钟可完成约 75 次请求
 
-## 五、API
+## 五、部署和调用
+
+[Docker 镜像](https://hub.docker.com/repository/docker/gouflv/sspc-pptr)
 
 [API 文档](https://si6has7gdt1.feishu.cn/docx/IfrHdk30zoQCsLxYd3YcVzZ2nag?from=from_copylink)
 
