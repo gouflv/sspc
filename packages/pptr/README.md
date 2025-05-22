@@ -33,12 +33,13 @@ Takes a screenshot or generates PDF of a webpage.
 
 ##### PDF Specific Options:
 
-| Parameter | Type   | Default | Description              |
-| --------- | ------ | ------- | ------------------------ |
-| pdfFormat | string | -       | Paper format (e.g. 'a4') |
-| pdfMargin | object | -       | Page margins             |
-| pdfWidth  | number | -       | Custom page width        |
-| pdfHeight | number | -       | Custom page height       |
+| Parameter   | Type    | Default | Description                          |
+| ----------- | ------- | ------- | ------------------------------------ |
+| pdfFormat   | string  | -       | Paper format (e.g. 'a4')             |
+| pdfMargin   | object  | -       | Page margins                         |
+| pdfWidth    | number  | -       | Custom page width                    |
+| pdfHeight   | number  | -       | Custom page height                   |
+| pdfCompress | boolean | true    | Compress PDF output with ghostscript |
 
 #### Response
 
@@ -67,7 +68,7 @@ Body: <Binary File>
 | ------------------------- | --------------------------------- | --------------------------- |
 | HONO_PORT                 | API server port                   | 3000                        |
 | LOG_LEVEL                 | Logging level                     | info                        |
-| PUPPETEER_TIMEOUT         | Global operation timeout (ms)     | 30000                       |
+| PUPPETEER_TIMEOUT         | Global operation timeout (ms)     | 30_000                      |
 | PUPPETEER_CACHE_DIR       | Browser installation directory    | /$HOME_DIR/.cache/puppeteer |
 | PUPPETEER_CHROME_REVISION | Chrome version                    | 133.0.6943.53               |
 | PUPPETEER_EXECUTABLE_PATH | Custom Chrome binary path         | -                           |

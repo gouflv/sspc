@@ -1,6 +1,6 @@
 {
   "name": "pptr",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "type": "module",
   "scripts": {
     "dev": "NODE_ENV=development tsx watch server/index.ts",
@@ -13,6 +13,7 @@
     "@hono/zod-validator": "^0.4.2",
     "@pptr/core": "workspace:*",
     "@puppeteer/browsers": "^2.7.1",
+    "compress-pdf": "^0.5.3",
     "dotenv": "^16.4.7",
     "generic-pool": "^3.9.0",
     "hono": "^4.6.17",

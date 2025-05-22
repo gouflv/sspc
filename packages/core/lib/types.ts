@@ -22,6 +22,7 @@ export const captureParamsSchema = z.object({
     .optional(),
   pdfWidth: z.number().positive().optional(),
   pdfHeight: z.number().positive().optional(),
+  pdfCompress: z.boolean().optional(),
 })
 
 export type CaptureParamsType = z.infer<typeof captureParamsSchema>

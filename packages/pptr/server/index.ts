@@ -1,18 +1,17 @@
 import { serve } from "@hono/node-server"
 import { zValidator as validate } from "@hono/zod-validator"
-import { captureParamsSchema, d } from "@pptr/core"
+import { captureParamsSchema } from "@pptr/core"
 import { config as configDotenv } from "dotenv"
 import { Hono } from "hono"
-import { timeout } from "hono/timeout"
 import { Browser } from "puppeteer-core"
 import logger from "../lib/logger"
 import { capturePage, initPage } from "../lib/page"
+import { compressPDF } from "../lib/pdf"
 import { pool } from "../lib/pool"
 
 configDotenv()
 
 const app = new Hono()
-app.use("/*", timeout(d("5 mins")))
 
 app.get("/", (c) => {
   return c.text("Hello, world!")
@@ -38,11 +37,14 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
       pageLoadEnd: 0,
       captureStart: 0,
       captureEnd: 0,
+      pdfCompressStart: 0,
+      pdfCompressEnd: 0,
       end: 0,
     }
 
     metrics.browserStart = Date.now()
 
+    // Initialize the browser page
     const _browser = await pool.acquire()
     browser = _browser
 
@@ -52,22 +54,31 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
     initPage(page, params)
 
     metrics.browserInit = Date.now()
+
+    // Navigate to the URL
     metrics.pageLoadStart = Date.now()
-
     await page.goto(params.url, { waitUntil: "networkidle0" })
-
     metrics.pageLoadEnd = Date.now()
+
+    // Capture the page
     metrics.captureStart = Date.now()
-
-    const data = await capturePage(page, params)
-
+    let captureResult = await capturePage(page, params)
     metrics.captureEnd = Date.now()
+
+    // PDF compression
+    if (params.captureFormat === "pdf" && params.pdfCompress !== false) {
+      metrics.pdfCompressStart = Date.now()
+      captureResult = await compressPDF(captureResult)
+      metrics.pdfCompressEnd = Date.now()
+    }
+
     metrics.end = Date.now()
 
     const durations = {
       browserInit: metrics.browserInit - metrics.browserStart,
       pageLoad: metrics.pageLoadEnd - metrics.pageLoadStart,
       capture: metrics.captureEnd - metrics.captureStart,
+      pdfCompress: metrics.pdfCompressEnd - metrics.pdfCompressStart,
       total: metrics.end - metrics.start,
     }
 
@@ -77,12 +88,12 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
     })
 
     const headers: any = {
-      "content-type": data.contentType,
+      "content-type": captureResult.contentType,
       duration: `${durations.total}`,
       ...(requestId ? { "request-id": requestId } : {}),
     }
 
-    return new Response(data.raw.buffer as ArrayBuffer, { headers })
+    return new Response(captureResult.raw.buffer as ArrayBuffer, { headers })
   } catch (e) {
     const error = e as Error
     logger.error("/capture", {

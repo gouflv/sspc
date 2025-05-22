@@ -23,6 +23,9 @@ type DurationFormat = `${number} ${
   | "year"
   | "years"}`
 
+/**
+ * Convert a duration string to milliseconds or seconds.
+ */
 export const d = (duration: DurationFormat, unit: "ms" | "s" = "ms") => {
   const ms = parseDuration(duration)
   if (ms === null) {
