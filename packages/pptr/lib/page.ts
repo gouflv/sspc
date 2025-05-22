@@ -1,6 +1,11 @@
-import type { CaptureParamsType } from "@pptr/core"
+import { d, type CaptureParamsType } from "@pptr/core"
 import { isNumber } from "lodash-es"
 import type { Page, PDFOptions, ScreenshotOptions } from "puppeteer-core"
+
+export type CaptureResult = {
+  contentType: string
+  raw: Uint8Array
+}
 
 export function initPage(page: Page, params: CaptureParamsType) {
   if (isNumber(params.viewportWidth) && isNumber(params.viewportHeight)) {
@@ -26,11 +31,15 @@ export async function capturePage(page: Page, params: CaptureParamsType) {
   }
 }
 
-async function capturePDF(page: Page, params: CaptureParamsType) {
+async function capturePDF(
+  page: Page,
+  params: CaptureParamsType,
+): Promise<CaptureResult> {
   const options: PDFOptions = {
     format: params.pdfFormat as any,
     margin: params.pdfMargin,
     printBackground: true,
+    timeout: d("60 s"),
   }
   if (isNumber(params.pdfWidth) && isNumber(params.pdfHeight)) {
     options.width = params.pdfWidth
@@ -43,7 +52,10 @@ async function capturePDF(page: Page, params: CaptureParamsType) {
   }
 }
 
-async function captureImage(page: Page, params: CaptureParamsType) {
+async function captureImage(
+  page: Page,
+  params: CaptureParamsType,
+): Promise<CaptureResult> {
   const captureFormat = params.captureFormat || "png"
 
   const options: ScreenshotOptions = {
