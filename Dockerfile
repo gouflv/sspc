@@ -21,6 +21,7 @@ RUN pnpm deploy --filter=queue --prod /prod/queue --legacy
 
 # PPTR
 FROM browser AS pptr
+RUN apt install -y ghostscript
 ENV PUPPETEER_CACHE_DIR=/home/pptruser/.cache/puppeteer
 COPY --from=build /prod/pptr /app
 WORKDIR /app
