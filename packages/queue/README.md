@@ -38,7 +38,7 @@ Create a new capture job for one or multiple pages.
   // Optional capture settings
   viewportWidth?: number,
   viewportHeight?: number,
-  timeout?: number,        // Default: 30000ms
+  timeout?: number,        // Default: 30_000
   captureFormat?: string,  // 'png'|'jpeg'|'pdf', Default: 'png'
   quality?: number,        // 1-100, Default: 100
   captureElementSelector?: string,
