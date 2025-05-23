@@ -1,8 +1,9 @@
 import { serve } from "@hono/node-server"
 import { zValidator as validate } from "@hono/zod-validator"
-import { captureParamsSchema } from "@pptr/core"
+import { captureParamsSchema, d } from "@pptr/core"
 import { config as configDotenv } from "dotenv"
 import { Hono } from "hono"
+import { timeout } from "hono/timeout"
 import { Browser } from "puppeteer-core"
 import logger from "../lib/logger"
 import { capturePage, initPage } from "../lib/page"
@@ -12,6 +13,7 @@ import { pool } from "../lib/pool"
 configDotenv()
 
 const app = new Hono()
+app.use("/*", timeout(d("5 mins")))
 
 app.get("/", (c) => {
   return c.text("Hello, world!")
