@@ -79,9 +79,12 @@
 
 ## 五、部署和调用
 
-[Docker 镜像](https://hub.docker.com/repository/docker/gouflv/sspc-pptr)
+- Docker 镜像
 
-[API 文档](https://si6has7gdt1.feishu.cn/docx/IfrHdk30zoQCsLxYd3YcVzZ2nag?from=from_copylink)
+  - 截图服务：[pptr](https://hub.docker.com/repository/docker/gouflv/sspc-pptr)
+  - 前置任务队列：[pptr-queue](https://hub.docker.com/repository/docker/gouflv/sspc-queue)
+
+- [API 文档](https://si6has7gdt1.feishu.cn/docx/IfrHdk30zoQCsLxYd3YcVzZ2nag?from=from_copylink)
 
 ```sh
 curl --request POST \
