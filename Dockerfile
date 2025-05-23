@@ -27,6 +27,12 @@ COPY --from=build /prod/pptr /app
 WORKDIR /app
 ENTRYPOINT ["pnpm", "start"]
 
+# PPTR with fonts bundle
+FROM pptr AS pptr-bundle
+COPY assets/fonts/*  /usr/share/fonts/truetype/pptr/
+WORKDIR /app
+ENTRYPOINT ["pnpm", "start"]
+
 # Queue
 FROM base AS queue
 COPY --from=build /prod/queue /app
