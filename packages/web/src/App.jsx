@@ -1,4 +1,4 @@
-import { defineComponent, onMounted, onUnmounted, ref } from "vue"
+import { defineComponent, onMounted, onUnmounted, ref, watch } from "vue"
 import { useRequest } from "./api"
 
 export default defineComponent({
@@ -53,7 +53,9 @@ const Form = defineComponent({
   emits: ["submit"],
   setup(props, { emit }) {
     const url = ref("")
-    const format = ref("pdf")
+    const format = ref("image")
+    const countdown = ref(30)
+    let timer = null
 
     const handleSubmit = (e) => {
       e.preventDefault()
@@ -62,6 +64,28 @@ const Form = defineComponent({
         format: format.value,
       })
     }
+
+    watch(
+      () => props.loading,
+      (isLoading) => {
+        if (isLoading) {
+          // Reset and start countdown
+          countdown.value = 30
+          clearInterval(timer)
+          timer = setInterval(() => {
+            countdown.value = Math.max(0, countdown.value - 1)
+          }, 1000)
+        } else {
+          // Clear timer when loading is complete
+          clearInterval(timer)
+        }
+      },
+    )
+
+    // Clean up timer when component unmounts
+    onUnmounted(() => {
+      clearInterval(timer)
+    })
 
     return () => (
       <div class="p-6 bg-white rounded-lg shadow-md">
@@ -89,66 +113,67 @@ const Form = defineComponent({
             />
           </div>
 
-          <div class="flex items-center text-sm">
-            <label class="mr-2">示例页面</label>
-            <div class="flex space-x-2">
-              <div
-                class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md border border-gray-200 cursor-pointer"
-                onClick={() => {
-                  url.value =
-                    "https://jcxygl.chaoxing.com/portrait/preview/html/pdf-layout.html"
-                }}
-              >
-                打印排版示例
+          <div class="flex space-x-10 mb-4">
+            <div class="flex items-center text-sm">
+              <label class="mr-2 font-medium text-gray-700">示例页面</label>
+              <div class="flex space-x-2">
+                <div
+                  class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md border border-gray-200 cursor-pointer"
+                  onClick={() => {
+                    url.value =
+                      "https://jcxygl.chaoxing.com/portrait/preview/html/pdf-layout.html"
+                  }}
+                >
+                  打印排版示例
+                </div>
+                <div
+                  class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md border border-gray-200 cursor-pointer"
+                  onClick={() => {
+                    url.value =
+                      "https://jcxygl.chaoxing.com/portrait/preview/7/?year=2024-2025&term=2&studentNo=cxxx26"
+                  }}
+                >
+                  德育画像
+                </div>
               </div>
-              <div
-                class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md border border-gray-200 cursor-pointer"
-                onClick={() => {
-                  url.value =
-                    "https://jcxygl.chaoxing.com/portrait/preview/7/?year=2024-2025&term=2&studentNo=cxxx26"
-                }}
-              >
-                德育画像
+            </div>
+
+            <div class="flex items-center">
+              <label class="block text-sm font-medium text-gray-700 mr-2">
+                输出格式
+              </label>
+              <div class="flex items-center space-x-4">
+                <div class="flex items-center">
+                  <input
+                    id="format-image"
+                    type="radio"
+                    name="format"
+                    value="image"
+                    checked={format.value === "image"}
+                    onChange={() => (format.value = "image")}
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                  />
+                  <label for="format-image" class="ml-2 text-sm text-gray-700">
+                    图片
+                  </label>
+                </div>
+                <div class="flex items-center">
+                  <input
+                    id="format-pdf"
+                    type="radio"
+                    name="format"
+                    value="pdf"
+                    checked={format.value === "pdf"}
+                    onChange={() => (format.value = "pdf")}
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                  />
+                  <label for="format-pdf" class="ml-2 text-sm text-gray-700">
+                    PDF(A4)
+                  </label>
+                </div>
               </div>
             </div>
           </div>
-
-          <div class="flex items-center">
-            <label class="block text-sm font-medium text-gray-700 mr-2">
-              输出格式
-            </label>
-            <div class="flex items-center space-x-4">
-              <div class="flex items-center">
-                <input
-                  id="format-image"
-                  type="radio"
-                  name="format"
-                  value="image"
-                  checked={format.value === "image"}
-                  onChange={() => (format.value = "image")}
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500"
-                />
-                <label for="format-image" class="ml-2 text-sm text-gray-700">
-                  图片
-                </label>
-              </div>
-              <div class="flex items-center">
-                <input
-                  id="format-pdf"
-                  type="radio"
-                  name="format"
-                  value="pdf"
-                  checked={format.value === "pdf"}
-                  onChange={() => (format.value = "pdf")}
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500"
-                />
-                <label for="format-pdf" class="ml-2 text-sm text-gray-700">
-                  PDF(A4)
-                </label>
-              </div>
-            </div>
-          </div>
-
           <button
             type="submit"
             disabled={props.loading}
@@ -156,7 +181,7 @@ const Form = defineComponent({
               props.loading ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
-            {props.loading ? "处理中..." : "提交"}
+            {props.loading ? `处理中...(${countdown.value}s)` : "提交"}
           </button>
         </form>
       </div>
