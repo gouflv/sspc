@@ -51,7 +51,7 @@ const Form = defineComponent({
   },
   emits: ["submit"],
   setup(props, { emit }) {
-    const url = ref("https://example.com")
+    const url = ref("https://news.baidu.com/")
     const format = ref("pdf")
 
     const handleSubmit = (e) => {
@@ -89,7 +89,7 @@ const Form = defineComponent({
           </div>
 
           <div class="flex items-center text-sm">
-            <label class="mr-2">预设</label>
+            <label class="mr-2">示例页面</label>
             <div class="flex space-x-2">
               <div
                 class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md border border-gray-200 cursor-pointer"
