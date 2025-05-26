@@ -1,11 +1,7 @@
 import { d, type CaptureParamsType } from "@pptr/core"
 import { isNumber } from "lodash-es"
-import type { Page, PDFOptions, ScreenshotOptions } from "puppeteer-core"
-
-export type CaptureResult = {
-  contentType: string
-  raw: Uint8Array
-}
+import type { Page } from "puppeteer-core"
+import { getEnv } from "./env"
 
 export function initPage(page: Page, params: CaptureParamsType) {
   if (isNumber(params.viewportWidth) && isNumber(params.viewportHeight)) {
@@ -15,65 +11,12 @@ export function initPage(page: Page, params: CaptureParamsType) {
     })
   }
 
-  page.setDefaultTimeout(
-    params.timeout ??
-      (parseInt(process.env["PUPPETEER_TIMEOUT"] || "") || 30_000),
-  )
+  const timeout =
+    (params.timeout && Math.min(params.timeout, d("5 mins"))) ??
+    getEnv("PUPPETEER_TIMEOUT") ??
+    30_000
+  page.setDefaultTimeout(timeout)
+  page.setDefaultNavigationTimeout(timeout)
 
   return page
-}
-
-export async function capturePage(page: Page, params: CaptureParamsType) {
-  if (params.captureFormat === "pdf") {
-    return capturePDF(page, params)
-  } else {
-    return captureImage(page, params)
-  }
-}
-
-async function capturePDF(
-  page: Page,
-  params: CaptureParamsType,
-): Promise<CaptureResult> {
-  const options: PDFOptions = {
-    format: params.pdfFormat as any,
-    margin: params.pdfMargin,
-    printBackground: true,
-    timeout: d("60 s"),
-  }
-  if (isNumber(params.pdfWidth) && isNumber(params.pdfHeight)) {
-    options.width = params.pdfWidth
-    options.height = params.pdfHeight
-  }
-  const raw = await page.pdf(options)
-  return {
-    contentType: "application/pdf",
-    raw,
-  }
-}
-
-async function captureImage(
-  page: Page,
-  params: CaptureParamsType,
-): Promise<CaptureResult> {
-  const captureFormat = params.captureFormat || "png"
-
-  const options: ScreenshotOptions = {
-    type: captureFormat as any,
-    quality: params.captureFormat === "jpeg" ? params.quality : undefined,
-  }
-
-  const contentType = `image/${captureFormat}`
-
-  if (params.captureElementSelector) {
-    const el = await page.waitForSelector(params.captureElementSelector)
-    const raw = await el!.screenshot(options)
-    return { contentType, raw }
-  } else {
-    const raw = await page.screenshot({
-      ...options,
-      fullPage: true,
-    })
-    return { contentType, raw }
-  }
 }

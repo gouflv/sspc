@@ -1,10 +1,11 @@
 import { createLogger, format, transports } from "winston"
+import { getEnv } from "./env.js"
 
 const file = new URL("../logs/pptr.log", import.meta.url).pathname
 
 const level =
-  process.env["LOG_LEVEL"] ||
-  (process.env["NODE_ENV"] === "development" ? "debug" : "info")
+  getEnv("LOG_LEVEL") ||
+  (getEnv("NODE_ENV") === "development" ? "debug" : "info")
 
 const logger = createLogger({
   level,

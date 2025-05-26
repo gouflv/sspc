@@ -66,7 +66,7 @@ Body: <Binary File>
 
 | Variable                  | Description                       | Default                     |
 | ------------------------- | --------------------------------- | --------------------------- |
-| HONO_PORT                 | API server port                   | 3000                        |
+| PORT                      | API server port                   | 3000                        |
 | LOG_LEVEL                 | Logging level                     | info                        |
 | PUPPETEER_TIMEOUT         | Global operation timeout (ms)     | 30_000                      |
 | PUPPETEER_CACHE_DIR       | Browser installation directory    | /$HOME_DIR/.cache/puppeteer |
