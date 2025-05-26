@@ -27,6 +27,7 @@ Takes a screenshot or generates PDF of a webpage.
 | viewportWidth          | number | No       | -       | Browser viewport width      |
 | viewportHeight         | number | No       | -       | Browser viewport height     |
 | timeout                | number | No       | 30_000  | Operation timeout in ms     |
+| readySelector          | string | No       | -       | Wait for element selector   |
 | captureFormat          | string | No       | 'png'   | Output format: png/jpeg/pdf |
 | quality                | number | No       | 100     | JPEG quality (1-100)        |
 | captureElementSelector | string | No       | -       | Capture specific element    |
