@@ -101,7 +101,7 @@ const Form = defineComponent({
               for="url"
               class="block text-sm font-medium text-gray-700 mb-1"
             >
-              页面地址
+              页面地址:
             </label>
             <input
               id="url"
@@ -115,7 +115,7 @@ const Form = defineComponent({
 
           <div class="flex space-x-10 mb-4">
             <div class="flex items-center text-sm">
-              <label class="mr-2 font-medium text-gray-700">示例页面</label>
+              <label class="mr-2 font-medium text-gray-700">示例页面:</label>
               <div class="flex space-x-2">
                 <div
                   class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md border border-gray-200 cursor-pointer"
@@ -140,7 +140,7 @@ const Form = defineComponent({
 
             <div class="flex items-center">
               <label class="block text-sm font-medium text-gray-700 mr-2">
-                输出格式
+                输出格式:
               </label>
               <div class="flex items-center space-x-4">
                 <div class="flex items-center">
