@@ -94,7 +94,8 @@ const Form = defineComponent({
               <div
                 class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md border border-gray-200 cursor-pointer"
                 onClick={() => {
-                  url.value = "http://10.0.28.121:3002/static/pdf-layout.html"
+                  url.value =
+                    "https://jcxygl.chaoxing.com/portrait/preview/html/pdf-layout.html"
                 }}
               >
                 打印排版示例
