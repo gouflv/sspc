@@ -24,6 +24,7 @@ export default defineComponent({
           pages,
           captureFormat: "pdf",
           pdfFormat: "A4",
+          pdfCompress: false,
         }
       }
     }
@@ -51,7 +52,7 @@ const Form = defineComponent({
   },
   emits: ["submit"],
   setup(props, { emit }) {
-    const url = ref("https://news.baidu.com/")
+    const url = ref("")
     const format = ref("pdf")
 
     const handleSubmit = (e) => {
