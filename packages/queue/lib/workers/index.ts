@@ -1,4 +1,5 @@
 import { Worker } from "bullmq"
+import { env } from "../env"
 import { RedisURL } from "../redis"
 import { CaptureQueueName, PackageQueueName } from "../types"
 import captureProcessor from "./capture"
@@ -8,7 +9,7 @@ const captureWorker = new Worker(CaptureQueueName, captureProcessor, {
   connection: {
     url: RedisURL,
   },
-  concurrency: parseInt(process.env["CAPTURE_CONCURRENCY"] || "") || 2,
+  concurrency: env.CAPTURE_CONCURRENCY,
 })
 
 const packageWorker = new Worker(PackageQueueName, packageProcessor, {

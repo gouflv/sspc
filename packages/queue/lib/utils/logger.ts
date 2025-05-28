@@ -1,12 +1,11 @@
 import { createLogger, format, transports } from "winston"
+import { env } from "../env"
 
 const logDir = new URL("../../logs", import.meta.url).pathname
 const combinedLogPath = `${logDir}/combined.log`
 const errorLogPath = `${logDir}/error.log`
 
-const level =
-  process.env["LOG_LEVEL"] ||
-  (process.env["NODE_ENV"] === "development" ? "debug" : "info")
+const level = env.NODE_ENV === "development" ? "debug" : env.LOG_LEVEL
 
 const logger = createLogger({
   level,

@@ -3,23 +3,9 @@ import { d } from "@pptr/core"
 import { Hono } from "hono"
 import { cors } from "hono/cors"
 import { timeout } from "hono/timeout"
-import { pick } from "lodash-es"
-import logger from "../lib/utils/logger"
+import { env } from "../lib/env"
 import { setupBullBoard } from "./bull-board"
 import jobs from "./routes/jobs"
-
-logger.info(
-  "Environment",
-  pick(process.env, [
-    "NODE_ENV",
-    "HONO_PORT",
-    "REDIS_URL",
-    "JOB_EXPIRE",
-    "JOB_ATTEMPTS",
-    "CAPTURE_ENDPOINT",
-    "CAPTURE_CONCURRENCY",
-  ]),
-)
 
 // Setups
 import "../lib/events"
@@ -41,7 +27,7 @@ setupBullBoard(app)
 
 serve(
   {
-    port: parseInt(process.env["PORT"] || "3001"),
+    port: env.PORT,
     fetch: app.fetch,
   },
   (info) => {

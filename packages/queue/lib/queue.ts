@@ -7,6 +7,7 @@ import {
   Queue as QueueMQ,
 } from "bullmq"
 import { CaptureJob } from "./classes/CaptureJob"
+import { env } from "./env"
 import { client as redisClient } from "./redis"
 import { CaptureQueueName, PackageQueueName } from "./types"
 import { createCaptureTaskQueueJobData } from "./utils/helper"
@@ -15,19 +16,15 @@ import logger from "./utils/logger"
 
 const flow = new FlowProducer({ connection: redisClient })
 
-const KeepQueueJobInSeconds =
-  process.env["NODE_ENV"] === "production" ? ds("1 day") : ds("1 mins")
+const keepQueueJobInSeconds = ds("30 mins")
 
-const attempts =
-  process.env["NODE_ENV"] === "production"
-    ? parseInt(process.env["JOB_ATTEMPTS"] || "2")
-    : 0
+const attempts = env.NODE_ENV === "production" ? env.JOB_ATTEMPTS : 0
 
 const defaultJobOptions: DefaultJobOptions = {
   attempts,
   delay: 1_000,
-  removeOnComplete: { age: KeepQueueJobInSeconds },
-  removeOnFail: { age: KeepQueueJobInSeconds },
+  removeOnComplete: { age: keepQueueJobInSeconds },
+  removeOnFail: { age: keepQueueJobInSeconds },
 }
 
 // shadow queue related to flowProducer

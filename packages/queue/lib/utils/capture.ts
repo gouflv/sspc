@@ -1,15 +1,13 @@
 import { CaptureParamsType } from "@pptr/core"
 import axios, { AxiosError } from "axios"
 import { Stream } from "node:stream"
+import { env } from "../env"
 import logger from "./logger"
 
 type CaptureResponseError = {
   success: boolean
   error: string
 }
-
-const CaptureEndpoint =
-  process.env.CAPTURE_ENDPOINT || "http://localhost:3000/capture"
 
 async function capture(
   id: string,
@@ -22,7 +20,9 @@ async function capture(
   logger.debug("[capture] started", { id })
 
   try {
-    const response = await axios.post(CaptureEndpoint, params, {
+    const url = env.CAPTURE_ENDPOINT
+
+    const response = await axios.post(url, params, {
       responseType: "stream",
       headers: {
         "Content-Type": "application/json",
