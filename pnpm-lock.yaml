@@ -11,6 +11,12 @@ importers:
       mime:
         specifier: ^4.0.6
         version: 4.0.6
+      znv:
+        specifier: ^0.5.0
+        version: 0.5.0(zod@3.24.2)
+      zod:
+        specifier: ^3.24.2
+        version: 3.24.2
     devDependencies:
       '@tsconfig/node22':
         specifier: ^22.0.0
@@ -42,9 +48,6 @@ importers:
       winston:
         specifier: ^3.17.0
         version: 3.17.0
-      zod:
-        specifier: ^3.24.2
-        version: 3.24.2
 
   packages/pptr:
     dependencies:
@@ -2397,6 +2400,11 @@ packages:
     resolution: {integrity: sha512-zK7YHHz4ZXpW89AHXUPbQVGKI7uvkd3hzusTdotCg1UxyaVtg0zFJSTfW/Dq5f7OBBVnq6cZIaC8Ti4hb6dtCA==}
     engines: {node: '>= 14'}
 
+  znv@0.5.0:
+    resolution: {integrity: sha512-o4s0CemQU7+ByxBQQnqe72QtlVDsw1GAPxBbTCbQP3sNe7/5bztRJ8fUf2dbOuhZrMapWe82hpOTBZ7QVnjZ2g==}
+    peerDependencies:
+      zod: ^3.24.2
+
   zod@3.24.2:
     resolution: {integrity: sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==}
 
@@ -4593,5 +4601,9 @@ snapshots:
       archiver-utils: 5.0.2
       compress-commons: 6.0.2
       readable-stream: 4.7.0
+
+  znv@0.5.0(zod@3.24.2):
+    dependencies:
+      zod: 3.24.2
 
   zod@3.24.2: {}

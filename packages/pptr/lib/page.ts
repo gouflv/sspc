@@ -1,7 +1,7 @@
 import { d, type CaptureParamsType } from "@pptr/core"
 import { isNumber } from "lodash-es"
 import type { Page } from "puppeteer-core"
-import { getEnv } from "./env"
+import { env } from "./env"
 
 export function initPage(page: Page, params: CaptureParamsType) {
   if (isNumber(params.viewportWidth) && isNumber(params.viewportHeight)) {
@@ -13,8 +13,8 @@ export function initPage(page: Page, params: CaptureParamsType) {
 
   const timeout =
     (params.timeout && Math.min(params.timeout, d("5 mins"))) ??
-    getEnv("PUPPETEER_TIMEOUT") ??
-    30_000
+    env.PUPPETEER_TIMEOUT
+
   page.setDefaultTimeout(timeout)
   page.setDefaultNavigationTimeout(timeout)
 

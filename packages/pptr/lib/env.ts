@@ -1,44 +1,31 @@
-import { parseInt } from "lodash-es"
+import { parseEnv, port, z } from "znv"
 
-export type EnvSchema = {
-  NODE_ENV: "development" | "production" | "test"
-  PORT: number
-  LOG_LEVEL: string
-  PUPPETEER_TIMEOUT: number
-  PUPPETEER_CACHE_DIR: string
-  PUPPETEER_CHROME_REVISION: string
-  PUPPETEER_EXECUTABLE_PATH: string
-  POOL_SIZE_MAX: number
-  POOL_SIZE_MIN: number
+const schema = {
+  NODE_ENV: z.enum(["development", "production", "test"]).default("production"),
+
+  PORT: port().default(3000),
+
+  LOG_LEVEL: z.enum(["error", "warn", "info", "debug"]).default("info"),
+
+  PUPPETEER_TIMEOUT: z.number().default(30_000),
+
+  PUPPETEER_CACHE_DIR: z.string().optional(),
+
+  PUPPETEER_CHROME_REVISION: z.string().default("133.0.6943.53"),
+
+  PUPPETEER_EXECUTABLE_PATH: {
+    schema: z.string().optional(),
+    defaults: {
+      development:
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    },
+  },
+
+  POOL_SIZE_MAX: z.number().default(4),
+
+  POOL_SIZE_MIN: z.number().default(1),
 }
 
-const schema: Record<keyof EnvSchema, string> = {
-  NODE_ENV: "string",
-  PORT: "number",
-  LOG_LEVEL: "string",
-  PUPPETEER_TIMEOUT: "number",
-  PUPPETEER_CACHE_DIR: "string",
-  PUPPETEER_CHROME_REVISION: "string",
-  PUPPETEER_EXECUTABLE_PATH: "string",
-  POOL_SIZE_MAX: "number",
-  POOL_SIZE_MIN: "number",
-}
+export const env = parseEnv(process.env, schema)
 
-export function getEnv<K extends keyof EnvSchema>(
-  name: K,
-): EnvSchema[K] | undefined {
-  const value = process.env[name] as string | undefined
-
-  if (value === undefined) {
-    return undefined
-  }
-
-  switch (schema[name]) {
-    case "number":
-      return parseInt(value, 10) as EnvSchema[K]
-    case "string":
-      return value as EnvSchema[K]
-    default:
-      return undefined
-  }
-}
+console.log("Environment variables:", env)

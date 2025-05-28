@@ -1,19 +1,18 @@
 import { serve } from "@hono/node-server"
 import { zValidator as validate } from "@hono/zod-validator"
 import { captureParamsSchema, d } from "@pptr/core"
-import { config as configDotenv } from "dotenv"
 import { Hono } from "hono"
 import { timeout } from "hono/timeout"
 import { Browser } from "puppeteer-core"
 import { capturePage } from "../lib/capture"
+import { env } from "../lib/env"
 import logger from "../lib/logger"
 import { initPage } from "../lib/page"
 import { compressPDF } from "../lib/pdf"
 import { pool } from "../lib/pool"
 
-configDotenv()
-
 const app = new Hono()
+
 app.use("/*", timeout(d("5 mins")))
 
 app.get("/", (c) => {
@@ -132,7 +131,7 @@ app.get("/pool-status", async (c) => {
 
 serve(
   {
-    port: parseInt(process.env["PORT"] || "3000"),
+    port: env.PORT,
     fetch: app.fetch,
   },
   (info) => {

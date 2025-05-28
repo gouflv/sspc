@@ -1,6 +1,6 @@
 import Poll from "generic-pool"
 import { launch } from "./browser"
-import { getEnv } from "./env"
+import { env } from "./env"
 import logger from "./logger"
 
 export const pool = Poll.createPool(
@@ -9,8 +9,8 @@ export const pool = Poll.createPool(
     destroy: (browser) => browser.close(),
   },
   {
-    max: getEnv("POOL_SIZE_MAX") || 4,
-    min: getEnv("POOL_SIZE_MIN") || 1,
+    max: env.POOL_SIZE_MAX,
+    min: env.POOL_SIZE_MIN,
   },
 )
 

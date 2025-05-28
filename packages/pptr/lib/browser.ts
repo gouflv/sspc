@@ -6,7 +6,7 @@ import {
 import { homedir } from "node:os"
 import { join } from "node:path"
 import pptr, { type LaunchOptions } from "puppeteer-core"
-import { getEnv } from "./env"
+import { env } from "./env"
 import logger from "./logger"
 
 /**
@@ -38,7 +38,7 @@ export async function launch(options?: LaunchOptions) {
 }
 
 async function getExecutablePath() {
-  const envPath = getEnv("PUPPETEER_EXECUTABLE_PATH")
+  const envPath = env.PUPPETEER_EXECUTABLE_PATH
   if (envPath) {
     logger.debug("getExecutablePath", { envPath })
     return envPath
@@ -47,12 +47,11 @@ async function getExecutablePath() {
   const buildId = await resolveBuildId(
     BrowserType.CHROME,
     "" as any,
-    getEnv("PUPPETEER_CHROME_REVISION") || "133.0.6943.53",
+    env.PUPPETEER_CHROME_REVISION,
   )
   const path = computeExecutablePath({
     browser: "chrome" as any,
-    cacheDir:
-      getEnv("PUPPETEER_CACHE_DIR") || join(homedir(), ".cache/puppeteer"),
+    cacheDir: env.PUPPETEER_CACHE_DIR || join(homedir(), ".cache/puppeteer"),
     buildId,
   })
   logger.debug("getExecutablePath", { buildId, path })
