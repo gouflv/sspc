@@ -1,6 +1,7 @@
 import { CaptureParamsType } from "@pptr/core"
 import axios, { AxiosError } from "axios"
 import { Stream } from "node:stream"
+import { buffer } from "stream/consumers"
 import { env } from "../env"
 import logger from "./logger"
 
@@ -42,10 +43,19 @@ async function capture(
   } catch (e) {
     if (axios.isAxiosError(e)) {
       const error = e as AxiosError<CaptureResponseError>
-      const response = error.response?.data
-      if (response?.error) {
-        throw new Error(response.error)
+
+      // Steam response to json manually
+      const response = error.response?.data as ReadableStream | undefined
+      if (!response) {
+        throw new Error(error.message || error.code)
       }
+      const buf = await buffer(response)
+      const json = JSON.parse(buf.toString("utf-8"))
+      if (json?.error) {
+        throw new Error(json.error)
+      }
+
+      // Throw original error of axios
       throw new Error(error.message || error.code)
     }
     throw e
