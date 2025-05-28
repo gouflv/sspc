@@ -11,7 +11,7 @@ const schema = {
 
   REDIS_URL: z.string().default("redis://localhost:6379"),
 
-  JOB_EXPIRE: z.number().default(24 * 60 * 60), // in seconds, default to 1 day
+  JOB_EXPIRE: z.number().default(24 * 60 * 60), // In seconds, default to 1 day
 
   JOB_ATTEMPTS: z.number().default(1),
 
