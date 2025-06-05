@@ -103,7 +103,7 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
     const error = e as Error
     logger.error("/capture", {
       requestId,
-      error: error.message,
+      error,
     })
     return c.json(
       {
