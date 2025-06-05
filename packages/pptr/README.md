@@ -1,88 +1,115 @@
 # Page Capture Service with Puppeteer
 
+## Overview
+
+Provides a RESTful API to capture screenshots or generate PDFs of web pages using Puppeteer.
+
 ## Features
 
-- Provides a RESTful API to return the screenshot of given URL
-- Basic on `puppeteer@24.2.0`
-- Docker image with build in `Chrome@133.0.6943.53`, which is the default version of [`puppeteer@24.2.0`](https://github.com/puppeteer/puppeteer/blob/puppeteer-v24.2.0/packages/puppeteer-core/src/revisions.ts)
+- RESTful API for webpage screenshots and PDF generation
+- Built on `puppeteer@24.2.0`
+- Docker image with built-in `Chrome@133.0.6943.53`
+- Chrome instance pooling for better performance
 
 ## API Reference
 
 ### `GET /capture`
 
-Takes a screenshot or generates PDF of a webpage.
+Captures a screenshot or generates a PDF of a webpage.
 
 #### Request Headers
 
-| Header       | Value            | Required |
-| ------------ | ---------------- | -------- |
-| Content-Type | application/json | Yes      |
-| Request-Id   | string           | No       |
+| Header       | Value            | Required | Description          |
+| ------------ | ---------------- | -------- | -------------------- |
+| Content-Type | application/json | Yes      | Request content type |
+| Request-Id   | string           | No       | Optional request ID  |
 
-#### Request Body Parameters
+#### Request Parameters
+
+##### Basic Parameters
+
+| Parameter      | Type   | Required | Default | Description               |
+| -------------- | ------ | -------- | ------- | ------------------------- |
+| url            | string | Yes      | -       | Target webpage URL        |
+| viewportWidth  | number | No       | -       | Browser viewport width    |
+| viewportHeight | number | No       | -       | Browser viewport height   |
+| timeout        | number | No       | 30_000  | Operation timeout in ms   |
+| readySelector  | string | No       | -       | Wait for element selector |
+
+##### Capture Options
 
 | Parameter              | Type   | Required | Default | Description                 |
 | ---------------------- | ------ | -------- | ------- | --------------------------- |
-| url                    | string | Yes      | -       | Target webpage URL          |
-| viewportWidth          | number | No       | -       | Browser viewport width      |
-| viewportHeight         | number | No       | -       | Browser viewport height     |
-| timeout                | number | No       | 30_000  | Operation timeout in ms     |
-| readySelector          | string | No       | -       | Wait for element selector   |
 | captureFormat          | string | No       | 'png'   | Output format: png/jpeg/pdf |
 | quality                | number | No       | 100     | JPEG quality (1-100)        |
 | captureElementSelector | string | No       | -       | Capture specific element    |
 
-##### PDF Specific Options:
+##### PDF Options
 
-| Parameter   | Type    | Default | Description                          |
-| ----------- | ------- | ------- | ------------------------------------ |
-| pdfFormat   | string  | -       | Paper format (e.g. 'a4')             |
-| pdfMargin   | object  | -       | Page margins                         |
-| pdfWidth    | number  | -       | Custom page width                    |
-| pdfHeight   | number  | -       | Custom page height                   |
-| pdfCompress | boolean | true    | Compress PDF output with ghostscript |
+| Parameter   | Type    | Required | Default | Description                          |
+| ----------- | ------- | -------- | ------- | ------------------------------------ |
+| pdfFormat   | string  | No       | -       | Paper format (e.g. 'a4')             |
+| pdfMargin   | object  | No       | -       | Page margins                         |
+| pdfWidth    | number  | No       | -       | Custom page width                    |
+| pdfHeight   | number  | No       | -       | Custom page height                   |
+| pdfCompress | boolean | No       | true    | Compress PDF output with ghostscript |
 
 #### Response
 
-**Success (200)**
+##### Success Response (200)
 
 ```http
 Content-Type: image/png | image/jpeg | application/pdf
 Body: <Binary File>
 ```
 
-**Error Responses**
+##### Error Responses
 
-- 400 Bad Request
-- 500 Internal Server Error
+**Client Errors (400)**
 
 ```json
 {
-  success: false,
-  error: string
+  "success": false,
+  "error": ZodError,
 }
 ```
 
-## Environment Variables
+**Server Errors (500)**
 
-| Variable                  | Description                       | Default                     |
-| ------------------------- | --------------------------------- | --------------------------- |
-| PORT                      | API server port                   | 3000                        |
-| LOG_LEVEL                 | Logging level                     | info                        |
-| PUPPETEER_TIMEOUT         | Global operation timeout (ms)     | 30_000                      |
-| PUPPETEER_CACHE_DIR       | Browser installation directory    | /$HOME_DIR/.cache/puppeteer |
-| PUPPETEER_CHROME_REVISION | Chrome version                    | 133.0.6943.53               |
-| PUPPETEER_EXECUTABLE_PATH | Custom Chrome binary path         | -                           |
-| POOL_SIZE_MAX             | Chrome instance pool maximum size | 4                           |
-| POOL_SIZE_MIN             | Chrome instance pool minimum size | 1                           |
-
-## Development
-
-```bash
-# Install Chrome for Testing
-pnpm dlx puppeteer@24.2.0 browser install chrome@133.0.6943.53
+```json
+{
+  "success": false,
+  "error": "Navigation timeout of 300 ms exceeded"
+}
 ```
+
+## Configuration
+
+### Environment Variables
+
+#### Server Configuration
+
+| Variable  | Description     | Default |
+| --------- | --------------- | ------- |
+| PORT      | API server port | 3000    |
+| LOG_LEVEL | Logging level   | info    |
+
+#### Puppeteer Configuration
+
+| Variable                  | Description                    | Default                     |
+| ------------------------- | ------------------------------ | --------------------------- |
+| PUPPETEER_TIMEOUT         | Global operation timeout (ms)  | 30_000                      |
+| PUPPETEER_CACHE_DIR       | Browser installation directory | /$HOME_DIR/.cache/puppeteer |
+| PUPPETEER_CHROME_REVISION | Chrome version                 | 133.0.6943.53               |
+| PUPPETEER_EXECUTABLE_PATH | Custom Chrome binary path      | -                           |
+
+#### Performance Configuration
+
+| Variable      | Description                       | Default |
+| ------------- | --------------------------------- | ------- |
+| POOL_SIZE_MAX | Chrome instance pool maximum size | 4       |
+| POOL_SIZE_MIN | Chrome instance pool minimum size | 1       |
 
 ## References
 
-- [Running Puppeteer in Docker](https://pptr.dev/guides/docker)
+- [Puppeteer Documentation](https://pptr.dev/)
