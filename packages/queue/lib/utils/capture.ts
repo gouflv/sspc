@@ -41,6 +41,8 @@ async function capture(
       duration,
     }
   } catch (e) {
+    logger.error("[capture] failed", { id, error: e })
+
     if (axios.isAxiosError(e)) {
       const error = e as AxiosError<CaptureResponseError>
 
