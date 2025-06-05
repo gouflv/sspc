@@ -50,13 +50,13 @@ export default async function (
 
     return filename
   } catch (e) {
-    const error = (e as Error).message
+    const error = e as Error
 
     logger.error("[worker:capture] failed", { task: taskId, error })
 
     // update taskRecord
     if (taskRecord) {
-      await taskRecord.update({ status: "failed", error })
+      await taskRecord.update({ status: "failed", error: error.message })
     } else {
       logger.error("[worker:capture] failed to update task, task no found", {
         task: taskId,
@@ -66,7 +66,7 @@ export default async function (
     // update jobRecord
     const jobRecord = await CaptureJob.findById(jobId)
     if (jobRecord) {
-      await jobRecord.update({ status: "failed", error })
+      await jobRecord.update({ status: "failed", error: error.message })
     } else {
       logger.error("[worker:capture] failed to update job, job no found", {
         job: jobId,
