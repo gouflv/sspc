@@ -63,6 +63,8 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
     if (params.readySelector) {
       await page.waitForSelector(params.readySelector, { timeout: d("15 s") })
     }
+    await page.waitForNetworkIdle()
+
     metrics.pageLoadEnd = Date.now()
 
     // Capture the page
