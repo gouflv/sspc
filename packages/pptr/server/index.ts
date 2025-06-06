@@ -7,7 +7,7 @@ import { Browser } from "puppeteer-core"
 import { capturePage } from "../lib/capture"
 import { env } from "../lib/env"
 import logger from "../lib/logger"
-import { initPage } from "../lib/page"
+import { initPage, waitForImagesToLoad } from "../lib/page"
 import { compressPDF } from "../lib/pdf"
 import { pool } from "../lib/pool"
 
@@ -63,7 +63,7 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
     if (params.readySelector) {
       await page.waitForSelector(params.readySelector)
     }
-    // TODO Wait for image loaded
+    await waitForImagesToLoad(page)
 
     metrics.pageLoadEnd = Date.now()
 

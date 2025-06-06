@@ -20,3 +20,13 @@ export function initPage(page: Page, params: CaptureParamsType) {
 
   return page
 }
+
+export async function waitForImagesToLoad(page: Page, timeout?: number) {
+  await page.waitForFunction(
+    () => {
+      const images = Array.from(document.images)
+      return images.every((img) => img.complete)
+    },
+    { timeout: timeout ?? page.getDefaultTimeout() },
+  )
+}
