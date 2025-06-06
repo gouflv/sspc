@@ -1,6 +1,6 @@
 services:
   pptr:
-    image: gouflv/sspc-pptr:1.0.13-bundle
+    image: gouflv/sspc-pptr:1.0.14-bundle
     container_name: pptr
     init: true
     volumes:
