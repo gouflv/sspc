@@ -90,7 +90,7 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
     // ================================
     metrics.end = Date.now()
 
-    const durations = {
+    const duration = {
       browserInit: metrics.browserInit - metrics.browserStart,
       pageLoad: metrics.pageLoadEnd - metrics.pageLoadStart,
       capture: metrics.captureEnd - metrics.captureStart,
@@ -100,12 +100,12 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
 
     logger.info("/capture success", {
       requestId,
-      duration: durations,
+      duration,
     })
 
     const headers: any = {
       "content-type": captureResult.contentType,
-      duration: `${durations.total}`,
+      duration: `${duration.total}`,
       ...(requestId ? { "request-id": requestId } : {}),
     }
 
