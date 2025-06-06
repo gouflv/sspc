@@ -46,7 +46,9 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
 
     metrics.browserStart = Date.now()
 
+    // ================================
     // Initialize the browser page
+    // ================================
     const _browser = await pool.acquire()
     browser = _browser
 
@@ -57,7 +59,9 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
 
     metrics.browserInit = Date.now()
 
+    // ================================
     // Navigate to the URL
+    // ================================
     metrics.pageLoadStart = Date.now()
     await page.goto(params.url, { waitUntil: "networkidle0" })
     if (params.readySelector) {
@@ -67,7 +71,9 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
 
     metrics.pageLoadEnd = Date.now()
 
+    // ================================
     // Capture the page
+    // ================================
     metrics.captureStart = Date.now()
     let captureResult = await capturePage(page, params)
     metrics.captureEnd = Date.now()
@@ -79,6 +85,9 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
       metrics.pdfCompressEnd = Date.now()
     }
 
+    // ================================
+    // Log and respond
+    // ================================
     metrics.end = Date.now()
 
     const durations = {
