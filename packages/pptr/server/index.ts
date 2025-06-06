@@ -63,7 +63,7 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
     if (params.readySelector) {
       await page.waitForSelector(params.readySelector)
     }
-    await page.waitForNetworkIdle()
+    // TODO Wait for image loaded
 
     metrics.pageLoadEnd = Date.now()
 
