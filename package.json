@@ -1,15 +1,13 @@
 {
   "name": "sspc",
   "private": true,
-  "scripts": {
-    "syncpack": "pnpm dlx syncpack list"
-  },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.0",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^22.10.10",
     "autocannon": "^8.0.0",
-    "prettier": "^3.4.2",
+    "prettier": "3.5.3",
+    "syncpack": "14.0.0-alpha.18",
     "typescript": "^5.7.3",
     "vitest": "^3.0.3"
   },
@@ -18,7 +16,15 @@
     "pnpm": ">=10.0.0"
   },
   "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "@hono/zod-validator": "^0.4.2",
+    "dayjs": "^1.11.13",
+    "dotenv": "^16.4.7",
+    "hono": "^4.6.18",
+    "lodash-es": "^4.17.21",
     "mime": "^4.0.6",
+    "tsx": "^4.20.3",
+    "winston": "^3.17.0",
     "znv": "^0.5.0",
     "zod": "^3.24.2"
   }

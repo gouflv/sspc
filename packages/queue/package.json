@@ -10,22 +10,12 @@
   "dependencies": {
     "@bull-board/api": "^6.7.8",
     "@bull-board/hono": "^6.7.8",
-    "@hono/node-server": "^1.13.7",
-    "@hono/zod-validator": "^0.4.2",
     "@pptr/core": "workspace:*",
     "@types/archiver": "^6.0.3",
     "archiver": "^7.0.1",
     "axios": "^1.7.9",
     "bullmq": "^5.41.2",
-    "dayjs": "^1.11.13",
-    "dotenv": "^16.4.7",
-    "hono": "^4.6.17",
     "ioredis": "^5.5.0",
-    "lodash-es": "^4.17.21",
-    "nanoid": "^5.1.0",
-    "tsx": "^4.19.3",
-    "uuid": "^11.0.5",
-    "winston": "^3.17.0",
-    "zod": "^3.24.2"
+    "nanoid": "^5.1.0"
   }
 }

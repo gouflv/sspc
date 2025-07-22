@@ -9,18 +9,10 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@hono/node-server": "^1.13.7",
-    "@hono/zod-validator": "^0.4.2",
     "@pptr/core": "workspace:*",
     "@puppeteer/browsers": "^2.7.1",
-    "compress-pdf": "^0.5.3",
-    "dotenv": "^16.4.7",
+    "compress-pdf": "^0.5.4",
     "generic-pool": "^3.9.0",
-    "hono": "^4.6.17",
-    "lodash-es": "^4.17.21",
-    "puppeteer-core": "^24.2.0",
-    "tsx": "^4.19.3",
-    "winston": "^3.17.0",
-    "zod": "^3.24.2"
+    "puppeteer-core": "^24.2.0"
   }
 }
