@@ -14,7 +14,7 @@ importers:
         version: 1.17.1(hono@4.8.5)
       '@hono/zod-validator':
         specifier: ^0.7.2
-        version: 0.7.2(hono@4.8.5)(zod@3.25.76)
+        version: 0.7.2(hono@4.8.5)(zod@4.0.5)
       dayjs:
         specifier: ^1.11.13
         version: 1.11.13
@@ -38,10 +38,10 @@ importers:
         version: 3.17.0
       znv:
         specifier: ^0.5.0
-        version: 0.5.0(zod@3.25.76)
+        version: 0.5.0(zod@4.0.5)
       zod:
-        specifier: ^3.25.76
-        version: 3.25.76
+        specifier: ^4.0.5
+        version: 4.0.5
     devDependencies:
       '@tsconfig/node22':
         specifier: ^22.0.2
@@ -2439,11 +2439,11 @@ packages:
     peerDependencies:
       zod: ^3.24.2
 
-  zod@3.24.2:
-    resolution: {integrity: sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==}
-
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+
+  zod@4.0.5:
+    resolution: {integrity: sha512-/5UuuRPStvHXu7RS+gmvRf4NXrNxpSllGwDnCBcJZtQsKrviYXm54yDGV2KYNLT5kq0lHGcl7lqWJLgSaG+tgA==}
 
 snapshots:
 
@@ -2751,10 +2751,10 @@ snapshots:
     dependencies:
       hono: 4.8.5
 
-  '@hono/zod-validator@0.7.2(hono@4.8.5)(zod@3.25.76)':
+  '@hono/zod-validator@0.7.2(hono@4.8.5)(zod@4.0.5)':
     dependencies:
       hono: 4.8.5
-      zod: 3.25.76
+      zod: 4.0.5
 
   '@ioredis/commands@1.2.0': {}
 
@@ -3374,7 +3374,7 @@ snapshots:
     dependencies:
       devtools-protocol: 0.0.1402036
       mitt: 3.0.1
-      zod: 3.24.2
+      zod: 3.25.76
 
   cli-table3@0.6.5:
     dependencies:
@@ -4702,10 +4702,10 @@ snapshots:
       compress-commons: 6.0.2
       readable-stream: 4.7.0
 
-  znv@0.5.0(zod@3.25.76):
+  znv@0.5.0(zod@4.0.5):
     dependencies:
-      zod: 3.25.76
-
-  zod@3.24.2: {}
+      zod: 4.0.5
 
   zod@3.25.76: {}
+
+  zod@4.0.5: {}
