@@ -36,9 +36,6 @@ importers:
       winston:
         specifier: ^3.17.0
         version: 3.17.0
-      znv:
-        specifier: ^0.5.0
-        version: 0.5.0(zod@4.0.5)
       zod:
         specifier: ^4.0.5
         version: 4.0.5
@@ -2434,11 +2431,6 @@ packages:
     resolution: {integrity: sha512-zK7YHHz4ZXpW89AHXUPbQVGKI7uvkd3hzusTdotCg1UxyaVtg0zFJSTfW/Dq5f7OBBVnq6cZIaC8Ti4hb6dtCA==}
     engines: {node: '>= 14'}
 
-  znv@0.5.0:
-    resolution: {integrity: sha512-o4s0CemQU7+ByxBQQnqe72QtlVDsw1GAPxBbTCbQP3sNe7/5bztRJ8fUf2dbOuhZrMapWe82hpOTBZ7QVnjZ2g==}
-    peerDependencies:
-      zod: ^3.24.2
-
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
@@ -4701,10 +4693,6 @@ snapshots:
       archiver-utils: 5.0.2
       compress-commons: 6.0.2
       readable-stream: 4.7.0
-
-  znv@0.5.0(zod@4.0.5):
-    dependencies:
-      zod: 4.0.5
 
   zod@3.25.76: {}
 
