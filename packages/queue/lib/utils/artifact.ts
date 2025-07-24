@@ -4,7 +4,6 @@ import { createReadStream, createWriteStream } from "node:fs"
 import { access, mkdir, rm } from "node:fs/promises"
 import { dirname, extname, join } from "node:path"
 import { Stream } from "node:stream"
-import { CaptureJob } from "../classes/CaptureJob"
 import logger from "./logger"
 
 function resolveFilePath(filename: string) {

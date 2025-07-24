@@ -1,11 +1,13 @@
 import { isEmpty } from "lodash-es"
+import { Required } from "utility-types"
 import { env } from "../env"
 import redis from "../redis"
 import {
   QueueCaptureInputParamsType,
-  QueueWorkNames,
+  QueueWorkNames as QueueWorkerNames,
   Status,
-  TaskKey,
+  StepIdentity,
+  TaskIdentity,
 } from "../types"
 import {
   generateCaptureStepKey,
@@ -14,20 +16,22 @@ import {
 
 export type StepEntity = {
   /**
-   * Unique identifier for the capture step.
+   * Task ID this step belongs to.
    */
-  id: string
+  taskId: TaskIdentity
 
   /**
-   * Queue work name this step belongs to.
+   * Unique identifier for the capture step.
+   * It can be used as a Redis key.
+   */
+  id: StepIdentity
+
+  params: Record<string, any>
+
+  /**
    * This is used to identify the worker that processes this step.
    */
-  name: QueueWorkNames
-
-  /**
-   * Parameters for the capture task.
-   */
-  params: QueueCaptureInputParamsType
+  queueWorkerName: QueueWorkerNames
 
   /**
    * Current status of the capture task.
@@ -49,15 +53,14 @@ export type StepEntity = {
   finishedAt: number | null
 }
 
-export function createStepEntity(
-  id: string,
-  name: QueueWorkNames,
-  params: QueueCaptureInputParamsType,
+function createStepEntity(
+  data: Required<Partial<StepEntity>, "id" | "taskId" | "queueWorkerName">,
 ): StepEntity {
   return {
-    id,
-    name,
-    params,
+    id: data.id,
+    taskId: data.taskId,
+    params: data.params ?? {},
+    queueWorkerName: data.queueWorkerName,
     status: "pending",
     artifact: null,
     error: null,
@@ -66,66 +69,80 @@ export function createStepEntity(
   }
 }
 
-export function transformCaptureParamsToStep(
+export function createSteps(
+  taskId: TaskIdentity,
   params: QueueCaptureInputParamsType,
 ): StepEntity[] {
-  const result = [createStepEntity("capture", "capture", params)]
-  if (params.pdfCompress) {
-    result.push(createStepEntity("compress", "compress", params))
+  const result = [
+    createStepEntity({
+      id: generateCaptureStepKey(taskId, "capture"),
+      taskId,
+      queueWorkerName: "capture",
+      params: { ...params, pdfCompress: false } as QueueCaptureInputParamsType,
+    }),
+  ]
+  if (params.captureFormat === "pdf" && params.pdfCompress) {
+    result.push(
+      createStepEntity({
+        id: generateCaptureStepKey(taskId, "compress"),
+        taskId,
+        queueWorkerName: "compress",
+      }),
+    )
   }
   return result
 }
 
-async function save(taskId: TaskKey, data: StepEntity) {
-  const key = generateCaptureStepKey(taskId, data.id)
-  await redis.client.hset(key, toJSON(data))
-  await redis.client.expire(key, env.TASK_EXPIRE)
+/**
+ * Save StepEntity to Redis.
+ * Also adds the step to the task's step list.
+ */
+async function save(taskId: TaskIdentity, data: StepEntity) {
+  await redis.client.hset(data.id, toJSON(data))
+  await redis.client.expire(data.id, env.TASK_EXPIRE)
 
   const listKey = generateCaptureStepListKey(taskId)
   await redis.client.rpush(listKey, data.id)
   await redis.client.expire(listKey, env.TASK_EXPIRE)
 }
 
-async function get(taskId: TaskKey, stepId: string) {
-  const key = generateCaptureStepKey(taskId, stepId)
-  const json = await redis.client.hgetall(key)
+async function get(id: StepIdentity) {
+  const json = await redis.client.hgetall(id)
   if (!json || isEmpty(json)) {
     return null
   }
   return fromJSON(json)
 }
 
-async function getAll(taskId: TaskKey) {
-  const key = generateCaptureStepListKey(taskId)
-  const stepIds = await redis.client.lrange(key, 0, -1)
+async function getAll(taskId: TaskIdentity) {
+  const listKey = generateCaptureStepListKey(taskId)
+  const stepIds = await redis.client.lrange(listKey, 0, -1)
   const steps = await Promise.all(
-    stepIds.map(async (stepId) =>
-      get(taskId, generateCaptureStepKey(taskId, stepId)),
-    ),
+    stepIds.map(async (stepId) => get(stepId as StepIdentity)),
   )
   return steps.filter((step) => step !== null)
 }
 
-async function update(
-  taskId: TaskKey,
-  stepId: string,
-  data: Partial<StepEntity>,
-) {
-  const key = generateCaptureStepKey(taskId, stepId)
-  await redis.client.hset(key, data)
+async function update(id: StepIdentity, data: Partial<StepEntity>) {
+  const current = await get(id)
+  if (!current) {
+    throw new Error(`Step not found: ${id}`)
+  }
+  const updated = { ...current, ...data }
+  await redis.client.hset(id, toJSON(updated))
 }
 
 function fromJSON(json: Record<string, any>): StepEntity {
   return {
     ...(json as any),
     params: JSON.parse(json.params),
-  } satisfies StepEntity
+  } as StepEntity
 }
 
-function toJSON(step: StepEntity): Record<string, any> {
+function toJSON(data: StepEntity): Record<string, any> {
   return {
-    ...step,
-    params: JSON.stringify(step.params),
+    ...data,
+    params: JSON.stringify(data.params),
   }
 }
 

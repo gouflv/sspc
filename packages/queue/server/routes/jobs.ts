@@ -1,10 +1,7 @@
 import { zValidator as validate } from "@hono/zod-validator"
 import { Hono } from "hono"
-import {
-  StepStorage,
-  transformCaptureParamsToStep,
-} from "../../lib/entities/Step"
 import { createTaskEntity, TaskStorage } from "../../lib/entities/Task"
+import QueueMan from "../../lib/queue"
 import { queueCaptureParamsSchema } from "../../lib/types"
 
 const jobs = new Hono()
@@ -12,35 +9,34 @@ const jobs = new Hono()
 /**
  * Create a new job
  */
-jobs.post(
-  "/",
-  //@ts-ignore
-  validate("json", queueCaptureParamsSchema),
-  async (c) => {
-    const params = c.req.valid("json")
+jobs.post("/", validate("json", queueCaptureParamsSchema), async (c) => {
+  const params = c.req.valid("json")
+  console.log("Received params:", params)
 
-    try {
-      const task = await TaskStorage.save(createTaskEntity({ params }))
-      const steps = transformCaptureParamsToStep(params)
-      steps.forEach(async (step) => {
-        await StepStorage.save(task.id, step)
-      })
+  try {
+    // Create a task entity
+    const task = await TaskStorage.save(createTaskEntity({ params }))
 
-      return c.json({
-        success: true,
-        data: task,
-      })
-    } catch (e) {
-      return c.json(
-        {
-          success: false,
-          error: (e as Error).message,
-        },
-        400,
-      )
-    }
-  },
-)
+    // Dispatch task to queue
+    QueueMan.dispatchTask(task)
+
+    // Save queue job id
+    // await TaskStorage.update(task.id, {})
+
+    return c.json({
+      success: true,
+      data: task,
+    })
+  } catch (e) {
+    return c.json(
+      {
+        success: false,
+        error: (e as Error).message,
+      },
+      400,
+    )
+  }
+})
 
 /**
  * Get job info

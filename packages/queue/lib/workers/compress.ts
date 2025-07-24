@@ -1,61 +1,56 @@
 import { Job as QueueJob, Worker } from "bullmq"
-import mime from "mime"
-import capture from "../api/capture"
+import { first, values } from "lodash-es"
 import { StepStorage } from "../entities/Step"
-import { TaskStorage } from "../entities/Task"
 import { env } from "../env"
 import { RedisURL } from "../redis"
 import { StepIdentity, WorkerResult } from "../types"
-import Artifact from "../utils/artifact"
-import { toFilename } from "../utils/helper"
 import logger from "../utils/logger"
 
-export const captureWorker = new Worker<any, WorkerResult>(
-  "capture",
+export const compressWorker = new Worker<any, WorkerResult>(
+  "compress",
   async function (queueJob: QueueJob) {
     const stepId = queueJob.name as StepIdentity
 
-    try {
-      logger.info("[worker:capture] started", { step: stepId })
+    const childrenValues = values(await queueJob.getChildrenValues())
+    const previousValue = first(childrenValues) as WorkerResult | undefined
+    if (!previousValue) {
+      throw new Error(`No child value found for step: ${stepId}`)
+    }
 
-      // Retrieves
+    try {
+      logger.info("[worker:compress] started", { step: stepId })
+
+      // Retrieve StepEntity
       const step = await StepStorage.get(stepId)
       if (!step) {
         throw new Error(`Step not found: ${stepId}`)
       }
-      const task = await TaskStorage.get(step.taskId)
-      if (!task) {
-        throw new Error(`Task not found: ${step.taskId}`)
-      }
 
       // Update status
-      await TaskStorage.update(task.id, {
-        status: "running",
-      })
       await StepStorage.update(stepId, {
         status: "running",
       })
 
-      // Capture
-      const captureResult = await capture(stepId, task.params)
+      // TODO - Implement compression logic here
+      const filename = previousValue.artifact
 
       // Save artifact
-      const filename = toFilename(
-        `${stepId}.${mime.getExtension(captureResult.contentType)}`,
-      )
-      await Artifact.save(captureResult.stream, filename)
+      // const filename = toFilename(
+      //   `${stepId}.${mime.getExtension(captureResult.contentType)}`,
+      // )
+      // await Artifact.save(captureResult.stream, filename)
 
       // Update status
-      await StepStorage.update(stepId, {
-        status: "completed",
-        artifact: filename,
-        finishedAt: Date.now(),
-      })
+      // await StepStorage.update(stepId, {
+      //   status: "completed",
+      //   artifact: filename,
+      //   finishedAt: Date.now(),
+      // })
 
-      logger.info("[worker:capture] completed", {
+      logger.info("[worker:compress] completed", {
         step: stepId,
         filename,
-        duration: captureResult.duration,
+        duration: 0, //captureResult.duration,
       })
 
       return {
@@ -64,7 +59,7 @@ export const captureWorker = new Worker<any, WorkerResult>(
       }
     } catch (e) {
       const error = e as Error
-      logger.error("[worker:capture] failed", { step: stepId, error })
+      logger.error("[worker:compress] failed", { step: stepId, error })
 
       // Update status
       try {
@@ -74,7 +69,7 @@ export const captureWorker = new Worker<any, WorkerResult>(
           finishedAt: Date.now(),
         })
       } catch (updateError) {
-        logger.error("[worker:capture] failed to update step", {
+        logger.error("[worker:compress] failed to update step", {
           step: stepId,
           error: (updateError as Error).message,
         })

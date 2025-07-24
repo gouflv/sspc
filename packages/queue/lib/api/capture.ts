@@ -3,13 +3,16 @@ import axios, { AxiosError } from "axios"
 import { Stream } from "node:stream"
 import { buffer } from "stream/consumers"
 import { env } from "../env"
-import logger from "./logger"
+import logger from "../utils/logger"
 
 type CaptureResponseError = {
   success: boolean
   error: string
 }
 
+/**
+ * Request capture service
+ */
 async function capture(
   id: string,
   params: CaptureParamsType,

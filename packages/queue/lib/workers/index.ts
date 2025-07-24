@@ -1,23 +1,6 @@
-import { Worker } from "bullmq"
-import { env } from "../env"
-import { RedisURL } from "../redis"
-import { CaptureQueueName, PackageQueueName } from "../types"
-import captureProcessor from "./capture"
-import packageProcessor from "./package"
+import { captureWorker } from "./capture"
+import { compressWorker } from "./compress"
+import { rootWorker } from "./root"
 
-const captureWorker = new Worker(CaptureQueueName, captureProcessor, {
-  connection: {
-    url: RedisURL,
-  },
-  concurrency: env.CAPTURE_CONCURRENCY,
-})
-
-const packageWorker = new Worker(PackageQueueName, packageProcessor, {
-  connection: {
-    url: RedisURL,
-  },
-  concurrency: 2,
-})
-
-const Workers = { captureWorker, packageWorker }
+const Workers = { rootWorker, captureWorker, compressWorker }
 export default Workers

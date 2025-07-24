@@ -8,7 +8,7 @@ import jobs from "./routes/jobs"
 
 // Setups
 // import "../lib/events"
-// import "../lib/workers"
+import "../lib/workers"
 
 const app = new Hono()
 

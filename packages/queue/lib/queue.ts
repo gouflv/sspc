@@ -1,134 +1,63 @@
 import { ds } from "@pptr/core"
-import {
-  DefaultJobOptions,
-  FlowProducer,
-  JobNode,
-  Job as QueueJob,
-  Queue as QueueMQ,
-} from "bullmq"
-import { CaptureJob } from "./classes/CaptureJob"
+import { DefaultJobOptions, FlowJob, FlowProducer } from "bullmq"
+import { StepEntity } from "./entities/Step"
+import { TaskEntity } from "./entities/Task"
 import { env } from "./env"
 import { client as redisClient } from "./redis"
-import { CaptureQueueName, PackageQueueName } from "./types"
-import { createCaptureTaskQueueJobData } from "./utils/helper"
-import { generateTaskId } from "./utils/id"
-import logger from "./utils/logger"
 
 const flow = new FlowProducer({ connection: redisClient })
 
-const keepQueueJobInSeconds = ds("30 mins")
+const keepQueueJobInSeconds =
+  env.NODE_ENV === "production" ? ds("1 days") : ds("10 mins")
 
 const attempts = env.NODE_ENV === "production" ? env.JOB_ATTEMPTS : 0
 
 const defaultJobOptions: DefaultJobOptions = {
   attempts,
-  delay: 1_000,
   removeOnComplete: { age: keepQueueJobInSeconds },
   removeOnFail: { age: keepQueueJobInSeconds },
 }
 
-// shadow queue related to flowProducer
-const packageQueue = new QueueMQ(PackageQueueName, { connection: redisClient })
-const captureQueue = new QueueMQ(CaptureQueueName, { connection: redisClient })
-
-function add(job: CaptureJob): Promise<JobNode> {
-  let priority = 3 // use lowest priority for large jobs
-  if (job.params.pages.length === 1) {
-    priority = 1
-  } else if (job.params.pages.length <= 50) {
-    priority = 2
+function buildStepJobNode(step: StepEntity, children?: FlowJob[]): FlowJob {
+  return {
+    name: step.id,
+    queueName: step.queueWorkerName,
+    data: {},
+    opts: {
+      failParentOnFailure: true, // Fast fail.
+    },
+    children,
   }
-
-  return flow.add(
-    // use package job as parent job
-    {
-      name: job.id,
-      queueName: PackageQueueName,
-
-      opts: { priority },
-
-      children: job.params.pages.map((page, index) => ({
-        name: generateTaskId(job.id, index),
-        queueName: CaptureQueueName,
-
-        opts: {
-          priority,
-          // IMPORTANT
-          failParentOnFailure: true,
-        },
-
-        data: createCaptureTaskQueueJobData(job, index),
-      })),
-    },
-    {
-      queuesOptions: {
-        [PackageQueueName]: {
-          defaultJobOptions,
-        },
-        [CaptureQueueName]: {
-          defaultJobOptions,
-        },
-      },
-    },
-  )
 }
 
-async function findById(queueJobId: string) {
-  const { job } = await flow.getFlow({
-    queueName: PackageQueueName,
-    id: queueJobId,
+function dispatchTask(task: TaskEntity) {
+  const root: FlowJob = {
+    name: task.id,
+    queueName: task.queueWorkName,
+  }
+  // Iterate steps in reverse order.
+  // The last step will be the first child of the root job, previous steps will be children of the last step.
+  let current: FlowJob = root
+  for (let i = task.steps.length - 1; i >= 0; i--) {
+    const step = task.steps[i]
+    const stepJob = buildStepJobNode(step, current.children)
+    current.children = current.children || []
+    current.children.push(stepJob)
+    current = stepJob
+  }
+  flow.add(root, {
+    queuesOptions: {
+      capture: { defaultJobOptions },
+      compress: { defaultJobOptions },
+    },
   })
-  return job as QueueJob
 }
 
 /**
- * remove parent job and children from queue
+ * Queue management
  */
-async function remove(captureJobId: string) {
-  try {
-    const captureJob = await CaptureJob.findById(captureJobId)
-
-    if (!captureJob?.queueJobId) {
-      return false
-    }
-
-    const jobTree = await flow.getFlow({
-      id: captureJob.queueJobId,
-      queueName: CaptureQueueName,
-    })
-
-    if (!jobTree) {
-      throw new Error("job not found")
-    }
-
-    // Note: move running job will throw
-
-    // remove all child jobs first
-    if (jobTree.children?.length) {
-      await Promise.all(jobTree.children.map((child) => child.job.remove()))
-    }
-    // remove parent job
-    await jobTree.job.remove()
-
-    logger.info("[queue] job removed from queue", { id: captureJobId })
-
-    return true
-  } catch (e) {
-    logger.info("[queue] failed to remove job", {
-      id: captureJobId,
-      error: (e as Error).message,
-    })
-
-    return false
-  }
-}
-
-const Queue = {
-  packageQueue,
-  captureQueue,
+const QueueMan = {
   flow,
-  add,
-  findById,
-  remove,
+  dispatchTask,
 }
-export default Queue
+export default QueueMan

@@ -1,20 +1,20 @@
 import { ds } from "@pptr/core"
 import { env } from "../env"
 import redis from "../redis"
-import { CaptureJobId } from "../types"
+import { TaskIdentity } from "../types"
 
-type KEY = `${CaptureJobId}:expire-trigger`
+type KEY = `${TaskIdentity}:expire-trigger`
 
 const ExpirationInSeconds =
-  env.NODE_ENV === "production" ? env.JOB_EXPIRE : ds("5 mins")
+  env.NODE_ENV === "production" ? env.TASK_EXPIRE : ds("5 mins")
 
 export class CaptureJobExpireTrigger {
-  static async upsert(jobId: CaptureJobId) {
+  static async upsert(jobId: TaskIdentity) {
     const key = this.generateExpireTriggerKey(jobId)
     await redis.client.set(key, jobId, "EX", ExpirationInSeconds)
   }
 
-  static generateExpireTriggerKey(jobId: CaptureJobId): KEY {
+  static generateExpireTriggerKey(jobId: TaskIdentity): KEY {
     return `${jobId}:expire-trigger`
   }
 
