@@ -9,7 +9,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@pptr/core": "workspace:*",
+    "@sspc/core": "workspace:*",
     "@puppeteer/browsers": "^2.7.1",
     "compress-pdf": "^0.5.4",
     "generic-pool": "^3.9.0",
