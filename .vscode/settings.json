@@ -3,10 +3,12 @@
     "autocannon",
     "bullmq",
     "hgetall",
+    "hmset",
     "hono",
     "hset",
     "keyevent",
     "keyspace",
+    "lrange",
     "pptr",
     "sspc",
     "zadd"
