@@ -1,6 +1,6 @@
 import { serve } from "@hono/node-server"
 import { zValidator as validate } from "@hono/zod-validator"
-import { captureParamsSchema, d } from "@pptr/core"
+import { captureParamsSchema, d } from "@sspc/core"
 import { Hono } from "hono"
 import { timeout } from "hono/timeout"
 import { Browser } from "puppeteer-core"

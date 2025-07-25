@@ -1,4 +1,4 @@
-import { d } from "@pptr/core"
+import { d } from "@sspc/core"
 
 export interface WaitOptions {
   pollInterval: number

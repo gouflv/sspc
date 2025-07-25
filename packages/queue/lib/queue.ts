@@ -1,4 +1,4 @@
-import { ds } from "@pptr/core"
+import { ds } from "@sspc/core"
 import { DefaultJobOptions, FlowJob, FlowProducer } from "bullmq"
 import { StepEntity } from "./entities/Step"
 import { TaskEntity } from "./entities/Task"
@@ -10,10 +10,8 @@ const flow = new FlowProducer({ connection: redisClient })
 const keepQueueJobInSeconds =
   env.NODE_ENV === "production" ? ds("1 days") : ds("10 mins")
 
-const attempts = env.NODE_ENV === "production" ? env.JOB_ATTEMPTS : 0
-
 const defaultJobOptions: DefaultJobOptions = {
-  attempts,
+  attempts: env.JOB_ATTEMPTS,
   removeOnComplete: { age: keepQueueJobInSeconds },
   removeOnFail: { age: keepQueueJobInSeconds },
 }

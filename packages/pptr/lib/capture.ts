@@ -1,4 +1,4 @@
-import { CaptureParamsType, d } from "@pptr/core"
+import { CaptureParamsType, d } from "@sspc/core"
 import { isNumber } from "lodash-es"
 import { Page, PDFOptions, ScreenshotOptions } from "puppeteer-core"
 

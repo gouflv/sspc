@@ -1,4 +1,4 @@
-import { d, type CaptureParamsType } from "@pptr/core"
+import { d, type CaptureParamsType } from "@sspc/core"
 import { isNumber } from "lodash-es"
 import type { Page } from "puppeteer-core"
 import { env } from "./env"

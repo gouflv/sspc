@@ -1,5 +1,5 @@
 import { serve } from "@hono/node-server"
-import { d } from "@pptr/core"
+import { d } from "@sspc/core"
 import { Hono } from "hono"
 import { cors } from "hono/cors"
 import { timeout } from "hono/timeout"

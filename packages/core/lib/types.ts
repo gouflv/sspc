@@ -1,7 +1,7 @@
 import { z } from "zod"
 
 export const captureParamsSchema = z.object({
-  url: z.string().url(),
+  url: z.url(),
 
   viewportWidth: z.number().positive().optional(),
   viewportHeight: z.number().positive().optional(),

@@ -1,4 +1,4 @@
-import { captureParamsSchema } from "@pptr/core"
+import { captureParamsSchema } from "@sspc/core"
 import { expect, it } from "vitest"
 
 it("should validate correct parameters", () => {

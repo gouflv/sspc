@@ -2,7 +2,7 @@ import Redis from "ioredis"
 import { CaptureJob } from "./classes/CaptureJob"
 import { CaptureJobExpireTrigger } from "./classes/CaptureJobExpireTrigger"
 import { CaptureTask } from "./classes/CaptureTask"
-import Queue from "./queue"
+import QueueMan from "./queue"
 import { RedisURL } from "./redis"
 import Artifact from "./utils/artifact"
 import Workers from "./workers"
@@ -38,7 +38,7 @@ subscriber.on("message", async (_, expiredKey) => {
 // graceful shutdown
 const gracefulShutdown = async (signal: string) => {
   console.log(`Received ${signal}, closing...\n`)
-  await Queue.flow.close()
+  await QueueMan.flow.close()
   await Workers.captureWorker.close()
   await Workers.packageWorker.close()
   await subscriber.quit()

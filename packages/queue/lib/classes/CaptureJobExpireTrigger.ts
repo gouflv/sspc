@@ -1,4 +1,4 @@
-import { ds } from "@pptr/core"
+import { ds } from "@sspc/core"
 import { env } from "../env"
 import redis from "../redis"
 import { TaskIdentity } from "../types"
