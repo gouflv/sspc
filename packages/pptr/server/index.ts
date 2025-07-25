@@ -8,7 +8,6 @@ import { capturePage } from "../lib/capture"
 import { env } from "../lib/env"
 import logger from "../lib/logger"
 import { initPage, waitForImagesToLoad } from "../lib/page"
-import { compressPDF } from "../lib/pdf"
 import { pool } from "../lib/pool"
 
 const app = new Hono()
@@ -77,13 +76,6 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
     metrics.captureStart = Date.now()
     let captureResult = await capturePage(page, params)
     metrics.captureEnd = Date.now()
-
-    // PDF compression
-    if (params.captureFormat === "pdf" && params.pdfCompress !== false) {
-      metrics.pdfCompressStart = Date.now()
-      captureResult = await compressPDF(captureResult)
-      metrics.pdfCompressEnd = Date.now()
-    }
 
     // ================================
     // Log and respond

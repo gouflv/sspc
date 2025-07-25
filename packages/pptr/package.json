@@ -9,9 +9,8 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@sspc/core": "workspace:*",
     "@puppeteer/browsers": "^2.7.1",
-    "compress-pdf": "^0.5.4",
+    "@sspc/core": "workspace:*",
     "generic-pool": "^3.9.0",
     "puppeteer-core": "^24.2.0"
   }

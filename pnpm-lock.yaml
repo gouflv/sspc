@@ -82,9 +82,6 @@ importers:
       '@sspc/core':
         specifier: workspace:*
         version: link:../core
-      compress-pdf:
-        specifier: ^0.5.4
-        version: 0.5.4
       generic-pool:
         specifier: ^3.9.0
         version: 3.9.0
