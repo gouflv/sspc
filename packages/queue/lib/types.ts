@@ -4,7 +4,9 @@ import { z } from "zod"
 //
 // QueueCaptureParamsType
 //
-export const queueCaptureParamsSchema = captureParamsSchema
+export const queueCaptureParamsSchema = captureParamsSchema.extend({
+  pdfCompress: z.boolean().optional(),
+})
 export type QueueCaptureInputParamsType = z.input<
   typeof queueCaptureParamsSchema
 >

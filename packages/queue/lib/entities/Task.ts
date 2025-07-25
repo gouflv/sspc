@@ -10,7 +10,7 @@ import {
   TaskIdentity,
 } from "../types"
 import { generateCaptureTaskKey } from "../utils/key"
-import { createSteps, StepEntity, StepStorage } from "./Step"
+import { createStepEntities, StepEntity, StepStorage } from "./Step"
 
 export type TaskEntity = {
   /**
@@ -71,7 +71,7 @@ export function createTaskEntity(
     queueJobId: data.queueJobId ?? null,
     createdAt: data.createdAt ?? Date.now(),
     finishedAt: data.finishedAt ?? null,
-    steps: data.steps ?? createSteps(id, data.params),
+    steps: data.steps ?? createStepEntities(id, data.params),
   }
 }
 
@@ -103,11 +103,20 @@ async function get(id: TaskIdentity) {
   return fromJSON(json, steps)
 }
 
-async function update(id: TaskIdentity, data: Partial<TaskEntity>) {
+async function update(
+  id: TaskIdentity,
+  data: Partial<
+    Pick<
+      TaskEntity,
+      "status" | "artifact" | "error" | "finishedAt" | "queueJobId"
+    >
+  >,
+) {
   const current = await get(id)
   if (!current) {
     throw new Error(`Task with id ${id} not found`)
   }
+
   const updated = { ...current, ...data }
   await redis.client.hset(id, toJSON(updated))
   return updated

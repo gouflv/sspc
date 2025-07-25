@@ -6,8 +6,9 @@ import { RedisURL } from "../redis"
 import { compressPDF } from "../service/compress"
 import { StepIdentity, WorkerResult } from "../types"
 import Artifact from "../utils/artifact"
-import { toFilename } from "../utils/helper"
+import { toFilename } from "../utils/file"
 import logger from "../utils/logger"
+import { markStepAsFailed } from "../utils/status"
 
 export const compressWorker = new Worker<any, WorkerResult>(
   "compress",
@@ -15,8 +16,10 @@ export const compressWorker = new Worker<any, WorkerResult>(
     const stepId = queueJob.name as StepIdentity
 
     const childrenValues = values(await queueJob.getChildrenValues())
-    const previousValue = first(childrenValues) as WorkerResult | undefined
-    if (!previousValue) {
+    const previousWorkerResult = first(childrenValues) as
+      | WorkerResult
+      | undefined
+    if (!previousWorkerResult) {
       throw new Error(`No child value found for step: ${stepId}`)
     }
 
@@ -35,7 +38,9 @@ export const compressWorker = new Worker<any, WorkerResult>(
       })
 
       // Compress
-      const source = Artifact.resolveFilePath(previousValue.artifact.filename)
+      const source = Artifact.resolveFilePath(
+        previousWorkerResult.artifact.filename,
+      )
       const result = await compressPDF(source)
 
       // Save artifact
@@ -68,21 +73,7 @@ export const compressWorker = new Worker<any, WorkerResult>(
     } catch (e) {
       const error = e as Error
       logger.error("[worker:compress] failed", { step: stepId, error })
-
-      // Update status
-      try {
-        await StepStorage.update(stepId, {
-          status: "failed",
-          error: error.message,
-          finishedAt: Date.now(),
-        })
-      } catch (updateError) {
-        logger.error("[worker:compress] failed to update step", {
-          step: stepId,
-          error: updateError,
-        })
-      }
-
+      markStepAsFailed(stepId, error)
       throw e
     }
   },

@@ -3,6 +3,7 @@ import { createReadStream, createWriteStream } from "node:fs"
 import { access, mkdir, rm } from "node:fs/promises"
 import { dirname, join } from "node:path"
 import { Stream } from "node:stream"
+import { Artifact } from "../types"
 import logger from "./logger"
 
 function resolveFilePath(filename: string) {
@@ -76,26 +77,23 @@ async function remove(filename: string) {
   }
 }
 
-async function createResponse(jobId: string) {
-  const job = await CaptureJob.findById(jobId)
-
-  if (!job?.artifact) {
-    throw new Error("artifact not found")
-  }
-
-  const path = resolveFilePath(job.artifact)
+async function createResponse(artifact: Artifact) {
+  const path = resolveFilePath(artifact.filename)
 
   try {
     await access(path)
   } catch (err) {
-    throw new Error(`artifact not found: ${path}`)
+    throw new Error("File not found")
   }
 
   const stream = createReadStream(path)
-
   return new Response(stream, {
     headers: {
-      "content-type": mime.getType(path) || "application/zip",
+      "Content-Type":
+        artifact.contentType ||
+        mime.getType(artifact.filename) ||
+        "application/octet-stream",
+      "Content-Length": String(artifact.size),
     },
   })
 }

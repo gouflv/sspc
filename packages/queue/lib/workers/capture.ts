@@ -7,8 +7,9 @@ import { RedisURL } from "../redis"
 import capture from "../service/capture"
 import { StepIdentity, WorkerResult } from "../types"
 import Artifact from "../utils/artifact"
-import { toFilename } from "../utils/helper"
+import { toFilename } from "../utils/file"
 import logger from "../utils/logger"
+import { markStepAsFailed } from "../utils/status"
 
 export const captureWorker = new Worker<any, WorkerResult>(
   "capture",
@@ -71,21 +72,7 @@ export const captureWorker = new Worker<any, WorkerResult>(
     } catch (e) {
       const error = e as Error
       logger.error("[worker:capture] failed", { step: stepId, error })
-
-      // Update status
-      try {
-        await StepStorage.update(stepId, {
-          status: "failed",
-          error: error.message,
-          finishedAt: Date.now(),
-        })
-      } catch (updateError) {
-        logger.error("[worker:capture] failed to update step", {
-          step: stepId,
-          error: updateError,
-        })
-      }
-
+      markStepAsFailed(stepId, error)
       throw e
     }
   },

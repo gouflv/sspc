@@ -1,4 +1,4 @@
-import { isEmpty } from "lodash-es"
+import { isEmpty, omit } from "lodash-es"
 import { Required } from "utility-types"
 import { env } from "../env"
 import redis from "../redis"
@@ -70,7 +70,10 @@ function createStepEntity(
   }
 }
 
-export function createSteps(
+/**
+ * Create StepEntity by task ID and capture parameters.
+ */
+export function createStepEntities(
   taskId: TaskIdentity,
   params: QueueCaptureInputParamsType,
 ): StepEntity[] {
@@ -79,7 +82,7 @@ export function createSteps(
       id: generateCaptureStepKey(taskId, "capture"),
       taskId,
       queueWorkerName: "capture",
-      params: { ...params, pdfCompress: false } as QueueCaptureInputParamsType,
+      params: omit(params, "pdfCompress"),
     }),
   ]
   if (params.captureFormat === "pdf" && params.pdfCompress) {
@@ -129,8 +132,10 @@ async function update(id: StepIdentity, data: Partial<StepEntity>) {
   if (!current) {
     throw new Error(`Step not found: ${id}`)
   }
+
   const updated = { ...current, ...data }
   await redis.client.hset(id, toJSON(updated))
+  return updated
 }
 
 function fromJSON(json: Record<string, any>): StepEntity {

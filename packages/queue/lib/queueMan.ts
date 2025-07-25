@@ -7,8 +7,7 @@ import { client as redisClient } from "./redis"
 
 const flow = new FlowProducer({ connection: redisClient })
 
-const keepQueueJobInSeconds =
-  env.NODE_ENV === "production" ? ds("1 days") : ds("10 mins")
+const keepQueueJobInSeconds = ds("1 hour")
 
 const defaultJobOptions: DefaultJobOptions = {
   attempts: env.JOB_ATTEMPTS,
@@ -28,7 +27,7 @@ function buildStepJobNode(step: StepEntity, children?: FlowJob[]): FlowJob {
   }
 }
 
-function dispatchTask(task: TaskEntity) {
+async function dispatchTask(task: TaskEntity) {
   const root: FlowJob = {
     name: task.id,
     queueName: task.queueWorkName,
@@ -43,8 +42,9 @@ function dispatchTask(task: TaskEntity) {
     current.children.push(stepJob)
     current = stepJob
   }
-  flow.add(root, {
+  return await flow.add(root, {
     queuesOptions: {
+      root: { defaultJobOptions },
       capture: { defaultJobOptions },
       compress: { defaultJobOptions },
     },
