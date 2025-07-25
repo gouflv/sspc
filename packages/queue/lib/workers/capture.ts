@@ -1,10 +1,10 @@
 import { Job as QueueJob, Worker } from "bullmq"
 import mime from "mime"
-import capture from "../api/capture"
 import { StepStorage } from "../entities/Step"
 import { TaskStorage } from "../entities/Task"
 import { env } from "../env"
 import { RedisURL } from "../redis"
+import capture from "../service/capture"
 import { StepIdentity, WorkerResult } from "../types"
 import Artifact from "../utils/artifact"
 import { toFilename } from "../utils/helper"
@@ -37,22 +37,23 @@ export const captureWorker = new Worker<any, WorkerResult>(
       })
 
       // Capture
-      const captureResult = await capture(stepId, task.params)
+      const result = await capture(stepId, task.params)
 
       // Save artifact
       const filename = toFilename(
-        `${stepId}.${mime.getExtension(captureResult.contentType)}`,
+        `${stepId}.${mime.getExtension(result.contentType)}`,
       )
-      const { size } = await Artifact.save(captureResult.stream, filename)
+      const { size } = await Artifact.save(result.stream, filename)
+      const artifact: WorkerResult["artifact"] = {
+        contentType: result.contentType,
+        filename,
+        size,
+      }
 
       // Update status
       await StepStorage.update(stepId, {
         status: "completed",
-        artifact: {
-          contentType: captureResult.contentType,
-          filename,
-          size,
-        },
+        artifact,
         finishedAt: Date.now(),
       })
 
@@ -60,17 +61,12 @@ export const captureWorker = new Worker<any, WorkerResult>(
         step: stepId,
         filename,
         size,
-        duration: captureResult.duration,
+        duration: result.duration,
       })
 
       return {
         step: stepId,
-        artifact: {
-          contentType: captureResult.contentType,
-          filename,
-          size,
-          duration: captureResult.duration,
-        },
+        artifact,
       }
     } catch (e) {
       const error = e as Error
@@ -86,7 +82,7 @@ export const captureWorker = new Worker<any, WorkerResult>(
       } catch (updateError) {
         logger.error("[worker:capture] failed to update step", {
           step: stepId,
-          error: (updateError as Error).message,
+          error: updateError,
         })
       }
 

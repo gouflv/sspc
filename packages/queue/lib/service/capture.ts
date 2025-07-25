@@ -1,4 +1,4 @@
-import { CaptureParamsType } from "@pptr/core"
+import { CaptureParamsType } from "@sspc/core"
 import axios, { AxiosError } from "axios"
 import { Stream } from "node:stream"
 import { buffer } from "stream/consumers"
@@ -18,7 +18,7 @@ async function capture(
   params: CaptureParamsType,
 ): Promise<{
   contentType: string
-  stream: Stream
+  stream: Stream.Readable
   duration: number
 }> {
   logger.debug("[capture] started", { id })

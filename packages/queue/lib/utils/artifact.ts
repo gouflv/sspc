@@ -1,8 +1,7 @@
-import archiver from "archiver"
 import mime from "mime"
 import { createReadStream, createWriteStream } from "node:fs"
 import { access, mkdir, rm } from "node:fs/promises"
-import { dirname, extname, join } from "node:path"
+import { dirname, join } from "node:path"
 import { Stream } from "node:stream"
 import logger from "./logger"
 
@@ -11,16 +10,34 @@ function resolveFilePath(filename: string) {
   return join(base, filename)
 }
 
-async function save(stream: Stream, filename: string) {
+async function save(stream: Stream.Readable, filename: string) {
   const path = resolveFilePath(filename)
-  await mkdir(dirname(path), { recursive: true })
+  try {
+    await mkdir(dirname(path), { recursive: true })
+  } catch (error) {
+    logger.error("[artifact] failed to prepare directory", {
+      path: dirname(path),
+      error,
+    })
+    throw error
+  }
 
   return new Promise<{
     path: string
     size: number
   }>((resolve, reject) => {
     const writer = createWriteStream(path)
+
+    // Handle stream errors
+    stream.on("error", async (error) => {
+      logger.error("[artifact] stream error", { error })
+      writer.end()
+      await remove(filename)
+      reject(error)
+    })
+
     stream.pipe(writer)
+
     writer.on("finish", () => {
       logger.debug("[artifact] saved", { path })
       resolve({
@@ -28,49 +45,13 @@ async function save(stream: Stream, filename: string) {
         size: writer.bytesWritten,
       })
     })
-    writer.on("error", reject)
-  })
-}
 
-async function packageArtifacts(
-  artifacts: {
-    filename: string
-    distName: string
-  }[],
-  filename: string,
-) {
-  const path = resolveFilePath(filename)
-  await mkdir(dirname(path), { recursive: true })
-
-  const output = createWriteStream(path)
-  const archive = archiver("zip", {
-    zlib: { level: 9 },
-  })
-
-  return new Promise<string>((resolve, reject) => {
-    output.on("close", () => {
-      logger.debug("[artifact] packaged", { path })
-      resolve(path)
+    writer.on("error", async (error) => {
+      logger.error("[artifact] write error", { error })
+      await remove(filename)
+      reject(error)
     })
-
-    archive.on("error", reject)
-
-    archive.pipe(output)
-
-    for (const artifact of artifacts) {
-      archive.file(resolveFilePath(artifact.filename), {
-        name: replaceFilename(artifact.filename, artifact.distName),
-      })
-    }
-
-    archive.finalize()
   })
-}
-
-function replaceFilename(file: string, newName: string) {
-  const ext = extname(file)
-  const distNameBaseOnly = newName.replace(/\..+$/, "")
-  return `${distNameBaseOnly}${ext}`
 }
 
 async function remove(filename: string) {
@@ -85,10 +66,12 @@ async function remove(filename: string) {
 
   try {
     await rm(path)
-  } catch (err) {
+    logger.debug("[artifact] successfully removed", { path })
+  } catch (error) {
     logger.error("[artifact] failed to remove", {
       filename,
-      error: (err as Error).message,
+      path,
+      error,
     })
   }
 }
@@ -120,8 +103,7 @@ async function createResponse(jobId: string) {
 const Artifact = {
   save,
   remove,
-  packageArtifacts,
-  replaceFilename,
   createResponse,
+  resolveFilePath,
 }
 export default Artifact

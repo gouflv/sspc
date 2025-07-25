@@ -3,7 +3,10 @@ import { first, values } from "lodash-es"
 import { StepStorage } from "../entities/Step"
 import { env } from "../env"
 import { RedisURL } from "../redis"
+import { compressPDF } from "../service/compress"
 import { StepIdentity, WorkerResult } from "../types"
+import Artifact from "../utils/artifact"
+import { toFilename } from "../utils/helper"
 import logger from "../utils/logger"
 
 export const compressWorker = new Worker<any, WorkerResult>(
@@ -31,31 +34,36 @@ export const compressWorker = new Worker<any, WorkerResult>(
         status: "running",
       })
 
-      // TODO - Implement compression logic here
-      const filename = previousValue.artifact
+      // Compress
+      const source = Artifact.resolveFilePath(previousValue.artifact.filename)
+      const result = await compressPDF(source)
 
       // Save artifact
-      // const filename = toFilename(
-      //   `${stepId}.${mime.getExtension(captureResult.contentType)}`,
-      // )
-      // await Artifact.save(captureResult.stream, filename)
+      const filename = toFilename(`${stepId}.pdf`)
+      const { size } = await Artifact.save(result.stream, filename)
+      const artifact: WorkerResult["artifact"] = {
+        contentType: "application/pdf",
+        filename: filename,
+        size: size,
+      }
 
       // Update status
-      // await StepStorage.update(stepId, {
-      //   status: "completed",
-      //   artifact: filename,
-      //   finishedAt: Date.now(),
-      // })
+      await StepStorage.update(stepId, {
+        status: "completed",
+        artifact,
+        finishedAt: Date.now(),
+      })
 
       logger.info("[worker:compress] completed", {
         step: stepId,
         filename,
-        duration: 0, //captureResult.duration,
+        size,
+        duration: result.duration,
       })
 
       return {
         step: stepId,
-        artifact: filename,
+        artifact,
       }
     } catch (e) {
       const error = e as Error
@@ -71,7 +79,7 @@ export const compressWorker = new Worker<any, WorkerResult>(
       } catch (updateError) {
         logger.error("[worker:compress] failed to update step", {
           step: stepId,
-          error: (updateError as Error).message,
+          error: updateError,
         })
       }
 
