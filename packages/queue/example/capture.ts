@@ -1,5 +1,5 @@
+import capture from "../lib/service/capture"
 import artifact from "../lib/utils/artifact"
-import capture from "../lib/utils/capture"
 ;(async () => {
   try {
     const { contentType, stream } = await capture("example", {
