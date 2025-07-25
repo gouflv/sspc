@@ -5,7 +5,7 @@ import redis from "../redis"
 import {
   Artifact,
   QueueCaptureInputParamsType,
-  QueueWorkNames,
+  QueueWorkerNames,
   Status,
   TaskIdentity,
 } from "../types"
@@ -42,7 +42,7 @@ export type TaskEntity = {
   /**
    * This is used to identify the worker that processes this step.
    */
-  queueWorkName: QueueWorkNames
+  queueWorkName: QueueWorkerNames
 
   /**
    * The ID of the task in the queue system.

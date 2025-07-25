@@ -23,7 +23,7 @@ export type StepIdentity = `${TaskIdentity}:step-${string}`
 //
 // Workers
 //
-export type QueueWorkNames = "root" | "capture" | "compress"
+export type QueueWorkerNames = "root" | "capture" | "compress"
 
 export type WorkerResult = {
   step: StepIdentity

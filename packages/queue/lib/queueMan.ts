@@ -1,5 +1,5 @@
 import { ds } from "@sspc/core"
-import { DefaultJobOptions, FlowJob, FlowProducer } from "bullmq"
+import { DefaultJobOptions, FlowJob, FlowProducer, Queue } from "bullmq"
 import { StepEntity } from "./entities/Step"
 import { TaskEntity } from "./entities/Task"
 import { env } from "./env"
@@ -51,11 +51,21 @@ async function dispatchTask(task: TaskEntity) {
   })
 }
 
+// Queue instance matching the FlowProducer
+const rootQueue = new Queue("root", { connection: redisClient })
+const captureQueue = new Queue("capture", { connection: redisClient })
+const compressQueue = new Queue("compress", { connection: redisClient })
+
 /**
  * Queue management
  */
 const QueueMan = {
   flow,
   dispatchTask,
+  queue: {
+    root: rootQueue,
+    capture: captureQueue,
+    compress: compressQueue,
+  },
 }
 export default QueueMan

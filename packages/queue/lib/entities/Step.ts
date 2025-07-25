@@ -5,7 +5,7 @@ import redis from "../redis"
 import {
   Artifact,
   QueueCaptureInputParamsType,
-  QueueWorkNames as QueueWorkerNames,
+  QueueWorkerNames,
   Status,
   StepIdentity,
   TaskIdentity,

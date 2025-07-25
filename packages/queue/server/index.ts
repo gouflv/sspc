@@ -4,6 +4,7 @@ import { Hono } from "hono"
 import { cors } from "hono/cors"
 import { timeout } from "hono/timeout"
 import { env } from "../lib/env"
+import { setupBullBoard } from "./bull-board"
 import jobs from "./routes/jobs"
 
 // Setups
@@ -21,8 +22,7 @@ app.get("/", (c) => {
 
 app.route("/jobs", jobs)
 
-// Setup bull-board
-// setupBullBoard(app)
+setupBullBoard(app)
 
 serve(
   {
