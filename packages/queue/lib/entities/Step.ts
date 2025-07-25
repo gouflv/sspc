@@ -3,6 +3,7 @@ import { Required } from "utility-types"
 import { env } from "../env"
 import redis from "../redis"
 import {
+  Artifact,
   QueueCaptureInputParamsType,
   QueueWorkNames as QueueWorkerNames,
   Status,
@@ -41,7 +42,7 @@ export type StepEntity = {
   /**
    * The artifact produced by the capture step.
    */
-  artifact: string | null
+  artifact: Artifact | null
 
   /**
    * Error message if the capture step failed.
@@ -136,13 +137,15 @@ function fromJSON(json: Record<string, any>): StepEntity {
   return {
     ...(json as any),
     params: JSON.parse(json.params),
+    artifact: json.artifact ? JSON.parse(json.artifact) : null,
   } as StepEntity
 }
 
-function toJSON(data: StepEntity): Record<string, any> {
+function toJSON(step: StepEntity): Record<string, any> {
   return {
-    ...data,
-    params: JSON.stringify(data.params),
+    ...step,
+    params: JSON.stringify(step.params),
+    artifact: step.artifact ? JSON.stringify(step.artifact) : null,
   }
 }
 

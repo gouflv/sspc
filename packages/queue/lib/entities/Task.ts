@@ -3,6 +3,7 @@ import type { Required } from "utility-types"
 import { env } from "../env"
 import redis from "../redis"
 import {
+  Artifact,
   QueueCaptureInputParamsType,
   QueueWorkNames,
   Status,
@@ -31,7 +32,7 @@ export type TaskEntity = {
   /**
    * The final artifact produced by the capture step.
    */
-  artifact: string | null
+  artifact: Artifact | null
 
   /**
    * Error message if the capture step failed.
@@ -112,19 +113,21 @@ async function update(id: TaskIdentity, data: Partial<TaskEntity>) {
   return updated
 }
 
-function toJSON(task: TaskEntity): Record<string, any> {
-  return {
-    ...omit(task, ["steps"]),
-    params: JSON.stringify(task.params),
-  }
-}
-
 function fromJSON(json: Record<string, any>, steps: StepEntity[]) {
   return {
     ...(json as any),
     params: JSON.parse(json.params),
+    artifact: json.artifact ? JSON.parse(json.artifact) : null,
     steps,
   } as TaskEntity
+}
+
+function toJSON(task: TaskEntity): Record<string, any> {
+  return {
+    ...omit(task, ["steps"]),
+    params: JSON.stringify(task.params),
+    artifact: task.artifact ? JSON.stringify(task.artifact) : null,
+  }
 }
 
 export const TaskStorage = {

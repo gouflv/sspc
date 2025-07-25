@@ -43,24 +43,34 @@ export const captureWorker = new Worker<any, WorkerResult>(
       const filename = toFilename(
         `${stepId}.${mime.getExtension(captureResult.contentType)}`,
       )
-      await Artifact.save(captureResult.stream, filename)
+      const { size } = await Artifact.save(captureResult.stream, filename)
 
       // Update status
       await StepStorage.update(stepId, {
         status: "completed",
-        artifact: filename,
+        artifact: {
+          contentType: captureResult.contentType,
+          filename,
+          size,
+        },
         finishedAt: Date.now(),
       })
 
       logger.info("[worker:capture] completed", {
         step: stepId,
         filename,
+        size,
         duration: captureResult.duration,
       })
 
       return {
         step: stepId,
-        artifact: filename,
+        artifact: {
+          contentType: captureResult.contentType,
+          filename,
+          size,
+          duration: captureResult.duration,
+        },
       }
     } catch (e) {
       const error = e as Error

@@ -15,12 +15,18 @@ async function save(stream: Stream, filename: string) {
   const path = resolveFilePath(filename)
   await mkdir(dirname(path), { recursive: true })
 
-  return new Promise<string>((resolve, reject) => {
+  return new Promise<{
+    path: string
+    size: number
+  }>((resolve, reject) => {
     const writer = createWriteStream(path)
     stream.pipe(writer)
     writer.on("finish", () => {
       logger.debug("[artifact] saved", { path })
-      resolve(path)
+      resolve({
+        path,
+        size: writer.bytesWritten,
+      })
     })
     writer.on("error", reject)
   })

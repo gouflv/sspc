@@ -25,5 +25,11 @@ export type QueueWorkNames = "root" | "capture" | "compress"
 
 export type WorkerResult = {
   step: StepIdentity
-  artifact: string
+  artifact: Artifact
+}
+
+export type Artifact = {
+  contentType: string
+  filename: string
+  size: number
 }
