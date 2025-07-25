@@ -65,11 +65,9 @@ jobs.get("/:id/artifact", async (c) => {
     if (!task) {
       throw new Error("Job not found")
     }
-
-    if (task.status !== "completed" || !task.artifact) {
+    if (!task.artifact) {
       throw new Error("Job is not completed")
     }
-
     const res = await Artifact.createResponse(task.artifact)
     return res
   } catch (e) {
@@ -91,15 +89,12 @@ jobs.post("/urgent", validate("json", queueCaptureParamsSchema), async (c) => {
     // Dispatch task to queue
     await QueueMan.dispatchTask(task)
 
-    // Save queue job id
-
     await waitForTaskComplete(task.id)
 
     const done = await TaskStorage.get(task.id)
     if (!done?.artifact) {
       throw new Error("Job did not complete successfully")
     }
-
     return Artifact.createResponse(done.artifact)
   } catch (e) {
     return c.json({ success: false, error: (e as Error).message }, 400)
