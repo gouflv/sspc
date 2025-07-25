@@ -7,7 +7,7 @@ import { env } from "../lib/env"
 import jobs from "./routes/jobs"
 
 // Setups
-// import "../lib/events"
+import "../lib/events"
 import "../lib/workers"
 
 const app = new Hono()

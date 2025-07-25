@@ -22,7 +22,7 @@ export const rootWorker = new Worker(
     try {
       logger.info("[worker:root] started", { task: taskId })
 
-      // Update status
+      // Update status, save step artifact
       await TaskStorage.update(taskId, {
         status: "completed",
         artifact: previousWorkerResult.artifact,

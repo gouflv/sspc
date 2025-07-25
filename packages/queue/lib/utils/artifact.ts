@@ -1,18 +1,20 @@
 import mime from "mime"
 import { createReadStream, createWriteStream } from "node:fs"
-import { access, mkdir, rm } from "node:fs/promises"
+import { access, glob, mkdir, rm } from "node:fs/promises"
 import { dirname, join } from "node:path"
 import { Stream } from "node:stream"
-import { Artifact } from "../types"
+import { Artifact, TaskIdentity } from "../types"
+import { toFilename } from "./file"
 import logger from "./logger"
 
-function resolveFilePath(filename: string) {
-  const base = new URL("../../data", import.meta.url).pathname
-  return join(base, filename)
+const BasePath = new URL("../../data", import.meta.url).pathname
+
+function getFilePath(filename: string) {
+  return join(BasePath, filename)
 }
 
 async function save(stream: Stream.Readable, filename: string) {
-  const path = resolveFilePath(filename)
+  const path = getFilePath(filename)
   try {
     await mkdir(dirname(path), { recursive: true })
   } catch (error) {
@@ -56,8 +58,7 @@ async function save(stream: Stream.Readable, filename: string) {
 }
 
 async function remove(filename: string) {
-  logger.debug("[artifact] remove", { filename })
-  const path = resolveFilePath(filename)
+  const path = getFilePath(filename)
 
   try {
     await access(path)
@@ -77,8 +78,21 @@ async function remove(filename: string) {
   }
 }
 
+async function removeByPattern(taskKey: TaskIdentity) {
+  try {
+    const filesIterator = glob(`${toFilename(taskKey)}*`, {
+      cwd: BasePath,
+    })
+    for await (const file of filesIterator) {
+      await remove(file)
+    }
+  } catch (error) {
+    logger.error("[artifact] removeByPattern", { task: taskKey, error })
+  }
+}
+
 async function createResponse(artifact: Artifact) {
-  const path = resolveFilePath(artifact.filename)
+  const path = getFilePath(artifact.filename)
 
   try {
     await access(path)
@@ -101,7 +115,8 @@ async function createResponse(artifact: Artifact) {
 const Artifact = {
   save,
   remove,
+  removeByTaskKey: removeByPattern,
   createResponse,
-  resolveFilePath,
+  resolveFilePath: getFilePath,
 }
 export default Artifact
