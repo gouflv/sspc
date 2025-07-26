@@ -1,26 +1,22 @@
 const autocannon = require("autocannon")
 
-const DURATION = 60
+const LOCAL = true
 
 const instance = autocannon({
-  url: "http://10.0.28.121:3001/jobs/urgent",
+  url: `http://${LOCAL ? "localhost" : "10.0.28.121"}:3001/jobs/urgent`,
   method: "POST",
   headers: {
     "Content-Type": "application/json; charset=utf-8",
   },
   body: JSON.stringify({
-    pages: [
-      {
-        url: "https://news.baidu.com/",
-        name: "example",
-      },
-    ],
+    url: "https://news.baidu.com/",
     captureFormat: "pdf",
     pdfFormat: "a4",
+    // pdfCompress: true,
   }),
-  connections: 20,
-  duration: DURATION,
-  timeout: DURATION * 10,
+  connections: 4,
+  duration: 60 * 2,
+  timeout: 60,
 })
 
 autocannon.track(instance, { renderProgressBar: true })

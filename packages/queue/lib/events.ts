@@ -1,5 +1,4 @@
 import Redis from "ioredis"
-import QueueMan from "./queueMan"
 import { RedisURL } from "./redis"
 import Artifact from "./utils/artifact"
 import { isCaptureTaskKey } from "./utils/key"
@@ -21,7 +20,6 @@ subscriber.on("message", async (_, expiredKey) => {
 const gracefulShutdown = async (signal: string) => {
   console.log(`Received ${signal}, closing...\n`)
   await subscriber.quit()
-  await QueueMan.flow.close()
   await Workers.rootWorker.close()
   await Workers.captureWorker.close()
   await Workers.compressWorker.close()
