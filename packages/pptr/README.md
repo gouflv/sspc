@@ -46,13 +46,12 @@ Captures a screenshot or generates a PDF of a webpage.
 
 ##### PDF Options
 
-| Parameter   | Type    | Required | Default | Description                          |
-| ----------- | ------- | -------- | ------- | ------------------------------------ |
-| pdfFormat   | string  | No       | -       | Paper format (e.g. 'a4')             |
-| pdfMargin   | object  | No       | -       | Page margins                         |
-| pdfWidth    | number  | No       | -       | Custom page width                    |
-| pdfHeight   | number  | No       | -       | Custom page height                   |
-| pdfCompress | boolean | No       | true    | Compress PDF output with ghostscript |
+| Parameter | Type   | Required | Default | Description              |
+| --------- | ------ | -------- | ------- | ------------------------ |
+| pdfFormat | string | No       | -       | Paper format (e.g. 'a4') |
+| pdfMargin | object | No       | -       | Page margins             |
+| pdfWidth  | number | No       | -       | Custom page width        |
+| pdfHeight | number | No       | -       | Custom page height       |
 
 #### Response
 

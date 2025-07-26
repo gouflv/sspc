@@ -4,15 +4,16 @@ A service that manages capture jobs in a queue.
 
 ## Configuration
 
-| Environment Variable | Description                   | Default                       |
-| -------------------- | ----------------------------- | ----------------------------- |
-| PORT                 | API server port               | 3001                          |
-| LOG_LEVEL            | Logging level                 | info                          |
-| REDIS_URL            | Redis connection URL          | redis://localhost:6379        |
-| JOB_EXPIRE           | Job expiration time (seconds) | 1d                            |
-| JOB_ATTEMPTS         | Max job retry attempts        | 1                             |
-| CAPTURE_ENDPOINT     | Page capture service URL      | http://localhost:3000/capture |
-| CAPTURE_CONCURRENCY  | Max concurrent capture tasks  | 4                             |
+| Environment Variable | Description                      | Default                       |
+| -------------------- | -------------------------------- | ----------------------------- |
+| PORT                 | API server port                  | 3001                          |
+| LOG_LEVEL            | Logging level                    | info                          |
+| REDIS_URL            | Redis connection URL             | redis://localhost:6379        |
+| JOB_EXPIRE           | Job expiration time (seconds)    | 1d                            |
+| JOB_ATTEMPTS         | Max job retry attempts           | 1                             |
+| CAPTURE_ENDPOINT     | Page capture service URL         | http://localhost:3000/capture |
+| CAPTURE_CONCURRENCY  | Max concurrent capture tasks     | 4                             |
+| COMPRESS_CONCURRENCY | Max concurrent compression tasks | 2                             |
 
 ## API Reference
 
@@ -22,40 +23,34 @@ Create a new capture job for one or multiple pages.
 
 #### Headers
 
-| Name         | Value            | Required |
-| ------------ | ---------------- | -------- |
-| Content-Type | application/json | Yes      |
+| Name         | Value            |
+| ------------ | ---------------- |
+| Content-Type | application/json |
 
 #### Request Body
 
 ```typescript
 {
-  // Required: Array of pages to capture
-  pages: Array<{
-    url: string,   // Target webpage URL
-    name: string   // Output filename
-  }>,
+  // Pages to capture
+  url: string,   // Target webpage URL
 
-  // Optional capture settings
-  viewportWidth?: number,
-  viewportHeight?: number,
-  timeout?: number,        // Default: 30_000
-  captureFormat?: string,  // 'png'|'jpeg'|'pdf', Default: 'png'
-  quality?: number,        // 1-100, Default: 100
+  // Capture options
+  captureFormat?: string,  // 'png' | 'jpeg' | 'pdf', Default is 'png'
   captureElementSelector?: string,
 
   // PDF specific options
   pdfFormat?: string,      // e.g. 'a4'
-  pdfMargin?: {
-    top: number,
-    right: number,
-    bottom: number,
-    left: number
-  },
-  pdfWidth?: number,
-  pdfHeight?: number
+  pdfCompress?: boolean
 }
 ```
+
+To view the full list of options, refer to the [PPTR Documentation](../pptr/README.md#request-parameters)
+
+Additional Options
+
+| Option      | Type    | Description                                       | Default |
+| ----------- | ------- | ------------------------------------------------- | ------- |
+| pdfCompress | boolean | When true, compresses the PDF to reduce file size | false   |
 
 #### Response
 
@@ -63,7 +58,7 @@ Create a new capture job for one or multiple pages.
 {
   success: true,
   data: {
-    id: string  // Job ID for status checks and downloads
+    id: string  // Job ID for status checks and artifact downloads
   }
 }
 ```
@@ -80,32 +75,12 @@ Get current job status and progress.
   data: {
     id: string,
     status: 'pending' | 'running' | 'completed' | 'failed',
-    error: string,
-    progress: {
-      total: number,
-      pending: number,
-      running: number,
-      completed: number,
-      failed: number
-    }
+    error: string
   }
 }
 ```
 
-### Download Result (`GET /jobs/:id/artifact`)
-
-Download captured files. Returns ZIP for multiple pages, direct file otherwise.
-
-#### Response
-
-Content-Type:
-
-- For multiple pages
-  - `application/zip`
-- Single page capture
-  - `image/png`
-  - `image/jpeg`
-  - `application/pdf`
+### Download Artifact (`GET /jobs/:id/artifact`)
 
 #### Response
 
@@ -120,25 +95,13 @@ Body: <Binary File>
 
 - Artifact not found
 
-### Cancel Job (`GET /jobs/:id/cancel`)
-
-Cancel a running job.
-
-#### Response
-
-```typescript
-{
-  success: true
-}
-```
-
 ### Create Urgent Job (`POST /jobs/urgent`)
 
-Create a job in highest priority. Will wait fot it complete, then return the artifact. Only one page allowed in pre job.
+Create a job in highest priority. Will wait fot it complete, then return the artifact.
 
 #### Request Body
 
-Same as `POST /jobs`.
+Same as [Create Job](#create-job-post-jobs).
 
 #### Response
 
@@ -160,7 +123,7 @@ Body: <Binary File>
 
 ### Dashboard (`GET /ui`)
 
-Web interface for queue monitoring and job management.
+Web interface for queue monitoring.
 
 ## References
 
