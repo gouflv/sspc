@@ -8,20 +8,19 @@ RUN npm install -g pnpm@latest-10
 FROM ghcr.io/puppeteer/puppeteer:$PUPPETEER_VERSION AS browser
 USER root
 RUN npm install -g pnpm@latest-10
-RUN apt install -y --no-install-recommends fonts-noto-cjk 
+RUN apt update && apt install -y --no-install-recommends fonts-noto-cjk 
 RUN fc-cache -fv
 
 # Build
 FROM base AS build
 WORKDIR /usr/src/app
 COPY . .
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install
 RUN pnpm deploy --filter=pptr --prod /prod/pptr --legacy 
 RUN pnpm deploy --filter=queue --prod /prod/queue --legacy 
 
 # PPTR
 FROM browser AS pptr
-RUN apt install -y ghostscript
 ENV PUPPETEER_CACHE_DIR=/home/pptruser/.cache/puppeteer
 COPY --from=build /prod/pptr /app
 WORKDIR /app
@@ -35,6 +34,7 @@ ENTRYPOINT ["pnpm", "start"]
 
 # Queue
 FROM base AS queue
+RUN apt update && apt install -y ghostscript
 COPY --from=build /prod/queue /app
 WORKDIR /app
 ENTRYPOINT ["pnpm", "start"]

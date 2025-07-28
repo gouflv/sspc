@@ -1,6 +1,6 @@
 services:
   pptr:
-    image: gouflv/sspc-pptr:1.0.14-bundle
+    image: gouflv/sspc-pptr:1.0.16-bundle
     container_name: pptr
     init: true
     volumes:
@@ -31,7 +31,7 @@ services:
       - sspc-network
 
   queue:
-    image: gouflv/sspc-queue:1.0.10
+    image: gouflv/sspc-queue:1.1.1
     container_name: queue
     volumes:
       - ./data/queue:/app/data
