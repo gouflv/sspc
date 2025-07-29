@@ -9,7 +9,7 @@ import {
   Status,
   TaskIdentity,
 } from "../types"
-import { generateCaptureTaskKey } from "../utils/key"
+import { generateCaptureCancelKey, generateCaptureTaskKey } from "../utils/key"
 import { createStepEntities, StepEntity, StepStorage } from "./Step"
 
 export type TaskEntity = {
@@ -122,6 +122,25 @@ async function update(
   return updated
 }
 
+async function cancel(id: TaskIdentity) {
+  const task = await get(id)
+  if (!task) {
+    throw new Error("Task not found")
+  }
+  await redis.client.set(
+    generateCaptureCancelKey(id),
+    "1",
+    "EX",
+    env.TASK_EXPIRE,
+  )
+}
+
+async function isCancelled(id: TaskIdentity) {
+  const cancelKey = generateCaptureCancelKey(id)
+  const exists = await redis.client.exists(cancelKey)
+  return exists > 0
+}
+
 function fromJSON(json: Record<string, any>, steps: StepEntity[]) {
   return {
     ...(json as any),
@@ -143,4 +162,6 @@ export const TaskStorage = {
   get,
   save,
   update,
+  cancel,
+  isCancelled,
 }

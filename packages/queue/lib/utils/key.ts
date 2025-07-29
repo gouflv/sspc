@@ -24,3 +24,7 @@ export function generateCaptureStepKey(
 export function isCaptureTaskKey(key: string): key is TaskIdentity {
   return /^capture:[0-9]{12}:[0-9a-f]{10}$/.test(key)
 }
+
+export function generateCaptureCancelKey(taskId: TaskIdentity): string {
+  return `${taskId}:cancel`
+}

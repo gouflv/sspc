@@ -11,7 +11,7 @@ import { toFilename } from "../utils/file"
 import logger from "../utils/logger"
 import { markStepAsFailed } from "../utils/status"
 
-export const captureWorker = new Worker<any, WorkerResult>(
+export const captureWorker = new Worker<any, WorkerResult | undefined>(
   "capture",
   async function (queueJob: QueueJob) {
     const stepId = queueJob.name as StepIdentity
@@ -27,6 +27,13 @@ export const captureWorker = new Worker<any, WorkerResult>(
       const task = await TaskStorage.get(step.taskId)
       if (!task) {
         throw new Error(`Task not found: ${step.taskId}`)
+      }
+
+      // Check if task is cancelled
+      const cancelled = await TaskStorage.isCancelled(task.id)
+      if (cancelled) {
+        logger.info("[worker:capture] task is cancelled", { taskId: task.id })
+        return
       }
 
       // Update status
@@ -73,6 +80,7 @@ export const captureWorker = new Worker<any, WorkerResult>(
       const error = e as Error
       logger.error("[worker:capture] failed", { step: stepId, error })
       markStepAsFailed(stepId, error)
+      // Re-throw the error to let BullMQ handle it
       throw e
     }
   },

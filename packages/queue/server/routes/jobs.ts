@@ -77,6 +77,22 @@ jobs.get("/:id/artifact", async (c) => {
 })
 
 /**
+ * Cancel a job
+ */
+jobs.get("/:id/cancel", async (c) => {
+  const id = c.req.param("id")
+  try {
+    if (!isCaptureTaskKey(id)) {
+      return c.json({ success: false, error: "Invalid job ID" }, 400)
+    }
+    await TaskStorage.cancel(id)
+    return c.json({ success: true, message: "Job cancelled successfully" })
+  } catch (e) {
+    return c.json({ success: false, error: (e as Error).message }, 400)
+  }
+})
+
+/**
  * create job and wait for completion, then return artifact
  */
 jobs.post("/urgent", validate("json", queueCaptureParamsSchema), async (c) => {

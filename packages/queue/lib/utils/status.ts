@@ -15,7 +15,12 @@ export async function getTaskStatus(id: TaskIdentity): Promise<TaskStatus> {
   if (!task) {
     throw new Error(`Task not found: ${id}`)
   }
-  return pick(task, ["id", "status", "error", "createdAt", "finishedAt"])
+  const data = pick(task, ["id", "status", "error", "createdAt", "finishedAt"])
+  const isCancelled = await TaskStorage.isCancelled(id)
+  if (isCancelled) {
+    data.status = "cancelled"
+  }
+  return data
 }
 
 export async function markStepAsFailed(stepId: StepIdentity, error: Error) {

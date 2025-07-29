@@ -12,7 +12,12 @@ export type QueueCaptureInputParamsType = z.input<
 >
 export type QueueCaptureParamsType = z.infer<typeof queueCaptureParamsSchema>
 
-export type Status = "pending" | "running" | "completed" | "failed" | "canceled"
+export type Status =
+  | "pending"
+  | "running"
+  | "completed"
+  | "failed"
+  | "cancelled"
 
 //
 // Unique identifiers for entities
