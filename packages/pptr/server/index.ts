@@ -32,7 +32,6 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
   try {
     const metrics = {
       start: Date.now(),
-      browserStart: 0,
       browserInit: 0,
       pageLoadStart: 0,
       pageLoadEnd: 0,
@@ -43,31 +42,30 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
       end: 0,
     }
 
-    metrics.browserStart = Date.now()
-
     // ================================
     // Initialize the browser page
     // ================================
     const _browser = await pool.acquire()
     browser = _browser
-
     const context = await _browser.createBrowserContext()
     const page = await context.newPage()
-
     initPage(page, params)
 
     metrics.browserInit = Date.now()
 
     // ================================
-    // Navigate to the URL
+    // Navigate and waiting
     // ================================
     metrics.pageLoadStart = Date.now()
     await page.goto(params.url, { waitUntil: "networkidle0" })
     if (params.readySelector) {
       await page.waitForSelector(params.readySelector)
+    } else if (params.waitFor) {
+      await page.waitForSelector(params.waitFor.selector, {
+        timeout: params.waitFor.timeout,
+      })
     }
     await waitForImagesToLoad(page)
-
     metrics.pageLoadEnd = Date.now()
 
     // ================================
@@ -83,7 +81,7 @@ app.post("/capture", validate("json", captureParamsSchema), async (c) => {
     metrics.end = Date.now()
 
     const duration = {
-      browserInit: metrics.browserInit - metrics.browserStart,
+      browserInit: metrics.browserInit - metrics.start,
       pageLoad: metrics.pageLoadEnd - metrics.pageLoadStart,
       capture: metrics.captureEnd - metrics.captureStart,
       pdfCompress: metrics.pdfCompressEnd - metrics.pdfCompressStart,
@@ -141,12 +139,3 @@ serve(
     console.log(`Server is running on ${info.port}`)
   },
 )
-
-const shutdown = async (signal: string) => {
-  console.log(`Received ${signal}, closing...\n`)
-  await pool.drain()
-  await pool.clear()
-  process.exit(0)
-}
-process.on("SIGINT", shutdown)
-process.on("SIGTERM", shutdown)

@@ -33,6 +33,9 @@ importers:
       tsx:
         specifier: ^4.20.3
         version: 4.20.3
+      user-agents:
+        specifier: ^1.1.615
+        version: 1.1.615
       winston:
         specifier: ^3.17.0
         version: 3.17.0
@@ -49,6 +52,9 @@ importers:
       '@types/node':
         specifier: ^22.16.5
         version: 22.16.5
+      '@types/user-agents':
+        specifier: ^1.0.4
+        version: 1.0.4
       autocannon:
         specifier: ^8.0.0
         version: 8.0.0
@@ -820,6 +826,9 @@ packages:
 
   '@types/triple-beam@1.3.5':
     resolution: {integrity: sha512-6WaYesThRMCl19iryMYP7/x2OVgCtbIVflDGFpWnb9irXI3UjYE4AzmYuiUKY1AJstGijoY+MgUszMgRxIYTYw==}
+
+  '@types/user-agents@1.0.4':
+    resolution: {integrity: sha512-AjeFc4oX5WPPflgKfRWWJfkEk7Wu82fnj1rROPsiqFt6yElpdGFg8Srtm/4PU4rA9UiDUZlruGPgcwTMQlwq4w==}
 
   '@types/yauzl@2.10.3':
     resolution: {integrity: sha512-oJoftv0LSuaDZE3Le4DbKX+KS9G36NzOeSap90UIK0yMA/NhKJhqlSGtNDORNRaIbQfzjXDrQa0ytJ6mNRGz/Q==}
@@ -2235,6 +2244,9 @@ packages:
     peerDependencies:
       browserslist: '>= 4.21.0'
 
+  user-agents@1.1.615:
+    resolution: {integrity: sha512-V4GnehRl9U2124nhK65ufmaZGdPIi++zdUktWF0jzJKYCclWLoCmgoLUlVtDYPIQFdnGJ57ahwyPd5E5V02Cog==}
+
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
@@ -2998,6 +3010,8 @@ snapshots:
       '@types/node': 22.16.5
 
   '@types/triple-beam@1.3.5': {}
+
+  '@types/user-agents@1.0.4': {}
 
   '@types/yauzl@2.10.3':
     dependencies:
@@ -4469,6 +4483,10 @@ snapshots:
       browserslist: 4.24.5
       escalade: 3.2.0
       picocolors: 1.1.1
+
+  user-agents@1.1.615:
+    dependencies:
+      lodash.clonedeep: 4.5.0
 
   util-deprecate@1.0.2: {}
 

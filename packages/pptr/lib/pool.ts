@@ -21,3 +21,12 @@ pool.on("factoryCreateError", (e) => {
 pool.on("factoryDestroyError", (e) => {
   logger.error("Factory destroy error", e)
 })
+
+const shutdown = async (signal: string) => {
+  console.log(`Received ${signal}, closing...\n`)
+  await pool.drain()
+  await pool.clear()
+  process.exit(0)
+}
+process.on("SIGINT", shutdown)
+process.on("SIGTERM", shutdown)
