@@ -103,11 +103,11 @@ async function createResponse(artifact: Artifact) {
   const stream = createReadStream(path)
   return new Response(stream, {
     headers: {
-      "Content-Type":
+      "content-type":
         artifact.contentType ||
         mime.getType(artifact.filename) ||
         "application/octet-stream",
-      "Content-Length": String(artifact.size),
+      "content-length": String(artifact.size),
     },
   })
 }

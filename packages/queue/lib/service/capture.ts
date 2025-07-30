@@ -29,7 +29,7 @@ async function capture(
     const response = await axios.post(url, params, {
       responseType: "stream",
       headers: {
-        "Content-Type": "application/json",
+        "content-type": "application/json",
         "request-id": id,
       },
     })

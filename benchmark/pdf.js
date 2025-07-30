@@ -6,7 +6,7 @@ const instance = autocannon({
   url: `http://${LOCAL ? "localhost" : "10.0.28.121"}:3001/jobs/urgent`,
   method: "POST",
   headers: {
-    "Content-Type": "application/json; charset=utf-8",
+    "content-type": "application/json; charset=utf-8",
   },
   body: JSON.stringify({
     url: "https://news.baidu.com/",
