@@ -7,11 +7,11 @@ const envSchema = z.object({
 
   LOG_LEVEL: z.enum(["error", "warn", "info", "debug"]).default("info"),
 
-  REDIS_URL: z.string().url().default("redis://localhost:6379"),
+  REDIS_URL: z.url().default("redis://localhost:6379"),
 
   /**
    * Capture task expiration time in seconds.
-   * Default is 7 days
+   * Default is 1 hour in production, 10 minutes in development.
    */
   TASK_EXPIRE: z.coerce
     .number()
@@ -20,7 +20,7 @@ const envSchema = z.object({
     .default(
       process.env.NODE_ENV === "development"
         ? 10 * 60 // 10 mins
-        : 7 * 24 * 60 * 60, // 7 days
+        : 24 * 60 * 60, // 1 day
     ),
 
   /**
@@ -36,7 +36,7 @@ const envSchema = z.object({
   /**
    * Capture service endpoint.
    */
-  CAPTURE_ENDPOINT: z.string().url().default("http://localhost:3000/capture"),
+  CAPTURE_ENDPOINT: z.url().default("http://localhost:3000/capture"),
 
   /**
    * Concurrency for capture worker.
@@ -46,6 +46,7 @@ const envSchema = z.object({
 
   /**
    * Concurrency for compress worker.
+   * Default is 2
    */
   COMPRESS_CONCURRENCY: z.coerce.number().int().positive().default(2),
 })
