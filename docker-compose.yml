@@ -40,7 +40,8 @@ services:
       - NODE_ENV=production
       - REDIS_URL=redis://redis:6379
       - CAPTURE_ENDPOINT=http://pptr:3000/capture
-      - CAPTURE_CONCURRENCY=12
+      - CAPTURE_CONCURRENCY=10
+      - COMPRESS_CONCURRENCY=10
     restart: unless-stopped
     ports:
       - "3001:3001"
