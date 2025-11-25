@@ -1,10 +1,12 @@
 import { createLogger, format, transports } from "winston"
 import { env } from "./env"
 
-const file = new URL("../logs/pptr.log", import.meta.url).pathname
+const DEV = env.NODE_ENV === "development"
 
-const level =
-  env.LOG_LEVEL || (env.NODE_ENV === "development" ? "debug" : "info")
+const logPath = new URL("../logs/pptr.log", import.meta.url).pathname
+
+const level = env.LOG_LEVEL || (DEV ? "debug" : "info")
+const sizeLimit = 50 * 1024 * 1024 // 50MB
 
 const logger = createLogger({
   level,
@@ -15,13 +17,17 @@ const logger = createLogger({
     format.json(),
   ),
   transports: [
-    new transports.Console({
-      format: format.combine(format.colorize(), format.simple()),
-    }),
     new transports.File({
-      filename: file,
-      maxsize: 10 * 1024 * 1024, // 10MB
+      filename: logPath,
+      maxsize: sizeLimit,
     }),
+    ...(DEV
+      ? [
+          new transports.Console({
+            format: format.combine(format.colorize(), format.simple()),
+          }),
+        ]
+      : []),
   ],
 })
 
