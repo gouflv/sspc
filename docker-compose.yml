@@ -13,7 +13,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${CPUS:-8.00}"
+          cpus: "${CPUS:-4.00}"
           memory: 8G
     networks:
       - sspc-network

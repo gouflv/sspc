@@ -1,13 +1,13 @@
 ARG PUPPETEER_VERSION=24.2.0
 
 # Base
-FROM node:22-slim AS base
-RUN npm install -g pnpm@latest-10
+FROM --platform=$BUILDPLATFORM node:22.19.0-slim AS base
+RUN npm install -g pnpm@10.22.0
 
-# Browser
-FROM ghcr.io/puppeteer/puppeteer:$PUPPETEER_VERSION AS browser
+# Browser Base
+FROM --platform=$BUILDPLATFORM ghcr.io/puppeteer/puppeteer:$PUPPETEER_VERSION AS browser
 USER root
-RUN npm install -g pnpm@latest-10
+RUN npm install -g pnpm@10.22.0
 RUN apt update && apt install -y --no-install-recommends fonts-noto-cjk 
 RUN fc-cache -fv
 
