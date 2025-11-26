@@ -46,9 +46,14 @@ const envSchema = z.object({
 
   /**
    * Concurrency for compress worker.
-   * Default is 2
+   * Default is 4
    */
-  COMPRESS_CONCURRENCY: z.coerce.number().int().positive().default(2),
+  COMPRESS_CONCURRENCY: z.coerce.number().int().positive().default(4),
+
+  /**
+   * Node name for clustering.
+   */
+  NODE_NAME: z.string().optional(),
 })
 
 const parseResult = envSchema.safeParse(process.env)

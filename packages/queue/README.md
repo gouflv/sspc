@@ -14,6 +14,7 @@ A service that manages capture jobs in a queue.
 | CAPTURE_ENDPOINT     | Page capture service URL         | http://localhost:3000/capture |
 | CAPTURE_CONCURRENCY  | Max concurrent capture tasks     | 4                             |
 | COMPRESS_CONCURRENCY | Max concurrent compression tasks | 2                             |
+| NODE_NAME            | Node name for clustering         |                               |
 
 ## API Reference
 

@@ -9,18 +9,33 @@ import jobs from "./routes/jobs"
 
 // Setups
 import "../lib/events"
+import QueueMan from "../lib/queueMan"
 import "../lib/workers"
 
 const app = new Hono()
 
 app.use("/*", timeout(d("5 mins")))
 app.use("*", cors())
+app.use("*", async (c, next) => {
+  await next()
+  c.header("sspc-node", env.NODE_NAME || "default")
+})
 
 app.get("/", (c) => {
   return c.text("Hello, world!")
 })
 
 app.route("/jobs", jobs)
+
+app.get("/health", async (c) => {
+  const captureCount = await QueueMan.queue.capture.getJobCounts("wait")
+  const compressCount = await QueueMan.queue.compress.getJobCounts("wait")
+  const wait = (captureCount.wait ?? 0) + (compressCount.wait ?? 0)
+  return c.json({
+    success: true,
+    data: { wait },
+  })
+})
 
 setupBullBoard(app)
 
