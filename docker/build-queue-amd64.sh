@@ -15,5 +15,5 @@ docker buildx build \
   --platform linux/amd64 \
   -t gouflv/sspc-queue:$VERSION \
   --target queue \
-  --output type=tar,dest=./build/sspc-queue:$VERSION.tar \
+  --output type=docker,dest=./build/sspc-queue:$VERSION.tar \
   . 
