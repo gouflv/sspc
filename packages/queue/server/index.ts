@@ -28,9 +28,8 @@ app.get("/", (c) => {
 app.route("/jobs", jobs)
 
 app.get("/health", async (c) => {
-  const captureCount = await QueueMan.queue.capture.getJobCounts("wait")
-  const compressCount = await QueueMan.queue.compress.getJobCounts("wait")
-  const wait = (captureCount.wait ?? 0) + (compressCount.wait ?? 0)
+  const root = QueueMan.queue.root
+  const wait = await root.getWaitingChildrenCount()
   return c.json({
     success: true,
     data: { wait },
