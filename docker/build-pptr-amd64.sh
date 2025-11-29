@@ -13,7 +13,7 @@ fi
 
 docker buildx build \
   --platform linux/amd64 \
-  -t gouflv/sspc-pptr:$VERSION-bundle \
+  -t gouflv/sspc-pptr:$VERSION \
   --target pptr-bundle \
-  --output type=docker,dest=./build/sspc-pptr:$VERSION-bundle.tar \
+  --output type=docker,dest=./build/sspc-pptr:$VERSION.tar \
   .
