@@ -10,10 +10,10 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: ^1.17.1
-        version: 1.17.1(hono@4.8.5)
+        version: 1.17.1(hono@4.12.0)
       '@hono/zod-validator':
         specifier: ^0.7.2
-        version: 0.7.2(hono@4.8.5)(zod@4.0.5)
+        version: 0.7.2(hono@4.12.0)(zod@4.0.5)
       dayjs:
         specifier: ^1.11.13
         version: 1.11.13
@@ -21,8 +21,8 @@ importers:
         specifier: ^17.2.0
         version: 17.2.0
       hono:
-        specifier: ^4.8.5
-        version: 4.8.5
+        specifier: ^4.11.10
+        version: 4.12.0
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
@@ -98,7 +98,7 @@ importers:
         version: 6.11.2(@bull-board/ui@6.11.2)
       '@bull-board/hono':
         specifier: ^6.11.2
-        version: 6.11.2(hono@4.8.5)
+        version: 6.11.2(hono@4.12.0)
       '@sspc/core':
         specifier: workspace:*
         version: link:../core
@@ -1487,8 +1487,8 @@ packages:
   hdr-histogram-percentiles-obj@3.0.0:
     resolution: {integrity: sha512-7kIufnBqdsBGcSZLPJwqHT3yhk1QTsSlFsVD3kx5ixH/AlgBs9yM1q6DPhXZ8f8gtdqgh7N7/5btRLpQsS2gHw==}
 
-  hono@4.8.5:
-    resolution: {integrity: sha512-Up2cQbtNz1s111qpnnECdTGqSIUIhZJMLikdKkshebQSEBcoUKq6XJayLGqSZWidiH0zfHRCJqFu062Mz5UuRA==}
+  hono@4.12.0:
+    resolution: {integrity: sha512-NekXntS5M94pUfiVZ8oXXK/kkri+5WpX2/Ik+LVsl+uvw+soj4roXIsPqO+XsWrAw20mOzaXOZf3Q7PfB9A/IA==}
     engines: {node: '>=16.9.0'}
 
   hookable@5.5.3:
@@ -2649,12 +2649,12 @@ snapshots:
       '@bull-board/ui': 6.11.2
       redis-info: 3.1.0
 
-  '@bull-board/hono@6.11.2(hono@4.8.5)':
+  '@bull-board/hono@6.11.2(hono@4.12.0)':
     dependencies:
       '@bull-board/api': 6.11.2(@bull-board/ui@6.11.2)
       '@bull-board/ui': 6.11.2
       ejs: 3.1.10
-      hono: 4.8.5
+      hono: 4.12.0
 
   '@bull-board/ui@6.11.2':
     dependencies:
@@ -2746,13 +2746,13 @@ snapshots:
   '@esbuild/win32-x64@0.25.0':
     optional: true
 
-  '@hono/node-server@1.17.1(hono@4.8.5)':
+  '@hono/node-server@1.17.1(hono@4.12.0)':
     dependencies:
-      hono: 4.8.5
+      hono: 4.12.0
 
-  '@hono/zod-validator@0.7.2(hono@4.8.5)(zod@4.0.5)':
+  '@hono/zod-validator@0.7.2(hono@4.12.0)(zod@4.0.5)':
     dependencies:
-      hono: 4.8.5
+      hono: 4.12.0
       zod: 4.0.5
 
   '@ioredis/commands@1.2.0': {}
@@ -3775,7 +3775,7 @@ snapshots:
 
   hdr-histogram-percentiles-obj@3.0.0: {}
 
-  hono@4.8.5: {}
+  hono@4.12.0: {}
 
   hookable@5.5.3: {}
 
