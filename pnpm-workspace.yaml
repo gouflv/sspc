@@ -1,2 +1,7 @@
 packages:
   - "packages/*"
+allowBuilds:
+  '@tailwindcss/oxide': true
+  compress-pdf: true
+  esbuild: true
+  msgpackr-extract: true
