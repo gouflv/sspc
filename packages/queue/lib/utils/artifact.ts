@@ -13,6 +13,16 @@ function getFilePath(filename: string) {
   return join(BasePath, filename)
 }
 
+function replaceFilename(filename: string, newName: string) {
+  const extIndex = filename.lastIndexOf(".")
+  const ext = extIndex >= 0 ? filename.slice(extIndex) : ""
+
+  const baseIndex = newName.lastIndexOf(".")
+  const base = baseIndex >= 0 ? newName.slice(0, baseIndex) : newName
+
+  return ext ? `${base}${ext}` : base
+}
+
 async function save(stream: Stream.Readable, filename: string) {
   const path = getFilePath(filename)
   try {
@@ -118,5 +128,6 @@ const Artifact = {
   removeByTaskKey: removeByPattern,
   createResponse,
   resolveFilePath: getFilePath,
+  replaceFilename,
 }
 export default Artifact
