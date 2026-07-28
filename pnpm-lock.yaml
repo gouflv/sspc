@@ -24,8 +24,8 @@ importers:
         specifier: ^4.8.5
         version: 4.8.5
       lodash-es:
-        specifier: ^4.17.21
-        version: 4.17.21
+        specifier: ^4.17.23
+        version: 4.17.23
       mime:
         specifier: ^4.0.7
         version: 4.0.7
@@ -98,7 +98,7 @@ importers:
         version: 6.11.2(@bull-board/ui@6.11.2)
       '@bull-board/hono':
         specifier: ^6.11.2
-        version: 6.11.2(hono@4.8.5)
+        version: 6.11.2(hono@4.11.4)
       '@sspc/core':
         specifier: workspace:*
         version: link:../core
@@ -1487,6 +1487,10 @@ packages:
   hdr-histogram-percentiles-obj@3.0.0:
     resolution: {integrity: sha512-7kIufnBqdsBGcSZLPJwqHT3yhk1QTsSlFsVD3kx5ixH/AlgBs9yM1q6DPhXZ8f8gtdqgh7N7/5btRLpQsS2gHw==}
 
+  hono@4.11.4:
+    resolution: {integrity: sha512-U7tt8JsyrxSRKspfhtLET79pU8K+tInj5QZXs1jSugO1Vq5dFj3kmZsRldo29mTBfcjDRVRXrEZ6LS63Cog9ZA==}
+    engines: {node: '>=16.9.0'}
+
   hono@4.8.5:
     resolution: {integrity: sha512-Up2cQbtNz1s111qpnnECdTGqSIUIhZJMLikdKkshebQSEBcoUKq6XJayLGqSZWidiH0zfHRCJqFu062Mz5UuRA==}
     engines: {node: '>=16.9.0'}
@@ -1685,8 +1689,8 @@ packages:
     resolution: {integrity: sha512-xi6IyHML+c9+Q3W0S4fCQJOym42pyurFiJUHEcEyHS0CeKzia4yZDEsLlqOFykxOdHpNy0NmvVO31vcSqAxJCg==}
     engines: {node: '>= 12.0.0'}
 
-  lodash-es@4.17.21:
-    resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
+  lodash-es@4.17.23:
+    resolution: {integrity: sha512-kVI48u3PZr38HdYz98UmfPnXl2DXrpdctLrFLCd3kOx1xUkOmpFPx7gCWWM5MPkL/fD8zb+Ph0QzjGFs4+hHWg==}
 
   lodash.chunk@4.2.0:
     resolution: {integrity: sha512-ZzydJKfUHJwHa+hF5X66zLFCBrWn5GeF28OHEr4WVWtNDXlQ/IjWKPBiikqKo2ne0+v6JgCgJ0GzJp8k8bHC7w==}
@@ -2649,12 +2653,12 @@ snapshots:
       '@bull-board/ui': 6.11.2
       redis-info: 3.1.0
 
-  '@bull-board/hono@6.11.2(hono@4.8.5)':
+  '@bull-board/hono@6.11.2(hono@4.11.4)':
     dependencies:
       '@bull-board/api': 6.11.2(@bull-board/ui@6.11.2)
       '@bull-board/ui': 6.11.2
       ejs: 3.1.10
-      hono: 4.8.5
+      hono: 4.11.4
 
   '@bull-board/ui@6.11.2':
     dependencies:
@@ -3775,6 +3779,8 @@ snapshots:
 
   hdr-histogram-percentiles-obj@3.0.0: {}
 
+  hono@4.11.4: {}
+
   hono@4.8.5: {}
 
   hookable@5.5.3: {}
@@ -3938,7 +3944,7 @@ snapshots:
       lightningcss-win32-arm64-msvc: 1.30.1
       lightningcss-win32-x64-msvc: 1.30.1
 
-  lodash-es@4.17.21: {}
+  lodash-es@4.17.23: {}
 
   lodash.chunk@4.2.0: {}
 
